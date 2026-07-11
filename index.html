@@ -164,6 +164,12 @@
   .empty-state{ text-align:center; padding: 26px 10px; color: var(--label-secondary); font-size:12px; background: var(--bg-elevated); border-radius:16px; }
   .empty-state button{ margin-top:12px; }
 
+  .lock-screen{ display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:65vh; padding: 40px 24px; text-align:center; }
+  .lock-title{ font-size:17px; font-weight:700; margin-bottom:6px; }
+  .lock-sub{ font-size:11px; color: var(--label-secondary); margin-bottom:22px; max-width:260px; }
+  .pin-input{ width:180px; text-align:center; letter-spacing:12px; font-size:20px; font-weight:700; background: var(--bg-elevated-2); border:none; border-radius:12px; padding:14px 14px 14px 26px; color: var(--label); }
+  .pin-input:focus{ outline:2px solid var(--blue); }
+
   /* FAB */
   #fab{
     position:absolute; bottom:calc(28px + env(safe-area-inset-bottom)); right:calc(22px + env(safe-area-inset-right)); width:58px; height:58px; border-radius:50%;
@@ -351,32 +357,18 @@ async function loadState(){
     render();
     return;
   }
-  try{
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-    try{
-      await db.enablePersistence({ synchronizeTabs: true });
-    }catch(e){
-      console.warn('Offline persistence unavailable:', e.code);
+  const docRef = db.collection('family-finance').doc('shared-data');
+  docRef.onSnapshot((doc)=>{
+    if(doc.exists){
+      state = Object.assign(defaultState(), doc.data());
     }
-    await firebase.auth().signInAnonymously();
-    const docRef = db.collection('family-finance').doc('shared-data');
-    docRef.onSnapshot((doc)=>{
-      if(doc.exists){
-        state = Object.assign(defaultState(), doc.data());
-      }
-      clearSetupBanner();
-      render();
-    }, (err)=>{
-      console.error('Sync error', err);
-      showSetupBanner('Could not connect. Check your Firebase config and security rules.');
-      render();
-    });
-  }catch(e){
-    console.error('Firebase init failed', e);
-    showSetupBanner('Could not connect. Check your Firebase config.');
+    clearSetupBanner();
     render();
-  }
+  }, (err)=>{
+    console.error('Sync error', err);
+    showSetupBanner('Could not connect. Check your Firestore security rules.');
+    render();
+  });
 }
 
 async function saveState(){
@@ -1071,6 +1063,7 @@ function openSettingsSheet(){
     <input type="text" id="curSym" value="${esc(state.settings.currency)}">
     <div class="hint">This data is shared between everyone who opens this app — that's how you and your partner see the same balances.</div>
     <button class="btn-primary" id="setSave">Save</button>
+    <button class="btn-text-danger" id="signOutBtn">Sign out</button>
   `;
   showSheet(html, (wrap)=>{
     wrap.querySelector('#setSave').onclick = ()=>{
@@ -1079,6 +1072,10 @@ function openSettingsSheet(){
       const cur = wrap.querySelector('#curSym').value.trim() || 'Rp';
       state.settings.person1 = p1; state.settings.person2 = p2; state.settings.currency = cur;
       saveState(); render(); closeSheet(wrap);
+    };
+    wrap.querySelector('#signOutBtn').onclick = ()=>{
+      closeSheet(wrap);
+      signOutApp();
     };
   });
 }
@@ -1089,7 +1086,102 @@ if('serviceWorker' in navigator){
   });
 }
 
-loadState();
+// ---------- LOGIN (email/password, resets daily) ----------
+const LOGIN_KEY = 'app-login-timestamp';
+const LOGIN_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function recordLogin(){
+  try{ localStorage.setItem(LOGIN_KEY, String(Date.now())); }catch(e){}
+}
+
+function loginExpired(){
+  try{
+    const ts = Number(localStorage.getItem(LOGIN_KEY));
+    if(!ts) return true;
+    return (Date.now() - ts) > LOGIN_DURATION_MS;
+  }catch(e){ return true; }
+}
+
+function clearLoginRecord(){
+  try{ localStorage.removeItem(LOGIN_KEY); }catch(e){}
+}
+
+function showLoginScreen(errorMsg){
+  document.getElementById('fab').style.display = 'none';
+  const root = document.getElementById('scroll-area');
+  root.innerHTML = `
+    <div class="lock-screen">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--label-secondary); margin-bottom:14px;"><path d="M4 4h16v16H4z"></path><path d="M22 6l-10 7L2 6"></path></svg>
+      <div class="lock-title">Sign in</div>
+      <div class="lock-sub">Use the email your account was set up with. You'll need to sign in again once a day.</div>
+      <input type="email" id="loginEmail" class="pin-input" style="letter-spacing:normal; width:240px; text-align:left; font-size:15px; padding:12px 14px;" placeholder="name@example.com" autocomplete="username">
+      <div style="height:10px"></div>
+      <input type="password" id="loginPassword" class="pin-input" style="letter-spacing:normal; width:240px; text-align:left; font-size:15px; padding:12px 14px;" placeholder="Password" autocomplete="current-password">
+      <div class="field-error" id="loginErr">${errorMsg ? esc(errorMsg) : ''}</div>
+      <button class="btn-primary" id="loginSubmit" style="max-width:240px;">Sign in</button>
+    </div>
+  `;
+  const emailInput = document.getElementById('loginEmail');
+  const passInput = document.getElementById('loginPassword');
+  const submit = async ()=>{
+    const email = emailInput.value.trim();
+    const password = passInput.value;
+    if(!email || !password){
+      document.getElementById('loginErr').textContent = 'Enter your email and password.';
+      return;
+    }
+    try{
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      recordLogin();
+    }catch(e){
+      document.getElementById('loginErr').textContent = 'Could not sign in. Check your email and password.';
+    }
+  };
+  document.getElementById('loginSubmit').onclick = submit;
+  passInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') submit(); });
+  emailInput.focus();
+}
+
+function afterLogin(){
+  const raw = localStorage.getItem(LOGIN_KEY);
+  if(!raw){
+    recordLogin();
+  } else if(loginExpired()){
+    clearLoginRecord();
+    firebase.auth().signOut();
+    return;
+  }
+  document.getElementById('fab').style.display = '';
+  loadState();
+  setInterval(()=>{
+    if(loginExpired()){
+      clearLoginRecord();
+      firebase.auth().signOut();
+    }
+  }, 5 * 60 * 1000);
+}
+
+function signOutApp(){
+  clearLoginRecord();
+  firebase.auth().signOut();
+}
+
+// ---------- BOOT ----------
+if(!FIREBASE_CONFIGURED){
+  showSetupBanner();
+  render();
+} else {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+  db.enablePersistence({ synchronizeTabs: true }).catch((e)=> console.warn('Offline persistence unavailable:', e.code));
+  firebase.auth().onAuthStateChanged((user)=>{
+    if(user){
+      afterLogin();
+    } else {
+      showLoginScreen();
+    }
+  });
+}
 </script>
 </body>
 </html>
