@@ -88,9 +88,9 @@
 
   /* Section headers */
   .section{ margin-top:26px; }
-  .section-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding: 0 2px; }
-  .section-title{ font-size:18px; font-weight:700; letter-spacing:-0.3px; }
-  .section-action{ font-size:12px; color: var(--blue); font-weight:600; background:none; border:none; cursor:pointer; }
+  .section-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; padding: 0 2px; }
+  .section-title{ font-size:18px; font-weight:700; letter-spacing:-0.3px; min-width:0; }
+  .section-action{ font-size:12px; color: var(--blue); font-weight:600; background:none; border:none; cursor:pointer; flex-shrink:0; white-space:nowrap; }
 
   /* Accounts row */
   .accounts-row{ display:flex; gap:12px; overflow-x:auto; overflow-y:visible; padding: 2px 2px 6px 2px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
@@ -360,6 +360,7 @@ async function loadState(){
       if(doc.exists){
         state = Object.assign(defaultState(), doc.data());
       }
+      clearSetupBanner();
       render();
     }, (err)=>{
       console.error('Sync error', err);
@@ -385,6 +386,11 @@ async function saveState(){
 function showSetupBanner(customMsg){
   const el = document.getElementById('setupBanner');
   if(el) el.textContent = customMsg || "This app isn't connected to a database yet. Open the code and add your Firebase config to start saving data.";
+}
+
+function clearSetupBanner(){
+  const el = document.getElementById('setupBanner');
+  if(el) el.textContent = '';
 }
 
 function fmt(n){
@@ -438,13 +444,13 @@ function shortDate(dateStr){
 }
 
 function filterLabel(filter){
-  if(filter.range === 'last_month') return 'Last month';
-  if(filter.range === 'this_year') return 'This year';
+  if(filter.range === 'last_month') return "Last month's expenses";
+  if(filter.range === 'this_year') return "This year's expenses";
   if(filter.range === 'custom'){
-    if(filter.customStart && filter.customEnd) return shortDate(filter.customStart) + ' – ' + shortDate(filter.customEnd);
-    return 'Custom range';
+    if(filter.customStart && filter.customEnd) return 'Expenses: ' + shortDate(filter.customStart) + ' – ' + shortDate(filter.customEnd);
+    return 'Expenses: custom range';
   }
-  return 'This month';
+  return "This month's expenses";
 }
 
 function filteredSpend(){
