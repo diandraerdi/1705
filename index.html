@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="1705">
-<title>1705 Finances</title>
+<title>Finances</title>
 <style>
   @font-face{
     font-family: 'Stack Sans Text';
@@ -66,7 +66,7 @@
   .icon-btn:active{ transform: scale(0.92); }
   #scroll-area{
     flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
-    padding: 4px 16px 110px 16px;
+    padding: 4px 16px calc(88px + env(safe-area-inset-bottom)) 16px;
   }
   #scroll-area::-webkit-scrollbar{ display:none; }
 
@@ -354,6 +354,11 @@ async function loadState(){
   try{
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
+    try{
+      await db.enablePersistence({ synchronizeTabs: true });
+    }catch(e){
+      console.warn('Offline persistence unavailable:', e.code);
+    }
     await firebase.auth().signInAnonymously();
     const docRef = db.collection('family-finance').doc('shared-data');
     docRef.onSnapshot((doc)=>{
@@ -1075,6 +1080,12 @@ function openSettingsSheet(){
       state.settings.person1 = p1; state.settings.person2 = p2; state.settings.currency = cur;
       saveState(); render(); closeSheet(wrap);
     };
+  });
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch((e)=> console.warn('Service worker registration failed', e));
   });
 }
 
