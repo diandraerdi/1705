@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="1705">
-<title>1705 - Finances</title>
+<title>Finances</title>
 <style>
   @font-face{
     font-family: 'Stack Sans Text';
@@ -52,7 +52,7 @@
   }
   #topbar{
     display:flex; align-items:center; justify-content:space-between;
-    padding: 14px 16px 8px 16px;
+    padding: calc(14px + env(safe-area-inset-top)) 16px 8px 16px;
     flex-shrink:0;
   }
   #topbar h1{ font-size:20px; font-weight:700; margin:0; letter-spacing:-0.4px; }
@@ -166,7 +166,7 @@
 
   /* FAB */
   #fab{
-    position:absolute; bottom:28px; right:22px; width:58px; height:58px; border-radius:50%;
+    position:absolute; bottom:calc(28px + env(safe-area-inset-bottom)); right:calc(22px + env(safe-area-inset-right)); width:58px; height:58px; border-radius:50%;
     background: var(--blue); border:none; color:#084734; font-size:26px; font-weight:400;
     display:flex; align-items:center; justify-content:center; cursor:pointer;
     box-shadow: 0 6px 18px rgba(204,241,128,0.35);
@@ -183,7 +183,7 @@
   .sheet-overlay.open{ opacity:1; pointer-events:auto; }
   .sheet{
     width:100%; max-height:88%; background: var(--bg-elevated); border-radius:20px 20px 0 0;
-    padding: 10px 16px 26px 16px; display:flex; flex-direction:column;
+    padding: 10px 16px calc(26px + env(safe-area-inset-bottom)) 16px; display:flex; flex-direction:column;
     transform: translateY(100%); transition: transform 0.28s cubic-bezier(.32,.72,0,1);
     overflow-y:auto;
   }
