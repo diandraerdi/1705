@@ -130,6 +130,14 @@
   .history-header{ display:flex; align-items:center; gap:10px; padding: 6px 2px 20px 2px; position:relative; }
   .back-btn{ display:flex; align-items:center; gap:2px; background:none; border:none; color: var(--blue); font-size:13px; font-weight:600; cursor:pointer; padding:4px 4px 4px 0; font-family:inherit; }
   .history-title{ font-size:17px; font-weight:700; position:absolute; left:50%; transform:translateX(-50%); }
+  .history-toolbar{ display:flex; gap:8px; margin-bottom:12px; }
+  .search-input{ flex:1; background: var(--bg-elevated); border:none; border-radius:12px; padding:11px 14px; color: var(--label); font-size:14px; font-family:inherit; }
+  .search-input::placeholder{ color: var(--label-tertiary); }
+  .search-input:focus{ outline:2px solid var(--blue); }
+  .filter-icon-btn{ width:40px; height:40px; flex-shrink:0; border-radius:12px; background: var(--bg-elevated); border:none; color: var(--label-secondary); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .filter-icon-btn:active{ transform: scale(0.94); }
+  .active-filter-chip{ display:inline-flex; align-items:center; gap:8px; background: rgba(204,241,128,0.15); color: var(--blue); font-size:11px; font-weight:600; padding:6px 10px 6px 12px; border-radius:20px; margin-bottom:14px; }
+  .active-filter-chip button{ background:none; border:none; color: var(--blue); font-size:12px; cursor:pointer; padding:0; line-height:1; }
   .spend-card{ background: var(--bg-elevated); border-radius:16px; padding:14px; }
   .spend-person{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
   .avatar{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; }
@@ -343,7 +351,7 @@ let state = {
   budgets: [],
   settings: { person1: 'Me', person2: 'Wife', currency: 'Rp' }
 };
-let ui = { showBalance: true, view: 'home', spendFilter: { range: 'this_month', customStart: null, customEnd: null, categories: [] } };
+let ui = { showBalance: true, view: 'home', spendFilter: { range: 'this_month', customStart: null, customEnd: null, categories: [] }, historyFilter: { query: '', range: 'all', customStart: null, customEnd: null } };
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
 
@@ -509,21 +517,113 @@ function sortedTransactions(){
   return [...state.transactions].sort((a,b)=> new Date(b.date) - new Date(a.date) || (b.createdAt||0)-(a.createdAt||0));
 }
 
+function historyRangeLabel(f){
+  if(f.range === 'last_month') return 'Last month';
+  if(f.range === 'this_year') return 'This year';
+  if(f.range === 'this_month') return 'This month';
+  if(f.range === 'custom'){
+    if(f.customStart && f.customEnd) return shortDate(f.customStart) + ' – ' + shortDate(f.customEnd);
+    return 'Custom range';
+  }
+  return 'All time';
+}
+
+function historyMatchesFilters(t){
+  const f = ui.historyFilter;
+  if(f.query){
+    const q = f.query.toLowerCase();
+    const info = catInfo(t.type, t.category);
+    const acc = state.accounts.find(a=>a.id===t.accountId);
+    const haystack = [info.label, personName(t.person), acc ? acc.name : '', t.note || ''].join(' ').toLowerCase();
+    if(!haystack.includes(q)) return false;
+  }
+  if(f.range && f.range !== 'all'){
+    if(!inFilterRange(t.date, f)) return false;
+  }
+  return true;
+}
+
+function updateHistoryList(){
+  const wrap = document.getElementById('historyListWrap');
+  if(!wrap) return;
+  const filtered = sortedTransactions().filter(historyMatchesFilters);
+  wrap.innerHTML = filtered.length === 0
+    ? `<div class="empty-state">No matching transactions.</div>`
+    : renderTxList(filtered);
+  wrap.querySelectorAll('[data-tx]').forEach(el=>{
+    el.onclick = ()=> openTxDetailSheet(el.getAttribute('data-tx'));
+  });
+}
+
+function openHistoryFilterSheet(){
+  let range = ui.historyFilter.range;
+  let customStart = ui.historyFilter.customStart;
+  let customEnd = ui.historyFilter.customEnd;
+
+  const RANGE_OPTIONS = [
+    {id:'all', label:'All time'},
+    {id:'this_month', label:'This month'},
+    {id:'last_month', label:'Last month'},
+    {id:'this_year', label:'This year'},
+    {id:'custom', label:'Custom range'},
+  ];
+
+  function bodyHtml(){
+    return `
+      <label class="field-label" style="margin-top:0">Date range</label>
+      <div class="account-pick" id="histRangePick">
+        ${RANGE_OPTIONS.map(r=>`<div class="account-pick-item ${r.id===range?'active':''}" data-range="${r.id}"><span class="n">${r.label}</span></div>`).join('')}
+      </div>
+      ${range==='custom' ? `
+      <label class="field-label">From</label>
+      <input type="date" id="histStart" value="${customStart||''}">
+      <label class="field-label">To</label>
+      <input type="date" id="histEnd" value="${customEnd||''}">
+      ` : ''}
+      <button class="btn-primary" id="histFilterApply">Apply</button>
+    `;
+  }
+
+  const wrap = showSheet(`<div class="sheet-title">Filter activity</div><div id="histFilterBody">${bodyHtml()}</div>`, (w)=>bind(w));
+
+  function bind(wrap){
+    wrap.querySelectorAll('#histRangePick .account-pick-item').forEach(item=>{
+      item.onclick = ()=>{
+        range = item.getAttribute('data-range');
+        wrap.querySelector('#histFilterBody').innerHTML = bodyHtml();
+        bind(wrap);
+      };
+    });
+    const csInput = wrap.querySelector('#histStart');
+    const ceInput = wrap.querySelector('#histEnd');
+    if(csInput) csInput.oninput = ()=>{ customStart = csInput.value; };
+    if(ceInput) ceInput.oninput = ()=>{ customEnd = ceInput.value; };
+    wrap.querySelector('#histFilterApply').onclick = ()=>{
+      ui.historyFilter.range = range;
+      ui.historyFilter.customStart = customStart;
+      ui.historyFilter.customEnd = customEnd;
+      render();
+      closeSheet(wrap);
+    };
+  }
+}
+
 function renderHistoryView(){
-  const sorted = sortedTransactions();
-  let html = `<div class="history-header">
+  return `<div class="history-header">
     <button class="back-btn" id="backBtn">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
       Back
     </button>
     <div class="history-title">All activity</div>
-  </div>`;
-  if(sorted.length === 0){
-    html += `<div class="empty-state">No transactions yet.</div>`;
-  } else {
-    html += renderTxList(sorted);
-  }
-  return html;
+  </div>
+  <div class="history-toolbar">
+    <input type="text" id="historySearch" class="search-input" placeholder="Search category, person, note" value="${esc(ui.historyFilter.query)}">
+    <button class="filter-icon-btn" id="historyFilterBtn" aria-label="Filter by date">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+    </button>
+  </div>
+  ${ui.historyFilter.range !== 'all' ? `<div class="active-filter-chip">${esc(historyRangeLabel(ui.historyFilter))}<button id="clearHistoryRange" aria-label="Clear date filter">✕</button></div>` : ''}
+  <div id="historyListWrap"></div>`;
 }
 
 function render(){
@@ -532,9 +632,11 @@ function render(){
   if(ui.view === 'history'){
     root.innerHTML = renderHistoryView();
     document.getElementById('backBtn').onclick = ()=>{ ui.view = 'home'; render(); };
-    document.querySelectorAll('[data-tx]').forEach(el=>{
-      el.onclick = ()=> openTxDetailSheet(el.getAttribute('data-tx'));
-    });
+    document.getElementById('historySearch').oninput = (e)=>{ ui.historyFilter.query = e.target.value; updateHistoryList(); };
+    document.getElementById('historyFilterBtn').onclick = openHistoryFilterSheet;
+    const clearBtn = document.getElementById('clearHistoryRange');
+    if(clearBtn) clearBtn.onclick = ()=>{ ui.historyFilter.range = 'all'; ui.historyFilter.customStart = null; ui.historyFilter.customEnd = null; render(); };
+    updateHistoryList();
     return;
   }
 
@@ -798,12 +900,13 @@ async function handleReceiptFile(file){
 
 function openAddTxSheet(opts){
   opts = opts || {};
-  const prefill = opts.prefill || {};
-  let txType = opts.txType || 'expense';
-  let category = prefill.category || allCats(txType)[0].id;
-  let person = 'p1';
-  let skipAccount = state.accounts.length === 0;
-  let accountId = state.accounts.length ? state.accounts[0].id : null;
+  const editingTx = opts.editingTx || null;
+  const prefill = editingTx ? { amount: editingTx.amount, note: editingTx.note, date: editingTx.date } : (opts.prefill || {});
+  let txType = editingTx ? editingTx.type : (opts.txType || 'expense');
+  let category = editingTx ? editingTx.category : (prefill.category || allCats(txType)[0].id);
+  let person = editingTx ? editingTx.person : 'p1';
+  let skipAccount = editingTx ? !editingTx.accountId : (txType === 'expense' ? true : state.accounts.length === 0);
+  let accountId = editingTx ? (editingTx.accountId || (state.accounts.length ? state.accounts[0].id : null)) : (state.accounts.length ? state.accounts[0].id : null);
 
   function bodyHtml(){
     const cats = allCats(txType);
@@ -839,11 +942,11 @@ function openAddTxSheet(opts){
       <label class="field-label">Date</label>
       <input type="date" id="txDate" value="${prefill.date || new Date().toISOString().slice(0,10)}">
       <div class="field-error" id="txErr"></div>
-      <button class="btn-primary" id="txSave">Save ${txType === 'expense' ? 'expense' : 'income'}</button>
+      <button class="btn-primary" id="txSave">${editingTx ? 'Save changes' : 'Save ' + (txType === 'expense' ? 'expense' : 'income')}</button>
     `;
   }
 
-  const wrap = showSheet(`<div class="sheet-title">Add transaction</div><div id="txBody">${bodyHtml()}</div>`, mount);
+  const wrap = showSheet(`<div class="sheet-title">${editingTx ? 'Edit transaction' : 'Add transaction'}</div><div id="txBody">${bodyHtml()}</div>`, mount);
 
   function mount(wrap){
     bindBody(wrap);
@@ -854,6 +957,7 @@ function openAddTxSheet(opts){
       b.onclick = ()=>{
         txType = b.getAttribute('data-val');
         category = allCats(txType)[0].id;
+        skipAccount = txType === 'expense' ? true : state.accounts.length === 0;
         wrap.querySelector('#txBody').innerHTML = bodyHtml();
         bindBody(wrap);
       };
@@ -887,8 +991,16 @@ function openAddTxSheet(opts){
         acc = state.accounts.find(a=>a.id===accountId);
         if(!acc){ wrap.querySelector('#txErr').textContent = 'Select an account.'; return; }
       }
-      state.transactions.push({ id: uid(), type: txType, amount, category, person, accountId: acc ? acc.id : null, note, date, createdAt: Date.now() });
-      if(acc){ acc.balance = Number(acc.balance) + (txType==='income' ? amount : -amount); }
+      if(editingTx){
+        const oldAcc = state.accounts.find(a=>a.id===editingTx.accountId);
+        if(oldAcc){ oldAcc.balance = Number(oldAcc.balance) - (editingTx.type==='income' ? Number(editingTx.amount) : -Number(editingTx.amount)); }
+        if(acc){ acc.balance = Number(acc.balance) + (txType==='income' ? amount : -amount); }
+        editingTx.type = txType; editingTx.amount = amount; editingTx.category = category; editingTx.person = person;
+        editingTx.accountId = acc ? acc.id : null; editingTx.note = note; editingTx.date = date;
+      } else {
+        state.transactions.push({ id: uid(), type: txType, amount, category, person, accountId: acc ? acc.id : null, note, date, createdAt: Date.now() });
+        if(acc){ acc.balance = Number(acc.balance) + (txType==='income' ? amount : -amount); }
+      }
       saveState(); render(); closeSheet(wrap);
     };
   }
@@ -908,9 +1020,14 @@ function openTxDetailSheet(txId){
       <div style="display:flex; justify-content:space-between; padding:12px 0; ${t.note ? 'border-bottom:1px solid var(--separator);' : ''} font-size:12px;"><span style="color:var(--label-secondary)">Date</span><span>${esc(t.date)}</span></div>
       ${t.note ? `<div style="display:flex; justify-content:space-between; padding:12px 0; font-size:12px;"><span style="color:var(--label-secondary)">Note</span><span>${esc(t.note)}</span></div>` : ''}
     </div>
+    <button class="btn-secondary" id="txEdit">Edit transaction</button>
     <button class="btn-text-danger" id="txDelete">Delete transaction</button>
   `;
   showSheet(html, (wrap)=>{
+    wrap.querySelector('#txEdit').onclick = ()=>{
+      closeSheet(wrap);
+      openAddTxSheet({ editingTx: t });
+    };
     wrap.querySelector('#txDelete').onclick = ()=>{
       if(acc){ acc.balance = Number(acc.balance) - (t.type==='income' ? t.amount : -t.amount); }
       state.transactions = state.transactions.filter(x=>x.id!==txId);
