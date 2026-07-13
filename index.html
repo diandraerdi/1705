@@ -283,6 +283,12 @@
   .choice-title{ font-size:13.5px; font-weight:700; color: var(--label); }
   .choice-sub{ font-size:10.5px; color: var(--label-secondary); margin-top:2px; }
 
+  .cat-manage-list{ display:flex; flex-direction:column; gap:6px; margin-bottom:16px; max-height:320px; overflow-y:auto; }
+  .cat-manage-row{ display:flex; align-items:center; gap:10px; background: var(--bg-elevated-2); border-radius:12px; padding:10px 12px; }
+  .cat-manage-icon{ font-size:18px; width:24px; text-align:center; flex-shrink:0; }
+  .cat-manage-name{ flex:1; font-size:13px; font-weight:600; min-width:0; }
+  .cat-manage-edit-btn{ background:none; border:none; color: var(--blue); font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; padding:4px; flex-shrink:0; }
+
   .spinner{
     width:32px; height:32px; border-radius:50%; border:3px solid var(--bg-elevated-3); border-top-color: var(--blue);
     animation: spin 0.8s linear infinite;
@@ -329,7 +335,7 @@
 <script>
 const CURRENCY_LOCALE = 'id-ID';
 
-const EXPENSE_CATS = [
+const DEFAULT_EXPENSE_CATS = [
   {id:'groceries', label:'Groceries', icon:'🛒'},
   {id:'dining', label:'Dining', icon:'🍽️'},
   {id:'transport', label:'Transport', icon:'🚗'},
@@ -344,7 +350,7 @@ const EXPENSE_CATS = [
   {id:'transfer', label:'Transfer', icon:'🔁'},
   {id:'other', label:'Other', icon:'📦'},
 ];
-const INCOME_CATS = [
+const DEFAULT_INCOME_CATS = [
   {id:'salary', label:'Salary', icon:'💼'},
   {id:'bonus', label:'Bonus', icon:'🎁'},
   {id:'investment', label:'Investment', icon:'📈'},
@@ -364,18 +370,20 @@ const firebaseConfig = {
 const FIREBASE_CONFIGURED = firebaseConfig.apiKey !== "PASTE_YOUR_API_KEY";
 let db = null;
 
-let state = {
-  accounts: [],
-  transactions: [],
-  budgets: [],
-  settings: { person1: 'Me', person2: 'Wife', currency: 'Rp' }
-};
+let state = defaultState();
 let ui = { showBalance: false, view: 'home', spendFilter: { range: 'this_month', customStart: null, customEnd: null, categories: [] }, historyFilter: { query: '', range: 'all', customStart: null, customEnd: null } };
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
 
 function defaultState(){
-  return { accounts: [], transactions: [], budgets: [], settings: { person1: 'Me', person2: 'Wife', currency: 'Rp' } };
+  return {
+    accounts: [], transactions: [], budgets: [],
+    settings: { person1: 'Me', person2: 'Wife', currency: 'Rp' },
+    categories: {
+      expense: DEFAULT_EXPENSE_CATS.map(c=>Object.assign({}, c)),
+      income: DEFAULT_INCOME_CATS.map(c=>Object.assign({}, c))
+    }
+  };
 }
 
 let docRef = null;
@@ -425,7 +433,7 @@ function fmt(n){
   return state.settings.currency + ' ' + v.toLocaleString(CURRENCY_LOCALE);
 }
 
-function allCats(type){ return type === 'income' ? INCOME_CATS : EXPENSE_CATS; }
+function allCats(type){ return type === 'income' ? state.categories.income : state.categories.expense; }
 function catInfo(type, id){
   return allCats(type).find(c=>c.id===id) || {label:'Other', icon:'📦'};
 }
@@ -514,11 +522,14 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;
 function renderTxRow(t){
   const info = catInfo(t.type, t.category);
   const acc = state.accounts.find(a=>a.id===t.accountId);
+  const title = (t.note && t.note.trim()) ? t.note.trim() : info.label;
+  const subParts = [personName(t.person)];
+  if(t.accountId && acc){ subParts.push(acc.name); }
   return `<div class="tx-row" data-tx="${t.id}">
     <div class="tx-icon">${info.icon}</div>
     <div class="tx-mid">
-      <div class="tx-cat">${info.label}</div>
-      <div class="tx-sub">${esc(personName(t.person))} · ${esc(acc ? acc.name : 'No account')}${t.note ? ' · '+esc(t.note) : ''}</div>
+      <div class="tx-cat">${esc(title)}</div>
+      <div class="tx-sub">${subParts.map(esc).join(' · ')}</div>
     </div>
     <div class="tx-amt ${t.type}">${t.type==='income' ? '+' : '−'}${fmt(t.amount)}</div>
   </div>`;
@@ -1070,8 +1081,8 @@ function openAddTxSheet(opts){
       <div class="account-pick" id="accountPick" style="${skipAccount ? 'display:none;' : ''}">
         ${state.accounts.map(a=>`<div class="account-pick-item ${a.id===accountId?'active':''}" data-acc="${a.id}"><span class="n">${esc(a.name)}</span><span class="b">${fmt(a.balance)}</span></div>`).join('')}
       </div>`}
-      <label class="field-label">Note (optional)</label>
-      <input type="text" id="txNote" placeholder="Add a note" value="${esc(prefill.note||'')}">
+      <label class="field-label">${txType==='expense' ? 'To (optional)' : 'From (optional)'}</label>
+      <input type="text" id="txNote" placeholder="${txType==='expense' ? 'e.g. Supermarket name' : 'e.g. Employer name'}" value="${esc(prefill.note||'')}">
       <label class="field-label">Date</label>
       <input type="date" id="txDate" value="${prefill.date || new Date().toISOString().slice(0,10)}">
       <div class="field-error" id="txErr"></div>
@@ -1151,7 +1162,7 @@ function openTxDetailSheet(txId){
       <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--separator); font-size:12px;"><span style="color:var(--label-secondary)">Added by</span><span>${esc(personName(t.person))}</span></div>
       <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--separator); font-size:12px;"><span style="color:var(--label-secondary)">Account</span><span>${esc(acc ? acc.name : '—')}</span></div>
       <div style="display:flex; justify-content:space-between; padding:12px 0; ${t.note ? 'border-bottom:1px solid var(--separator);' : ''} font-size:12px;"><span style="color:var(--label-secondary)">Date</span><span>${esc(t.date)}</span></div>
-      ${t.note ? `<div style="display:flex; justify-content:space-between; padding:12px 0; font-size:12px;"><span style="color:var(--label-secondary)">Note</span><span>${esc(t.note)}</span></div>` : ''}
+      ${t.note ? `<div style="display:flex; justify-content:space-between; padding:12px 0; font-size:12px;"><span style="color:var(--label-secondary)">${t.type==='expense' ? 'To' : 'From'}</span><span>${esc(t.note)}</span></div>` : ''}
     </div>
     <button class="btn-secondary" id="txEdit">Edit transaction</button>
     <button class="btn-text-danger" id="txDelete">Delete transaction</button>
@@ -1172,7 +1183,7 @@ function openTxDetailSheet(txId){
 // ---------- BUDGETS ----------
 function openAddBudgetSheet(){
   const usedCats = state.budgets.map(b=>b.category);
-  const available = EXPENSE_CATS.filter(c=>!usedCats.includes(c.id));
+  const available = state.categories.expense.filter(c=>!usedCats.includes(c.id));
   if(available.length===0){
     showSheet(`<div class="sheet-title">Add budget</div><div class="empty-state">Every category already has a budget. Edit or delete one to make changes.</div>`);
     return;
@@ -1258,7 +1269,7 @@ function openSpendFilterSheet(){
       <label class="field-label">Categories</label>
       <div class="cat-grid" id="catFilterGrid">
         <div class="cat-chip ${categories.length===0?'active':''}" data-cat="__all__"><div class="ic">✨</div><div class="lb">All</div></div>
-        ${EXPENSE_CATS.map(c=>`<div class="cat-chip ${categories.includes(c.id)?'active':''}" data-cat="${c.id}"><div class="ic">${c.icon}</div><div class="lb">${c.label}</div></div>`).join('')}
+        ${state.categories.expense.map(c=>`<div class="cat-chip ${categories.includes(c.id)?'active':''}" data-cat="${c.id}"><div class="ic">${c.icon}</div><div class="lb">${c.label}</div></div>`).join('')}
       </div>
       <button class="btn-primary" id="filterApply">Apply filter</button>
     `;
@@ -1302,6 +1313,94 @@ function openSpendFilterSheet(){
   }
 }
 
+// ---------- CATEGORY MANAGEMENT ----------
+function openManageCategoriesSheet(initialType){
+  let type = initialType || 'expense';
+
+  function listHtml(){
+    const cats = allCats(type);
+    if(cats.length === 0) return `<div class="empty-state">No categories yet.</div>`;
+    return `<div class="cat-manage-list">` + cats.map(c=>`
+      <div class="cat-manage-row">
+        <span class="cat-manage-icon">${c.icon}</span>
+        <span class="cat-manage-name">${esc(c.label)}</span>
+        <button class="cat-manage-edit-btn" data-editid="${c.id}">Edit</button>
+      </div>
+    `).join('') + `</div>`;
+  }
+
+  function bodyHtml(){
+    return `
+      <div class="segmented" id="catTypeSeg">
+        <button data-val="expense" class="${type==='expense'?'active':''}">Expense</button>
+        <button data-val="income" class="${type==='income'?'active':''}">Income</button>
+      </div>
+      <div id="catManageList" style="margin-top:14px;">${listHtml()}</div>
+      <button class="btn-secondary" id="addCatBtn">+ Add category</button>
+    `;
+  }
+
+  const wrap = showSheet(`<div class="sheet-title">Manage categories</div><div id="catManageBody">${bodyHtml()}</div>`, (w)=>bind(w));
+
+  function bind(w){
+    w.querySelectorAll('#catTypeSeg button').forEach(b=>{
+      b.onclick = ()=>{
+        type = b.getAttribute('data-val');
+        w.querySelector('#catManageBody').innerHTML = bodyHtml();
+        bind(w);
+      };
+    });
+    w.querySelectorAll('.cat-manage-edit-btn').forEach(btn=>{
+      btn.onclick = ()=>{
+        const editId = btn.getAttribute('data-editid');
+        closeSheet(w);
+        openEditCategorySheet(type, editId);
+      };
+    });
+    w.querySelector('#addCatBtn').onclick = ()=>{
+      closeSheet(w);
+      openEditCategorySheet(type, null);
+    };
+  }
+}
+
+function openEditCategorySheet(type, catId){
+  const cats = allCats(type);
+  const existing = catId ? cats.find(c=>c.id===catId) : null;
+  const html = `
+    <div class="sheet-title">${existing ? 'Edit category' : 'Add category'}</div>
+    <label class="field-label" style="margin-top:0">Icon</label>
+    <input type="text" id="catIcon" value="${existing ? esc(existing.icon) : ''}" placeholder="🛒" maxlength="4" style="text-align:center; font-size:22px;">
+    <div class="hint">Tap the field and use your keyboard's emoji picker.</div>
+    <label class="field-label">Name</label>
+    <input type="text" id="catName" value="${existing ? esc(existing.label) : ''}" placeholder="e.g. Groceries">
+    <div class="field-error" id="catErr"></div>
+    <button class="btn-primary" id="catSave">${existing ? 'Save changes' : 'Add category'}</button>
+    ${existing ? `<button class="btn-text-danger" id="catDelete">Delete category</button>` : ''}
+  `;
+  showSheet(html, (wrap)=>{
+    wrap.querySelector('#catSave').onclick = ()=>{
+      const icon = wrap.querySelector('#catIcon').value.trim() || '📦';
+      const name = wrap.querySelector('#catName').value.trim();
+      if(!name){ wrap.querySelector('#catErr').textContent = 'Enter a category name.'; return; }
+      if(existing){
+        existing.icon = icon; existing.label = name;
+      } else {
+        state.categories[type].push({ id: uid(), label: name, icon });
+      }
+      saveState(); render(); closeSheet(wrap);
+      openManageCategoriesSheet(type);
+    };
+    if(existing){
+      wrap.querySelector('#catDelete').onclick = ()=>{
+        state.categories[type] = state.categories[type].filter(c=>c.id!==existing.id);
+        saveState(); render(); closeSheet(wrap);
+        openManageCategoriesSheet(type);
+      };
+    }
+  });
+}
+
 function openSettingsSheet(){
   const html = `
     <div class="sheet-title">Settings</div>
@@ -1313,6 +1412,7 @@ function openSettingsSheet(){
     <input type="text" id="curSym" value="${esc(state.settings.currency)}">
     <div class="hint">This data is shared between everyone who opens this app — that's how you and your partner see the same balances.</div>
     <button class="btn-primary" id="setSave">Save</button>
+    <button class="btn-secondary" id="manageCatsBtn">Manage categories</button>
     <button class="btn-text-danger" id="signOutBtn">Sign out</button>
   `;
   showSheet(html, (wrap)=>{
@@ -1322,6 +1422,10 @@ function openSettingsSheet(){
       const cur = wrap.querySelector('#curSym').value.trim() || 'Rp';
       state.settings.person1 = p1; state.settings.person2 = p2; state.settings.currency = cur;
       saveState(); render(); closeSheet(wrap);
+    };
+    wrap.querySelector('#manageCatsBtn').onclick = ()=>{
+      closeSheet(wrap);
+      openManageCategoriesSheet();
     };
     wrap.querySelector('#signOutBtn').onclick = ()=>{
       closeSheet(wrap);
