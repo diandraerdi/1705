@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.json">
@@ -36,7 +36,7 @@
     --page-outer:#0b0b0c;
   }
   *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-  html,body{ height:100%; margin:0; overflow:hidden; }
+  html,body{ height:100%; margin:0; overflow:hidden; touch-action: manipulation; }
   body{
     background: var(--page-outer);
     font-family: 'Stack Sans Text', -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
@@ -69,6 +69,12 @@
     padding: 4px 16px calc(88px + env(safe-area-inset-bottom)) 16px;
   }
   #scroll-area::-webkit-scrollbar{ display:none; }
+
+  #pageInner{ transition: transform 0.18s ease, opacity 0.18s ease; }
+  #pageInner.slide-out-left{ transform: translateX(-18px); opacity:0; }
+  #pageInner.slide-out-right{ transform: translateX(18px); opacity:0; }
+  #pageInner.slide-in-right{ transform: translateX(18px); opacity:0; }
+  #pageInner.slide-in-left{ transform: translateX(-18px); opacity:0; }
 
   /* Balance card */
   .balance-card{
@@ -312,7 +318,7 @@
   </div>
   <div id="setupBanner" class="setup-banner"></div>
   <div id="pullIndicator" class="pull-indicator"><div class="spinner"></div></div>
-  <div id="scroll-area"></div>
+  <div id="scroll-area"><div id="pageInner"></div></div>
   <button id="fab" aria-label="Add transaction">+</button>
   <div id="sheetHost"></div>
 </div>
@@ -643,7 +649,7 @@ function renderHistoryView(){
 }
 
 function render(){
-  const root = document.getElementById('scroll-area');
+  const root = document.getElementById('pageInner');
 
   if(ui.view === 'history'){
     root.innerHTML = renderHistoryView();
@@ -767,10 +773,34 @@ function eyeOpenSVG(){ return `<svg width="16" height="16" viewBox="0 0 24 24" f
 function eyeClosedSVG(){ return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>`; }
 
 function goToView(view){
-  ui.view = view;
-  render();
-  const root = document.getElementById('scroll-area');
-  if(root) root.scrollTop = 0;
+  const pageInner = document.getElementById('pageInner');
+  const scrollArea = document.getElementById('scroll-area');
+  const goingForward = view === 'history';
+  const outClass = goingForward ? 'slide-out-left' : 'slide-out-right';
+  const inClass = goingForward ? 'slide-in-right' : 'slide-in-left';
+
+  if(!pageInner){
+    ui.view = view;
+    render();
+    return;
+  }
+
+  pageInner.classList.add(outClass);
+  setTimeout(()=>{
+    ui.view = view;
+    render();
+    if(scrollArea) scrollArea.scrollTop = 0;
+    const freshInner = document.getElementById('pageInner');
+    if(freshInner){
+      freshInner.classList.remove('slide-out-left', 'slide-out-right');
+      freshInner.classList.add(inClass);
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+          freshInner.classList.remove(inClass);
+        });
+      });
+    }
+  }, 160);
 }
 
 function attachHomeListeners(){
@@ -1330,6 +1360,7 @@ function showLoginScreen(errorMsg){
   document.getElementById('fab').style.display = 'none';
   const root = document.getElementById('scroll-area');
   root.innerHTML = `
+    <div id="pageInner">
     <div class="lock-screen">
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--label-secondary); margin-bottom:14px;"><path d="M4 4h16v16H4z"></path><path d="M22 6l-10 7L2 6"></path></svg>
       <div class="lock-title">Sign in</div>
@@ -1339,6 +1370,7 @@ function showLoginScreen(errorMsg){
       <input type="password" id="loginPassword" class="pin-input" style="letter-spacing:normal; width:240px; text-align:left; font-size:15px; padding:12px 14px;" placeholder="Password" autocomplete="current-password">
       <div class="field-error" id="loginErr">${errorMsg ? esc(errorMsg) : ''}</div>
       <button class="btn-primary" id="loginSubmit" style="max-width:240px;">Sign in</button>
+    </div>
     </div>
   `;
   const emailInput = document.getElementById('loginEmail');
