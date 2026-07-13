@@ -185,8 +185,11 @@
     display:flex; align-items:center; justify-content:center; cursor:pointer;
     box-shadow: 0 6px 18px rgba(204,241,128,0.35);
     z-index:20;
+    transform: translateY(0) scale(1); opacity:1;
+    transition: transform 0.3s cubic-bezier(.32,.72,0,1), opacity 0.25s ease;
   }
   #fab:active{ transform: scale(0.92); }
+  #fab.fab-hidden{ transform: translateY(110px) scale(1); opacity:0; pointer-events:none; }
 
   /* Sheets */
   .sheet-overlay{
@@ -351,7 +354,7 @@ let state = {
   budgets: [],
   settings: { person1: 'Me', person2: 'Wife', currency: 'Rp' }
 };
-let ui = { showBalance: true, view: 'home', spendFilter: { range: 'this_month', customStart: null, customEnd: null, categories: [] }, historyFilter: { query: '', range: 'all', customStart: null, customEnd: null } };
+let ui = { showBalance: false, view: 'home', spendFilter: { range: 'this_month', customStart: null, customEnd: null, categories: [] }, historyFilter: { query: '', range: 'all', customStart: null, customEnd: null } };
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
 
@@ -631,7 +634,7 @@ function render(){
 
   if(ui.view === 'history'){
     root.innerHTML = renderHistoryView();
-    document.getElementById('backBtn').onclick = ()=>{ ui.view = 'home'; render(); };
+    document.getElementById('backBtn').onclick = ()=> goToView('home');
     document.getElementById('historySearch').oninput = (e)=>{ ui.historyFilter.query = e.target.value; updateHistoryList(); };
     document.getElementById('historyFilterBtn').onclick = openHistoryFilterSheet;
     const clearBtn = document.getElementById('clearHistoryRange');
@@ -732,7 +735,7 @@ function render(){
   // Transactions (capped at 5, with a link to the full history)
   const sortedAll = sortedTransactions();
   html += `<div class="section">
-    <div class="section-head"><div class="section-title">Recent activity</div></div>`;
+    <div class="section-head"><div class="section-title">Recent activity</div>${sortedAll.length > 5 ? `<button class="section-action" id="seeAllBtn">See all</button>` : ''}</div>`;
   if(sortedAll.length === 0){
     html += `<div class="empty-state">No transactions yet. Tap the + button to add your first expense or income.</div>`;
   } else {
@@ -750,13 +753,22 @@ function render(){
 function eyeOpenSVG(){ return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`; }
 function eyeClosedSVG(){ return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>`; }
 
+function goToView(view){
+  ui.view = view;
+  render();
+  const root = document.getElementById('scroll-area');
+  if(root) root.scrollTop = 0;
+}
+
 function attachHomeListeners(){
   document.getElementById('eyeBtn').onclick = ()=>{ ui.showBalance = !ui.showBalance; render(); };
   document.getElementById('addAccountCard').onclick = openAddAccountSheet;
   document.getElementById('addBudgetBtn').onclick = openAddBudgetSheet;
   document.getElementById('spendFilterBtn').onclick = openSpendFilterSheet;
   const moreBtn = document.getElementById('moreActivityBtn');
-  if(moreBtn) moreBtn.onclick = ()=>{ ui.view = 'history'; render(); };
+  if(moreBtn) moreBtn.onclick = ()=> goToView('history');
+  const seeAllBtn = document.getElementById('seeAllBtn');
+  if(seeAllBtn) seeAllBtn.onclick = ()=> goToView('history');
   document.querySelectorAll('[data-account]').forEach(el=>{
     el.onclick = ()=> openEditAccountSheet(el.getAttribute('data-account'));
   });
@@ -769,6 +781,22 @@ function attachHomeListeners(){
 }
 
 document.getElementById('fab').onclick = ()=> openAddChooserSheet();
+
+(function(){
+  const scrollAreaEl = document.getElementById('scroll-area');
+  let lastScrollTop = 0;
+  scrollAreaEl.addEventListener('scroll', ()=>{
+    const st = scrollAreaEl.scrollTop;
+    const fab = document.getElementById('fab');
+    if(!fab) return;
+    if(st > lastScrollTop && st > 40){
+      fab.classList.add('fab-hidden');
+    } else {
+      fab.classList.remove('fab-hidden');
+    }
+    lastScrollTop = st <= 0 ? 0 : st;
+  }, { passive: true });
+})();
 document.getElementById('settingsBtn').onclick = ()=> openSettingsSheet();
 
 // ---------- SHEET FRAMEWORK ----------
