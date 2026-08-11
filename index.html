@@ -66,9 +66,23 @@
   .icon-btn:active{ transform: scale(0.92); }
   #scroll-area{
     flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
-    padding: 4px 16px calc(88px + env(safe-area-inset-bottom)) 16px;
+    padding: 4px 16px 84px 16px;
   }
   #scroll-area::-webkit-scrollbar{ display:none; }
+
+  #bottomNav{
+    display:flex; flex-shrink:0;
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--separator);
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom)) 12px;
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    background:none; border:none; color: var(--label-tertiary); font-family:inherit;
+    font-size:9px; font-weight:600; padding:6px 4px; cursor:pointer;
+  }
+  .nav-item.active{ color: var(--blue); }
+  .nav-item:active{ opacity:0.7; }
 
   #pageInner{ transition: transform 0.18s ease, opacity 0.18s ease; }
   #pageInner.slide-out-left{ transform: translateX(-18px); opacity:0; }
@@ -133,6 +147,23 @@
   .spend-all-amount{ font-size:19px; font-weight:700; font-variant-numeric: tabular-nums; }
   .more-btn{ width:100%; padding:13px; background: var(--bg-elevated); color: var(--blue); border:none; border-radius:14px; font-size:12px; font-weight:600; font-family:inherit; cursor:pointer; margin-top:2px; }
   .more-btn:active{ transform: scale(0.98); }
+
+  .chip-filter-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .chip-filter{ background: var(--bg-elevated); border:none; color: var(--label-secondary); font-size:12px; font-weight:600; padding:8px 16px; border-radius:20px; cursor:pointer; font-family:inherit; }
+  .chip-filter.active{ background: var(--blue); color:#084734; }
+  .food-row{ display:flex; align-items:center; gap:12px; background: var(--bg-elevated); border-radius:14px; padding:12px 14px; margin-bottom:8px; cursor:pointer; }
+  .food-row:active{ transform: scale(0.98); }
+  .food-row.food-used{ opacity:0.55; }
+  .food-row.food-used .food-name{ text-decoration: line-through; }
+  .food-check{ width:24px; height:24px; border-radius:50%; border:2px solid var(--bg-elevated-3); background:none; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; color:#084734; }
+  .food-check.checked{ background: var(--blue); border-color: var(--blue); }
+  .food-mid{ flex:1; min-width:0; }
+  .food-name{ font-size:14px; font-weight:600; }
+  .food-sub{ font-size:11px; color: var(--label-secondary); margin-top:2px; }
+  .food-expiry-red{ color: var(--red); font-weight:600; }
+  .food-expiry-orange{ color: var(--orange); font-weight:600; }
+  .food-expiry-normal{ color: var(--label-secondary); }
+
   .history-header{ display:flex; align-items:center; gap:10px; padding: 6px 2px 20px 2px; position:relative; }
   .back-btn{ display:flex; align-items:center; gap:2px; background:none; border:none; color: var(--blue); font-size:13px; font-weight:600; cursor:pointer; padding:4px 4px 4px 0; font-family:inherit; }
   .history-title{ font-size:17px; font-weight:700; position:absolute; left:50%; transform:translateX(-50%); }
@@ -186,7 +217,7 @@
 
   /* FAB */
   #fab{
-    position:absolute; bottom:calc(28px + env(safe-area-inset-bottom)); right:calc(22px + env(safe-area-inset-right)); width:58px; height:58px; border-radius:50%;
+    position:absolute; bottom:calc(76px + env(safe-area-inset-bottom)); right:calc(22px + env(safe-area-inset-right)); width:58px; height:58px; border-radius:50%;
     background: var(--blue); border:none; color:#084734; font-size:26px; font-weight:400;
     display:flex; align-items:center; justify-content:center; cursor:pointer;
     box-shadow: 0 6px 18px rgba(204,241,128,0.35);
@@ -325,7 +356,17 @@
   <div id="setupBanner" class="setup-banner"></div>
   <div id="pullIndicator" class="pull-indicator"><div class="spinner"></div></div>
   <div id="scroll-area"><div id="pageInner"></div></div>
-  <button id="fab" aria-label="Add transaction">+</button>
+  <button id="fab" aria-label="Add">+</button>
+  <div id="bottomNav">
+    <button class="nav-item active" data-tab="finance">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+      <span>Finance</span>
+    </button>
+    <button class="nav-item" data-tab="food">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+      <span>Food</span>
+    </button>
+  </div>
   <div id="sheetHost"></div>
 </div>
 
@@ -371,7 +412,7 @@ const FIREBASE_CONFIGURED = firebaseConfig.apiKey !== "PASTE_YOUR_API_KEY";
 let db = null;
 
 let state = defaultState();
-let ui = { showBalance: false, view: 'home', spendFilter: { range: 'this_month', customStart: null, customEnd: null, categories: [] }, historyFilter: { query: '', range: 'all', customStart: null, customEnd: null } };
+let ui = { tab: 'finance', showBalance: false, view: 'home', spendFilter: { range: 'this_month', customStart: null, customEnd: null, categories: [] }, historyFilter: { query: '', range: 'all', customStart: null, customEnd: null }, foodFilter: 'unused' };
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
 
@@ -382,7 +423,8 @@ function defaultState(){
     categories: {
       expense: DEFAULT_EXPENSE_CATS.map(c=>Object.assign({}, c)),
       income: DEFAULT_INCOME_CATS.map(c=>Object.assign({}, c))
-    }
+    },
+    foodItems: []
   };
 }
 
@@ -662,6 +704,12 @@ function renderHistoryView(){
 function render(){
   const root = document.getElementById('pageInner');
 
+  if(ui.tab === 'food'){
+    root.innerHTML = renderFoodView();
+    attachFoodListeners();
+    return;
+  }
+
   if(ui.view === 'history'){
     root.innerHTML = renderHistoryView();
     document.getElementById('backBtn').onclick = ()=> goToView('home');
@@ -814,6 +862,123 @@ function goToView(view){
   }, 160);
 }
 
+// ---------- FOOD TAB ----------
+function sortedFoodItems(){
+  return [...state.foodItems].sort((a,b)=> new Date(a.expiryDate) - new Date(b.expiryDate));
+}
+
+function daysUntil(dateStr){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(dateStr+'T00:00:00');
+  return Math.round((d - today) / (1000*60*60*24));
+}
+
+function expiryLabel(dateStr){
+  const days = daysUntil(dateStr);
+  if(days < 0) return { text: `Expired ${Math.abs(days)}d ago`, tone: 'red' };
+  if(days === 0) return { text: 'Expires today', tone: 'red' };
+  if(days === 1) return { text: 'Expires tomorrow', tone: 'orange' };
+  if(days <= 3) return { text: `Expires in ${days}d`, tone: 'orange' };
+  return { text: `Expires in ${days}d`, tone: 'normal' };
+}
+
+function checkedSVG(){
+  return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+}
+
+function renderFoodView(){
+  const filter = ui.foodFilter;
+  const items = sortedFoodItems().filter(i => filter === 'unused' ? !i.used : i.used);
+
+  let html = `<div class="section" style="margin-top:22px;">
+    <div class="section-head"><div class="section-title">Food</div></div>
+    <div class="chip-filter-row">
+      <button class="chip-filter ${filter==='unused'?'active':''}" data-foodfilter="unused">Unused</button>
+      <button class="chip-filter ${filter==='used'?'active':''}" data-foodfilter="used">Used</button>
+    </div>
+    <div id="foodListWrap">`;
+
+  if(items.length === 0){
+    html += `<div class="empty-state">${filter==='unused' ? 'No food items yet. Tap + to add one.' : 'Nothing marked as used yet.'}</div>`;
+  } else {
+    items.forEach(item=>{
+      const ex = expiryLabel(item.expiryDate);
+      html += `<div class="food-row ${item.used?'food-used':''}" data-food="${item.id}">
+        <button class="food-check ${item.used?'checked':''}" data-foodcheck="${item.id}" aria-label="Mark as used">${item.used ? checkedSVG() : ''}</button>
+        <div class="food-mid">
+          <div class="food-name">${esc(item.name)}</div>
+          <div class="food-sub">${item.amount ? esc(item.amount)+' · ' : ''}<span class="food-expiry-${ex.tone}">${esc(ex.text)}</span></div>
+        </div>
+      </div>`;
+    });
+  }
+  html += `</div></div>`;
+  return html;
+}
+
+function attachFoodListeners(){
+  document.querySelectorAll('[data-foodfilter]').forEach(btn=>{
+    btn.onclick = ()=>{ ui.foodFilter = btn.getAttribute('data-foodfilter'); render(); };
+  });
+  document.querySelectorAll('[data-foodcheck]').forEach(btn=>{
+    btn.onclick = (e)=>{
+      e.stopPropagation();
+      const id = btn.getAttribute('data-foodcheck');
+      const item = state.foodItems.find(f=>f.id===id);
+      if(item){ item.used = !item.used; saveState(); render(); }
+    };
+  });
+  document.querySelectorAll('[data-food]').forEach(row=>{
+    row.onclick = ()=> openEditFoodSheet(row.getAttribute('data-food'));
+  });
+}
+
+function openAddFoodSheet(){
+  openFoodFormSheet(null);
+}
+
+function openEditFoodSheet(id){
+  const item = state.foodItems.find(f=>f.id===id);
+  if(!item) return;
+  openFoodFormSheet(item);
+}
+
+function openFoodFormSheet(existing){
+  const html = `
+    <div class="sheet-title">${existing ? 'Edit food item' : 'Add food item'}</div>
+    <label class="field-label" style="margin-top:0">Item name</label>
+    <input type="text" id="foodName" placeholder="e.g. Chicken breast" value="${existing ? esc(existing.name) : ''}">
+    <label class="field-label">Amount (optional)</label>
+    <input type="text" id="foodAmount" placeholder="e.g. 500g, 2 packs" value="${existing ? esc(existing.amount||'') : ''}">
+    <label class="field-label">Expiry date</label>
+    <input type="date" id="foodExpiry" value="${existing ? existing.expiryDate : ''}">
+    <div class="field-error" id="foodErr"></div>
+    <button class="btn-primary" id="foodSave">${existing ? 'Save changes' : 'Add item'}</button>
+    ${existing ? `<button class="btn-text-danger" id="foodDelete">Delete item</button>` : ''}
+  `;
+  showSheet(html, (wrap)=>{
+    wrap.querySelector('#foodSave').onclick = ()=>{
+      const name = wrap.querySelector('#foodName').value.trim();
+      const amount = wrap.querySelector('#foodAmount').value.trim();
+      const expiryDate = wrap.querySelector('#foodExpiry').value;
+      if(!name){ wrap.querySelector('#foodErr').textContent = 'Enter an item name.'; return; }
+      if(!expiryDate){ wrap.querySelector('#foodErr').textContent = 'Select an expiry date.'; return; }
+      if(existing){
+        existing.name = name; existing.amount = amount; existing.expiryDate = expiryDate;
+      } else {
+        state.foodItems.push({ id: uid(), name, amount, expiryDate, used: false, createdAt: Date.now() });
+      }
+      saveState(); render(); closeSheet(wrap);
+    };
+    if(existing){
+      wrap.querySelector('#foodDelete').onclick = ()=>{
+        state.foodItems = state.foodItems.filter(f=>f.id!==existing.id);
+        saveState(); render(); closeSheet(wrap);
+      };
+    }
+  });
+}
+
 function attachHomeListeners(){
   document.getElementById('eyeBtn').onclick = ()=>{ ui.showBalance = !ui.showBalance; render(); };
   document.getElementById('addAccountCard').onclick = openAddAccountSheet;
@@ -834,7 +999,27 @@ function attachHomeListeners(){
   });
 }
 
-document.getElementById('fab').onclick = ()=> openAddChooserSheet();
+document.getElementById('fab').onclick = ()=>{
+  if(ui.tab === 'food'){
+    openAddFoodSheet();
+  } else {
+    openAddChooserSheet();
+  }
+};
+
+document.querySelectorAll('.nav-item').forEach(btn=>{
+  btn.onclick = ()=>{
+    const tab = btn.getAttribute('data-tab');
+    if(tab === ui.tab) return;
+    ui.tab = tab;
+    ui.view = 'home';
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+    const scrollArea = document.getElementById('scroll-area');
+    if(scrollArea) scrollArea.scrollTop = 0;
+  };
+});
 
 (function(){
   const scrollAreaEl = document.getElementById('scroll-area');
@@ -1462,6 +1647,8 @@ function clearLoginRecord(){
 
 function showLoginScreen(errorMsg){
   document.getElementById('fab').style.display = 'none';
+  const nav = document.getElementById('bottomNav');
+  if(nav) nav.style.display = 'none';
   const root = document.getElementById('scroll-area');
   root.innerHTML = `
     <div id="pageInner">
@@ -1508,6 +1695,8 @@ function afterLogin(){
     return;
   }
   document.getElementById('fab').style.display = '';
+  const nav = document.getElementById('bottomNav');
+  if(nav) nav.style.display = '';
   loadState();
   setInterval(()=>{
     if(loginExpired()){
