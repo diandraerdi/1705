@@ -74,7 +74,6 @@
     position:absolute; left:20px; right:calc(92px + env(safe-area-inset-right));
     bottom:calc(20px + env(safe-area-inset-bottom)); height:58px;
     background: var(--bg-elevated); border-radius:29px;
-    border: 1px solid rgba(204,241,128,0.35);
     display:flex; align-items:stretch;
     box-shadow: 0 6px 18px rgba(0,0,0,0.35);
     z-index:20; overflow:hidden;
@@ -86,9 +85,11 @@
     flex:1; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:6px;
     background:none; border:none; color: var(--label-tertiary); font-family:inherit;
     font-size:12px; font-weight:600; cursor:pointer;
+    margin:7px 6px; border-radius:20px;
+    transition: background 0.2s ease, color 0.2s ease;
   }
   .nav-item svg{ width:18px; height:18px; flex-shrink:0; }
-  .nav-item.active{ color: var(--blue); }
+  .nav-item.active{ background: var(--blue); color:#084734; }
   .nav-item:active{ opacity:0.7; }
 
   #pageInner{ transition: transform 0.18s ease, opacity 0.18s ease; }
