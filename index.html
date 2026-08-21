@@ -10,26 +10,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="1705">
-<script>
-  (function(){
-    function setAppHeight(){
-      document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
-    }
-    setAppHeight();
-    // iOS standalone mode can report the wrong height for a moment right at launch,
-    // before the status bar/chrome settles — re-check a few times just after load.
-    setTimeout(setAppHeight, 50);
-    setTimeout(setAppHeight, 300);
-    setTimeout(setAppHeight, 800);
-    window.addEventListener('load', setAppHeight);
-    window.addEventListener('pageshow', setAppHeight);
-    window.addEventListener('resize', setAppHeight);
-    window.addEventListener('orientationchange', setAppHeight);
-    if(window.visualViewport){
-      window.visualViewport.addEventListener('resize', setAppHeight);
-    }
-  })();
-</script>
 <title>1705 - Finances</title>
 <style>
   @font-face{
@@ -61,12 +41,11 @@
     background: var(--page-outer);
     font-family: 'Stack Sans Text', -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
     color: var(--label);
-    display:flex; justify-content:center;
   }
   #shell{
-    width:100%; max-width:480px; height:100vh; height:100dvh; height:var(--app-height, 100dvh);
+    position:fixed; top:0; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:480px;
     background: var(--bg);
-    position:relative;
     display:flex; flex-direction:column;
     overflow:hidden;
   }
@@ -282,6 +261,9 @@
   }
   input::placeholder{ color: var(--label-tertiary); }
   input:focus, select:focus{ outline:2px solid var(--blue); }
+
+  .date-field-wrap{ width:100%; max-width:100%; overflow:hidden; border-radius:12px; }
+  .date-field-wrap input[type=date]{ display:block; width:100%; }
 
   .amount-input-wrap{ display:flex; align-items:center; background: var(--bg-elevated-2); border-radius:14px; padding: 14px; }
   .amount-input-wrap span{ font-size:22px; font-weight:700; color: var(--label-secondary); margin-right:6px; }
@@ -680,9 +662,9 @@ function openHistoryFilterSheet(){
       </div>
       ${range==='custom' ? `
       <label class="field-label">From</label>
-      <input type="date" id="histStart" value="${customStart||''}">
+      <div class="date-field-wrap"><input type="date" id="histStart" value="${customStart||''}"></div>
       <label class="field-label">To</label>
-      <input type="date" id="histEnd" value="${customEnd||''}">
+      <div class="date-field-wrap"><input type="date" id="histEnd" value="${customEnd||''}"></div>
       ` : ''}
       <button class="btn-primary" id="histFilterApply">Apply</button>
     `;
@@ -980,7 +962,7 @@ function openFoodFormSheet(existing){
     <label class="field-label">Amount (optional)</label>
     <input type="text" id="foodAmount" placeholder="e.g. 500g, 2 packs" value="${existing ? esc(existing.amount||'') : ''}">
     <label class="field-label">Expiry date</label>
-    <input type="date" id="foodExpiry" value="${existing ? existing.expiryDate : ''}">
+    <div class="date-field-wrap"><input type="date" id="foodExpiry" value="${existing ? existing.expiryDate : ''}"></div>
     <div class="field-error" id="foodErr"></div>
     <button class="btn-primary" id="foodSave">${existing ? 'Save changes' : 'Add item'}</button>
     ${existing ? `<button class="btn-text-danger" id="foodDelete">Delete item</button>` : ''}
@@ -1301,7 +1283,7 @@ function openAddTxSheet(opts){
       <label class="field-label">${txType==='expense' ? 'To (optional)' : 'From (optional)'}</label>
       <input type="text" id="txNote" placeholder="${txType==='expense' ? 'e.g. Supermarket name' : 'e.g. Employer name'}" value="${esc(prefill.note||'')}">
       <label class="field-label">Date</label>
-      <input type="date" id="txDate" value="${prefill.date || new Date().toISOString().slice(0,10)}">
+      <div class="date-field-wrap"><input type="date" id="txDate" value="${prefill.date || new Date().toISOString().slice(0,10)}"></div>
       <div class="field-error" id="txErr"></div>
       <button class="btn-primary" id="txSave">${editingTx ? 'Save changes' : 'Save ' + (txType === 'expense' ? 'expense' : 'income')}</button>
     `;
@@ -1479,9 +1461,9 @@ function openSpendFilterSheet(){
       </div>
       ${range==='custom' ? `
       <label class="field-label">From</label>
-      <input type="date" id="customStart" value="${customStart||''}">
+      <div class="date-field-wrap"><input type="date" id="customStart" value="${customStart||''}"></div>
       <label class="field-label">To</label>
-      <input type="date" id="customEnd" value="${customEnd||''}">
+      <div class="date-field-wrap"><input type="date" id="customEnd" value="${customEnd||''}"></div>
       ` : ''}
       <label class="field-label">Categories</label>
       <div class="cat-grid" id="catFilterGrid">
