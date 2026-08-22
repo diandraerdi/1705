@@ -149,7 +149,8 @@
 
   /* Person spend cards */
   .spend-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .spend-all-card{ background: var(--bg-elevated); border-radius:16px; padding:14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+  .spend-all-card{ background: var(--bg-elevated); border-radius:16px; padding:14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
+  .spend-all-card:active{ transform: scale(0.98); }
   .spend-all-label{ font-size:12px; font-weight:600; color: var(--label-secondary); text-transform:uppercase; letter-spacing:0.4px; }
   .spend-all-amount{ font-size:19px; font-weight:700; font-variant-numeric: tabular-nums; }
   .more-btn{ width:100%; padding:13px; background: var(--bg-elevated); color: var(--blue); border:none; border-radius:14px; font-size:12px; font-weight:600; font-family:inherit; cursor:pointer; margin-top:2px; }
@@ -182,7 +183,8 @@
   .filter-icon-btn:active{ transform: scale(0.94); }
   .active-filter-chip{ display:inline-flex; align-items:center; gap:8px; background: rgba(204,241,128,0.15); color: var(--blue); font-size:11px; font-weight:600; padding:6px 10px 6px 12px; border-radius:20px; margin-bottom:14px; }
   .active-filter-chip button{ background:none; border:none; color: var(--blue); font-size:12px; cursor:pointer; padding:0; line-height:1; }
-  .spend-card{ background: var(--bg-elevated); border-radius:16px; padding:14px; }
+  .spend-card{ background: var(--bg-elevated); border-radius:16px; padding:14px; cursor:pointer; }
+  .spend-card:active{ transform: scale(0.98); }
   .spend-person{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
   .avatar{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; }
   .avatar.p1{ background: rgba(204,241,128,0.2); color: var(--blue); }
@@ -423,7 +425,7 @@ const FIREBASE_CONFIGURED = firebaseConfig.apiKey !== "PASTE_YOUR_API_KEY";
 let db = null;
 
 let state = defaultState();
-let ui = { tab: 'finance', showBalance: false, view: 'home', spendFilter: { range: 'this_month', customStart: null, customEnd: null, categories: [] }, historyFilter: { query: '', range: 'all', customStart: null, customEnd: null }, foodFilter: 'unused' };
+let ui = { tab: 'finance', showBalance: false, view: 'home', spendFilter: { range: 'this_month', customStart: null, customEnd: null, categories: [] }, historyFilter: { query: '', range: 'all', customStart: null, customEnd: null, person: null, type: null, categories: [] }, foodFilter: 'unused' };
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
 
@@ -616,6 +618,9 @@ function historyRangeLabel(f){
 
 function historyMatchesFilters(t){
   const f = ui.historyFilter;
+  if(f.type && t.type !== f.type) return false;
+  if(f.person && t.person !== f.person) return false;
+  if(f.categories && f.categories.length && !f.categories.includes(t.category)) return false;
   if(f.query){
     const q = f.query.toLowerCase();
     const info = catInfo(t.type, t.category);
@@ -627,6 +632,31 @@ function historyMatchesFilters(t){
     if(!inFilterRange(t.date, f)) return false;
   }
   return true;
+}
+
+function resetHistoryFilter(){
+  ui.historyFilter.range = 'all';
+  ui.historyFilter.customStart = null;
+  ui.historyFilter.customEnd = null;
+  ui.historyFilter.person = null;
+  ui.historyFilter.type = null;
+  ui.historyFilter.categories = [];
+}
+
+function openHistoryWithFilter(overrides){
+  resetHistoryFilter();
+  Object.assign(ui.historyFilter, overrides || {});
+  goToView('history');
+}
+
+function activeQuickFilterSummary(){
+  const f = ui.historyFilter;
+  const parts = [];
+  if(f.range !== 'all') parts.push(historyRangeLabel(f));
+  if(f.person) parts.push(personName(f.person));
+  if(f.type) parts.push(f.type === 'expense' ? 'Expenses' : 'Income');
+  if(f.categories && f.categories.length) parts.push(f.categories.length + (f.categories.length===1?' category':' categories'));
+  return parts.join(' · ');
 }
 
 function updateHistoryList(){
@@ -708,7 +738,7 @@ function renderHistoryView(){
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
     </button>
   </div>
-  ${ui.historyFilter.range !== 'all' ? `<div class="active-filter-chip">${esc(historyRangeLabel(ui.historyFilter))}<button id="clearHistoryRange" aria-label="Clear date filter">✕</button></div>` : ''}
+  ${activeQuickFilterSummary() ? `<div class="active-filter-chip">${esc(activeQuickFilterSummary())}<button id="clearHistoryRange" aria-label="Clear filters">✕</button></div>` : ''}
   <div id="historyListWrap"></div>`;
 }
 
@@ -727,7 +757,7 @@ function render(){
     document.getElementById('historySearch').oninput = (e)=>{ ui.historyFilter.query = e.target.value; updateHistoryList(); };
     document.getElementById('historyFilterBtn').onclick = openHistoryFilterSheet;
     const clearBtn = document.getElementById('clearHistoryRange');
-    if(clearBtn) clearBtn.onclick = ()=>{ ui.historyFilter.range = 'all'; ui.historyFilter.customStart = null; ui.historyFilter.customEnd = null; render(); };
+    if(clearBtn) clearBtn.onclick = ()=>{ resetHistoryFilter(); render(); };
     updateHistoryList();
     return;
   }
@@ -780,16 +810,16 @@ function render(){
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:3px;"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filter
       </button>
     </div>
-    <div class="spend-all-card">
+    <div class="spend-all-card" id="spendAllCard">
       <div class="spend-all-label">All</div>
       <div class="spend-all-amount">${fmt(spend.all||0)}</div>
     </div>
     <div class="spend-grid">
-      <div class="spend-card">
+      <div class="spend-card" id="spendCardP1">
         <div class="spend-person"><div class="avatar p1">${esc(personInitial('p1'))}</div><div class="spend-name">${esc(state.settings.person1)}</div></div>
         <div class="spend-amount">${fmt(spend.p1||0)}</div>
       </div>
-      <div class="spend-card">
+      <div class="spend-card" id="spendCardP2">
         <div class="spend-person"><div class="avatar p2">${esc(personInitial('p2'))}</div><div class="spend-name">${esc(state.settings.person2)}</div></div>
         <div class="spend-amount">${fmt(spend.p2||0)}</div>
       </div>
@@ -996,9 +1026,24 @@ function attachHomeListeners(){
   document.getElementById('addBudgetBtn').onclick = openAddBudgetSheet;
   document.getElementById('spendFilterBtn').onclick = openSpendFilterSheet;
   const moreBtn = document.getElementById('moreActivityBtn');
-  if(moreBtn) moreBtn.onclick = ()=> goToView('history');
+  if(moreBtn) moreBtn.onclick = ()=> openHistoryWithFilter();
   const seeAllBtn = document.getElementById('seeAllBtn');
-  if(seeAllBtn) seeAllBtn.onclick = ()=> goToView('history');
+  if(seeAllBtn) seeAllBtn.onclick = ()=> openHistoryWithFilter();
+  const spendAllCard = document.getElementById('spendAllCard');
+  if(spendAllCard) spendAllCard.onclick = ()=> openHistoryWithFilter({
+    range: ui.spendFilter.range, customStart: ui.spendFilter.customStart, customEnd: ui.spendFilter.customEnd,
+    categories: ui.spendFilter.categories, type: 'expense'
+  });
+  const spendCardP1 = document.getElementById('spendCardP1');
+  if(spendCardP1) spendCardP1.onclick = ()=> openHistoryWithFilter({
+    range: ui.spendFilter.range, customStart: ui.spendFilter.customStart, customEnd: ui.spendFilter.customEnd,
+    categories: ui.spendFilter.categories, type: 'expense', person: 'p1'
+  });
+  const spendCardP2 = document.getElementById('spendCardP2');
+  if(spendCardP2) spendCardP2.onclick = ()=> openHistoryWithFilter({
+    range: ui.spendFilter.range, customStart: ui.spendFilter.customStart, customEnd: ui.spendFilter.customEnd,
+    categories: ui.spendFilter.categories, type: 'expense', person: 'p2'
+  });
   document.querySelectorAll('[data-account]').forEach(el=>{
     el.onclick = ()=> openEditAccountSheet(el.getAttribute('data-account'));
   });
