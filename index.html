@@ -567,6 +567,16 @@ function defaultState(){
 
 let docRef = null;
 let unsubscribeSnapshot = null;
+let hasSyncedOnce = false;
+let recoveryPromptShown = false;
+
+function looksLikeRealData(s){
+  return !!s && (
+    (s.accounts && s.accounts.length > 0) ||
+    (s.transactions && s.transactions.length > 0) ||
+    (s.foodItems && s.foodItems.length > 0)
+  );
+}
 
 async function loadState(){
   if(!FIREBASE_CONFIGURED){
@@ -576,9 +586,20 @@ async function loadState(){
   }
   docRef = db.collection('family-finance').doc('shared-data');
   unsubscribeSnapshot = docRef.onSnapshot((doc)=>{
-    if(doc.exists){
-      state = Object.assign(defaultState(), doc.data());
+    const fromCache = !!(doc.metadata && doc.metadata.fromCache);
+    const incoming = doc.exists ? Object.assign(defaultState(), doc.data()) : defaultState();
+
+    if(!fromCache && !looksLikeRealData(incoming) && looksLikeRealData(state) && !recoveryPromptShown){
+      // Server says empty/default, but we're currently holding real-looking data
+      // (likely from this device's local cache). Don't silently overwrite it — ask first.
+      recoveryPromptShown = true;
+      hasSyncedOnce = true;
+      showRecoveryPrompt(state);
+      return;
     }
+
+    state = incoming;
+    hasSyncedOnce = true;
     clearSetupBanner();
     render();
   }, (err)=>{
@@ -588,8 +609,45 @@ async function loadState(){
   });
 }
 
+function showRecoveryPrompt(cachedGoodState){
+  document.getElementById('fab').style.display = 'none';
+  const nav = document.getElementById('bottomNav');
+  if(nav) nav.style.display = 'none';
+  const root = document.getElementById('pageInner');
+  root.innerHTML = `
+    <div class="lock-screen">
+      <div class="lock-title">Data mismatch found</div>
+      <div class="lock-sub">This device has real-looking data saved locally, but the server copy looks empty. This can happen after a sync problem. Would you like to restore this device's copy back to the server, or continue with the server's (empty) version?</div>
+      <button class="btn-primary" id="recoveryRestoreBtn" style="max-width:260px;">Restore this device's data</button>
+      <button class="btn-secondary" id="recoveryDiscardBtn" style="max-width:260px;">Use the empty server version</button>
+    </div>
+  `;
+  document.getElementById('recoveryRestoreBtn').onclick = async ()=>{
+    try{
+      await docRef.set(cachedGoodState);
+      state = cachedGoodState;
+      document.getElementById('fab').style.display = '';
+      if(nav) nav.style.display = '';
+      render();
+    }catch(e){
+      console.error('Recovery restore failed', e);
+      showSetupBanner('Could not restore. Try again.');
+    }
+  };
+  document.getElementById('recoveryDiscardBtn').onclick = ()=>{
+    document.getElementById('fab').style.display = '';
+    if(nav) nav.style.display = '';
+    render();
+  };
+}
+
 async function saveState(){
   if(!FIREBASE_CONFIGURED || !db) return;
+  if(!hasSyncedOnce){
+    console.warn('Blocked a save: the first sync from Firestore has not completed yet, so local state cannot be trusted to write.');
+    showSetupBanner('Still connecting — please wait a moment before making changes.');
+    return;
+  }
   try{
     await db.collection('family-finance').doc('shared-data').set(state);
   }catch(e){
