@@ -208,6 +208,15 @@
     font-variant-numeric: tabular-nums;
   }
   .balance-sub{ font-size:11px; color: var(--label-secondary); margin-top:4px; }
+  .expiry-banner{
+    display:flex; align-items:center; gap:10px; background: var(--orange-tint); border-radius:14px;
+    padding:12px 14px; margin-top:16px; cursor:pointer;
+  }
+  .expiry-banner:active{ transform: scale(0.98); }
+  .expiry-banner-icon{ font-size:18px; flex-shrink:0; }
+  .expiry-banner-text{ flex:1; font-size:13px; color: var(--orange); }
+  .expiry-banner-text b{ font-weight:700; }
+  .expiry-banner-arrow{ font-size:18px; color: var(--orange); flex-shrink:0; }
   .eye-btn{ background:none; border:none; color:var(--label-secondary); cursor:pointer; padding:2px; display:flex; }
 
   /* Section headers */
@@ -959,6 +968,20 @@ function render(){
     <div class="balance-sub">${state.accounts.length} account${state.accounts.length===1?'':'s'}</div>
   </div>`;
 
+  // Food expiry reminder
+  const expiringItems = state.foodItems.filter(i=>{
+    if(i.used) return false;
+    const tone = expiryLabel(i.expiryDate).tone;
+    return tone === 'red' || tone === 'orange';
+  });
+  if(expiringItems.length > 0){
+    html += `<div class="expiry-banner" id="expiryBanner">
+      <div class="expiry-banner-icon">⏰</div>
+      <div class="expiry-banner-text"><b>${expiringItems.length} food item${expiringItems.length===1?'':'s'}</b> expiring soon</div>
+      <div class="expiry-banner-arrow">›</div>
+    </div>`;
+  }
+
   // Accounts
   html += `<div class="section">
     <div class="section-head"><div class="section-title">Accounts</div></div>`;
@@ -1204,6 +1227,14 @@ function openFoodFormSheet(existing){
 
 function attachHomeListeners(){
   document.getElementById('eyeBtn').onclick = ()=>{ ui.showBalance = !ui.showBalance; render(); };
+  const expiryBanner = document.getElementById('expiryBanner');
+  if(expiryBanner) expiryBanner.onclick = ()=>{
+    ui.tab = 'food';
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b.getAttribute('data-tab')==='food'));
+    render();
+    const scrollArea = document.getElementById('scroll-area');
+    if(scrollArea) scrollArea.scrollTop = 0;
+  };
   document.getElementById('addAccountCard').onclick = openAddAccountSheet;
   document.getElementById('addBudgetBtn').onclick = openAddBudgetSheet;
   document.getElementById('spendFilterBtn').onclick = openSpendFilterSheet;
