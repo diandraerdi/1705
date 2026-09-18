@@ -167,25 +167,27 @@
   #scroll-area::-webkit-scrollbar{ display:none; }
 
   #bottomNav{
-    position:absolute; left:20px; right:calc(92px + env(safe-area-inset-right));
+    position:absolute; left:calc(20px + env(safe-area-inset-left)); width:158px;
     bottom:calc(8px + env(safe-area-inset-bottom)); height:58px;
     background: var(--bg-elevated); border-radius:29px;
-    display:flex; align-items:stretch;
+    display:flex; align-items:center; padding:0 5px;
     box-shadow: 0 6px 18px var(--nav-shadow);
-    z-index:20; overflow:hidden;
+    z-index:20;
     transform: translateY(0); opacity:1;
     transition: transform 0.3s cubic-bezier(.32,.72,0,1), opacity 0.25s ease;
   }
   #bottomNav.nav-hidden{ transform: translateY(110px); opacity:0; pointer-events:none; }
   .nav-item{
-    flex:1; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:6px;
+    flex:0 0 auto; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:0;
     background:none; border:none; color: var(--label-tertiary); font-family:inherit;
     font-size:12px; font-weight:600; cursor:pointer;
-    margin:7px 6px; border-radius:20px;
-    transition: background 0.2s ease, color 0.2s ease;
+    padding:9px 11px; border-radius:22px;
+    transition: flex-grow 0.34s cubic-bezier(.22,.61,.36,1), background-color 0.34s ease, color 0.2s ease, padding 0.34s ease;
   }
-  .nav-item svg{ width:18px; height:18px; flex-shrink:0; }
-  .nav-item.active{ background: var(--blue); color:#084734; }
+  .nav-item svg{ flex-shrink:0; }
+  .nav-item .label{ overflow:hidden; white-space:nowrap; max-width:0; opacity:0; margin-left:0; transition: max-width 0.3s ease, opacity 0.2s ease 0.05s, margin-left 0.3s ease; }
+  .nav-item.active{ background: var(--blue); color:#084734; flex:1; padding:9px 16px; }
+  .nav-item.active .label{ max-width:80px; opacity:1; margin-left:6px; }
   .nav-item:active{ opacity:0.7; }
 
   #pageInner{ transition: transform 0.18s ease, opacity 0.18s ease; }
@@ -256,15 +258,12 @@
   /* Person spend cards */
   .spend-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
-  .expenses-header-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-  .expenses-header-row .segmented{ width:150px; flex-shrink:0; }
-  .expenses-subrow{ display:flex; align-items:center; justify-content:flex-end; margin: 10px 0 12px 0; }
-  .expenses-subrow.trend-mode{ justify-content:stretch; }
-  .period-nav{ display:flex; align-items:center; justify-content:space-between; width:100%; }
-  .period-btn{ width:28px; height:28px; border-radius:50%; background:var(--bg-elevated); border:none; color:var(--label-secondary); font-size:15px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+  .expenses-subrow{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin: 12px 0 12px 0; }
+  .period-nav{ display:flex; align-items:center; gap:8px; }
+  .period-btn{ width:26px; height:26px; border-radius:50%; background:var(--bg-elevated); border:none; color:var(--label-secondary); font-size:14px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
   .period-btn:disabled{ opacity:0.3; cursor:default; }
   .period-btn:not(:disabled):active{ transform: scale(0.9); }
-  .period-label{ font-size:12px; font-weight:600; color:var(--label); }
+  .period-label{ font-size:11.5px; font-weight:600; color:var(--label); white-space:nowrap; }
 
   .chart-card{ background: var(--bg-elevated); border-radius:16px; padding:18px 14px 14px 14px; }
   .chart-row{ display:flex; align-items:flex-end; justify-content:space-around; height:140px; margin-bottom:10px; }
@@ -517,12 +516,12 @@
   <button id="fab" aria-label="Add">+</button>
   <div id="bottomNav">
     <button class="nav-item active" data-tab="finance">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
-      <span>Finance</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+      <span class="label">Finance</span>
     </button>
     <button class="nav-item" data-tab="food">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
-      <span>Food</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+      <span class="label">Food</span>
     </button>
   </div>
   <div id="sheetHost"></div>
@@ -1119,14 +1118,12 @@ function render(){
   // Expenses: Summary / Trend
   const trendMonths = getTrendMonths();
   html += `<div class="section">
-    <div class="expenses-header-row">
-      <div class="section-title">Expenses</div>
-      <div class="segmented" id="expenseTabSeg">
-        <button data-val="summary" class="${ui.expenseTab==='summary'?'active':''}">Summary</button>
-        <button data-val="trend" class="${ui.expenseTab==='trend'?'active':''}">Trend</button>
+    <div class="section-title">Expenses</div>
+    <div class="expenses-subrow">
+      <div class="chip-filter-row" id="expenseTabChips" style="margin-bottom:0;">
+        <button class="chip-filter ${ui.expenseTab==='summary'?'active':''}" data-val="summary">Summary</button>
+        <button class="chip-filter ${ui.expenseTab==='trend'?'active':''}" data-val="trend">Trend</button>
       </div>
-    </div>
-    <div class="expenses-subrow ${ui.expenseTab==='trend'?'trend-mode':''}">
       ${ui.expenseTab==='summary' ? `
       <button class="section-action" id="spendFilterBtn">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:3px;"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filter
@@ -1363,7 +1360,7 @@ function attachHomeListeners(){
   };
   document.getElementById('addAccountCard').onclick = openAddAccountSheet;
   document.getElementById('addBudgetBtn').onclick = openAddBudgetSheet;
-  document.querySelectorAll('#expenseTabSeg button').forEach(b=>{
+  document.querySelectorAll('#expenseTabChips button').forEach(b=>{
     b.onclick = ()=>{ ui.expenseTab = b.getAttribute('data-val'); render(); };
   });
   const spendFilterBtn = document.getElementById('spendFilterBtn');
