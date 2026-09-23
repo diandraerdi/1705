@@ -278,6 +278,25 @@
   .legend{ display:flex; justify-content:center; gap:14px; margin-top:16px; }
   .legend-item{ display:flex; align-items:center; gap:5px; font-size:10.5px; color:var(--label-secondary); }
   .legend-dot{ width:7px; height:7px; border-radius:50%; }
+
+  .pie-card{ background: var(--bg-elevated); border-radius:16px; padding:20px 16px; }
+  .pie-wrap{ display:flex; justify-content:center; margin-bottom:18px; }
+  .pie{ width:150px; height:150px; border-radius:50%; position:relative; }
+  .pie-total{ position:absolute; inset:22px; background: var(--bg-elevated); border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .pie-total .amt{ font-size:13px; font-weight:700; color: var(--label); }
+  .pie-total .lbl{ font-size:9px; color: var(--label-secondary); text-transform:uppercase; letter-spacing:0.3px; margin-top:2px; }
+  .legend-list{ display:flex; flex-direction:column; gap:11px; }
+  .legend-row{ display:flex; align-items:center; gap:10px; cursor:pointer; }
+  .legend-row .legend-dot{ width:10px; height:10px; }
+  .legend-name{ flex:1; font-size:12.5px; color: var(--label); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .legend-pct{ font-size:10.5px; color: var(--label-secondary); width:32px; text-align:right; flex-shrink:0; }
+  .legend-amt{ font-size:12px; font-weight:600; color: var(--label); text-align:right; flex-shrink:0; }
+
+  .period-nav-sheet{ display:flex; align-items:center; justify-content:space-between; margin: 4px 0 18px 0; }
+  .period-btn-lg{ width:40px; height:40px; border-radius:50%; background: var(--bg-elevated-2); border:none; color: var(--label); font-size:19px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .period-btn-lg:disabled{ opacity:0.3; cursor:default; }
+  .period-btn-lg:not(:disabled):active{ transform: scale(0.92); }
+  .period-label-lg{ font-size:15px; font-weight:700; color: var(--label); }
   .spend-all-card{ background: var(--bg-elevated); border-radius:16px; padding:14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
   .spend-all-card:active{ transform: scale(0.98); }
   .spend-all-label{ font-size:12px; font-weight:600; color: var(--label-secondary); text-transform:uppercase; letter-spacing:0.4px; }
@@ -855,6 +874,65 @@ function jumpToMonthFilter(year, month, person){
   openHistoryWithFilter({ range: 'custom', customStart: start, customEnd: end, type: 'expense', person: person || null });
 }
 
+// ---------- CATEGORY PIE CHART ----------
+const PIE_COLORS = ['#CCF180', '#5FC7FF', '#FF9F0A', '#BF5AF2', '#FF6B6B', '#8E8E93'];
+
+function categoryBreakdown(){
+  const filter = ui.spendFilter;
+  const totals = {};
+  state.transactions.forEach(t=>{
+    if(t.type !== 'expense') return;
+    if(!inFilterRange(t.date, filter)) return;
+    totals[t.category] = (totals[t.category] || 0) + Number(t.amount);
+  });
+  const entries = Object.entries(totals).map(([catId, amt])=>({ catId, amt, info: catInfo('expense', catId) }));
+  entries.sort((a, b)=> b.amt - a.amt);
+  const total = entries.reduce((s, e)=> s + e.amt, 0);
+  const top = entries.slice(0, 5);
+  const rest = entries.slice(5);
+  const restTotal = rest.reduce((s, e)=> s + e.amt, 0);
+  const slices = top.map(e=>({ label: e.info.label, icon: e.info.icon, amt: e.amt, catId: e.catId }));
+  if(rest.length > 0){
+    slices.push({ label: `Others (${rest.length})`, icon: '', amt: restTotal, catId: null, isOthers: true });
+  }
+  return { slices, total };
+}
+
+function renderCategoryPie(){
+  const { slices, total } = categoryBreakdown();
+  if(slices.length === 0 || total <= 0){
+    return `<div class="empty-state">No expenses in this period yet.</div>`;
+  }
+  let cum = 0;
+  const gradientParts = slices.map((s, i)=>{
+    const pct = (s.amt / total) * 100;
+    const start = cum;
+    const end = cum + pct;
+    cum = end;
+    return `${PIE_COLORS[i % PIE_COLORS.length]} ${start.toFixed(2)}% ${end.toFixed(2)}%`;
+  }).join(', ');
+
+  const legendHtml = slices.map((s, i)=>{
+    const pct = Math.round((s.amt / total) * 100);
+    const label = s.isOthers ? esc(s.label) : `${s.icon} ${esc(s.label)}`;
+    return `<div class="legend-row" data-catslice="${s.isOthers ? '' : s.catId}">
+      <div class="legend-dot" style="background:${PIE_COLORS[i % PIE_COLORS.length]};"></div>
+      <div class="legend-name">${label}</div>
+      <div class="legend-pct">${pct}%</div>
+      <div class="legend-amt">${fmt(s.amt)}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="pie-card">
+    <div class="pie-wrap">
+      <div class="pie" style="background: conic-gradient(${gradientParts});">
+        <div class="pie-total"><div class="amt">${fmt(total)}</div><div class="lbl">Total</div></div>
+      </div>
+    </div>
+    <div class="legend-list">${legendHtml}</div>
+  </div>`;
+}
+
 function budgetSpent(categoryId){
   return state.transactions.filter(t=>t.type==='expense' && t.category===categoryId && isThisMonth(t.date))
     .reduce((s,t)=>s+Number(t.amount),0);
@@ -1115,7 +1193,7 @@ function render(){
   }
   html += `</div>`;
 
-  // Expenses: Summary / Trend
+  // Expenses: Summary / Trend / Categories
   const trendMonths = getTrendMonths();
   html += `<div class="section">
     <div class="section-title">Expenses</div>
@@ -1123,17 +1201,16 @@ function render(){
       <div class="chip-filter-row" id="expenseTabChips" style="margin-bottom:0;">
         <button class="chip-filter ${ui.expenseTab==='summary'?'active':''}" data-val="summary">Summary</button>
         <button class="chip-filter ${ui.expenseTab==='trend'?'active':''}" data-val="trend">Trend</button>
+        <button class="chip-filter ${ui.expenseTab==='categories'?'active':''}" data-val="categories">Categories</button>
       </div>
-      ${ui.expenseTab==='summary' ? `
+      ${ui.expenseTab==='trend' ? `
+      <button class="section-action" id="trendPeriodBtn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Period
+      </button>
+      ` : `
       <button class="section-action" id="spendFilterBtn">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:3px;"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filter
       </button>
-      ` : `
-      <div class="period-nav">
-        <button class="period-btn" id="trendPrevBtn" aria-label="Earlier">‹</button>
-        <div class="period-label">${esc(trendPeriodLabel(trendMonths))}</div>
-        <button class="period-btn" id="trendNextBtn" aria-label="Later" ${ui.trendOffset<=0?'disabled':''}>›</button>
-      </div>
       `}
     </div>
     ${ui.expenseTab==='summary' ? `
@@ -1151,7 +1228,7 @@ function render(){
         <div class="spend-amount">${fmt(spend.p2||0)}</div>
       </div>
     </div>
-    ` : renderTrendChart(trendMonths)}
+    ` : ui.expenseTab==='trend' ? renderTrendChart(trendMonths) : renderCategoryPie()}
   </div>`;
 
   // Budgets
@@ -1364,16 +1441,23 @@ function attachHomeListeners(){
     b.onclick = ()=>{ ui.expenseTab = b.getAttribute('data-val'); render(); };
   });
   const spendFilterBtn = document.getElementById('spendFilterBtn');
-  if(spendFilterBtn) spendFilterBtn.onclick = openSpendFilterSheet;
-  const trendPrevBtn = document.getElementById('trendPrevBtn');
-  if(trendPrevBtn) trendPrevBtn.onclick = ()=>{ ui.trendOffset += 3; render(); };
-  const trendNextBtn = document.getElementById('trendNextBtn');
-  if(trendNextBtn) trendNextBtn.onclick = ()=>{ ui.trendOffset = Math.max(0, ui.trendOffset - 3); render(); };
+  if(spendFilterBtn) spendFilterBtn.onclick = ()=> openSpendFilterSheet(ui.expenseTab === 'categories');
+  const trendPeriodBtn = document.getElementById('trendPeriodBtn');
+  if(trendPeriodBtn) trendPeriodBtn.onclick = openTrendPeriodSheet;
   document.querySelectorAll('[data-trendbar]').forEach(bar=>{
     bar.onclick = ()=>{
       const [y, m] = bar.getAttribute('data-trendmonth').split('-').map(Number);
       const person = bar.getAttribute('data-trendbar');
       jumpToMonthFilter(y, m, person === 'all' ? null : person);
+    };
+  });
+  document.querySelectorAll('[data-catslice]').forEach(row=>{
+    row.onclick = ()=>{
+      const catId = row.getAttribute('data-catslice');
+      openHistoryWithFilter({
+        range: ui.spendFilter.range, customStart: ui.spendFilter.customStart, customEnd: ui.spendFilter.customEnd,
+        type: 'expense', categories: catId ? [catId] : []
+      });
     };
   });
   const moreBtn = document.getElementById('moreActivityBtn');
@@ -1836,7 +1920,7 @@ function openEditBudgetSheet(budgetId){
 
 // ---------- SETTINGS ----------
 // ---------- SPEND FILTER ----------
-function openSpendFilterSheet(){
+function openSpendFilterSheet(hideCategories){
   let range = ui.spendFilter.range;
   let customStart = ui.spendFilter.customStart;
   let customEnd = ui.spendFilter.customEnd;
@@ -1861,11 +1945,13 @@ function openSpendFilterSheet(){
       <label class="field-label">To</label>
       <div class="date-field-wrap"><input type="date" id="customEnd" value="${customEnd||''}"></div>
       ` : ''}
+      ${!hideCategories ? `
       <label class="field-label">Categories</label>
       <div class="cat-grid" id="catFilterGrid">
         <div class="cat-chip ${categories.length===0?'active':''}" data-cat="__all__"><div class="ic">✨</div><div class="lb">All</div></div>
         ${state.categories.expense.map(c=>`<div class="cat-chip ${categories.includes(c.id)?'active':''}" data-cat="${c.id}"><div class="ic">${c.icon}</div><div class="lb">${c.label}</div></div>`).join('')}
       </div>
+      ` : ''}
       <button class="btn-primary" id="filterApply">Apply filter</button>
     `;
   }
@@ -1905,6 +1991,37 @@ function openSpendFilterSheet(){
       render();
       closeSheet(wrap);
     };
+  }
+}
+
+// ---------- TREND PERIOD SHEET ----------
+function openTrendPeriodSheet(){
+  function bodyHtml(){
+    const months = getTrendMonths();
+    return `
+      <div class="period-nav-sheet">
+        <button class="period-btn-lg" id="periodPrevBtn" aria-label="Earlier">‹</button>
+        <div class="period-label-lg">${esc(trendPeriodLabel(months))}</div>
+        <button class="period-btn-lg" id="periodNextBtn" aria-label="Later" ${ui.trendOffset<=0?'disabled':''}>›</button>
+      </div>
+      ${ui.trendOffset>0 ? `<button class="btn-secondary" id="periodTodayBtn">Jump to current period</button>` : ''}
+    `;
+  }
+
+  const wrap = showSheet(`<div class="sheet-title">Select period</div><div id="periodSheetBody">${bodyHtml()}</div>`, (w)=>bind(w));
+
+  function refresh(w){
+    render();
+    w.querySelector('#periodSheetBody').innerHTML = bodyHtml();
+    bind(w);
+  }
+
+  function bind(w){
+    w.querySelector('#periodPrevBtn').onclick = ()=>{ ui.trendOffset += 3; refresh(w); };
+    const nextBtn = w.querySelector('#periodNextBtn');
+    nextBtn.onclick = ()=>{ if(ui.trendOffset<=0) return; ui.trendOffset = Math.max(0, ui.trendOffset-3); refresh(w); };
+    const todayBtn = w.querySelector('#periodTodayBtn');
+    if(todayBtn) todayBtn.onclick = ()=>{ ui.trendOffset = 0; refresh(w); };
   }
 }
 
