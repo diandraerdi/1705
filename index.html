@@ -468,6 +468,9 @@
   .menu-icon svg{ width:16px; height:16px; }
   .menu-label{ flex:1; font-size:13.5px; font-weight:500; color: var(--label); }
   .menu-chevron{ color: var(--label-secondary); font-size:15px; }
+  .sheet-nav{ position:relative; display:flex; align-items:center; justify-content:center; min-height:28px; margin-bottom:18px; }
+  .sheet-nav .sheet-title{ margin:0; }
+  .sheet-nav .back-btn{ position:absolute; left:0; top:50%; transform:translateY(-50%); }
   .ic-person{ background:rgba(94,199,255,0.18); color:#5FC7FF; }
   .ic-currency{ background: var(--accent-tint-strong); color: var(--accent-text); }
   .ic-appearance{ background:rgba(191,90,242,0.18); color:#BF5AF2; }
@@ -480,15 +483,6 @@
   }
   .setup-banner:not(:empty){ display:block; }
 
-  .choice-card{
-    width:100%; display:flex; align-items:center; gap:14px; text-align:left;
-    background: var(--bg-elevated-2); border:none; border-radius:16px; padding:16px;
-    margin-bottom:12px; cursor:pointer; font-family:inherit;
-  }
-  .choice-card:active{ transform: scale(0.98); }
-  .choice-ic{ font-size:24px; width:44px; height:44px; border-radius:12px; background: var(--bg-elevated-3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .choice-title{ font-size:13.5px; font-weight:700; color: var(--label); }
-  .choice-sub{ font-size:10.5px; color: var(--label-secondary); margin-top:2px; }
 
   .cat-manage-list{ display:flex; flex-direction:column; gap:6px; margin-bottom:16px; max-height:320px; overflow-y:auto; }
   .cat-manage-row{ display:flex; align-items:center; gap:10px; background: var(--bg-elevated-2); border-radius:12px; padding:10px 12px; }
@@ -631,10 +625,18 @@ function defaultState(){
   };
 }
 
+// ===== SYNC CORE START =====
 let docRef = null;
 let unsubscribeSnapshot = null;
 let hasSyncedOnce = false;
 let recoveryPromptShown = false;
+let lastSyncedState = null;   // last copy of the shared document the server is known to have (includes _rev)
+let saveInFlight = false;
+let saveRequested = false;
+let pendingApplied = false;
+let retryTimer = null;
+
+const PENDING_KEY = 'pending-save-v1';
 
 function looksLikeRealData(s){
   return !!s && (
@@ -644,30 +646,150 @@ function looksLikeRealData(s){
   );
 }
 
+function cloneData(o){ return JSON.parse(JSON.stringify(o)); }
+
+function stableStringify(v){
+  if(Array.isArray(v)) return '[' + v.map(stableStringify).join(',') + ']';
+  if(v && typeof v === 'object'){
+    return '{' + Object.keys(v).sort().filter(k=>v[k] !== undefined).map(k=>JSON.stringify(k) + ':' + stableStringify(v[k])).join(',') + '}';
+  }
+  return JSON.stringify(v);
+}
+
+function withoutRev(o){ const c = Object.assign({}, o); delete c._rev; return c; }
+function sameContent(a, b){ return stableStringify(withoutRev(a || {})) === stableStringify(withoutRev(b || {})); }
+
+// ---- Three-way merge: server + (what THIS device changed since it last synced) ----
+function mergeAccount(base, local, server){
+  const out = Object.assign({}, server);
+  ['name', 'type'].forEach(k=>{ if(local[k] !== base[k]) out[k] = local[k]; });
+  // Balances are merged as a delta, so two phones adjusting the same account both count.
+  out.balance = Number(server.balance || 0) + (Number(local.balance || 0) - Number(base.balance || 0));
+  return out;
+}
+
+function mergeById(baseArr, localArr, serverArr, mergeItem){
+  const baseMap = new Map((baseArr || []).map(x=>[x.id, x]));
+  const localMap = new Map((localArr || []).map(x=>[x.id, x]));
+  const result = new Map((serverArr || []).map(x=>[x.id, x]));
+  // items this device deleted
+  baseMap.forEach((b, id)=>{ if(!localMap.has(id)) result.delete(id); });
+  // items this device added or edited
+  localMap.forEach((l, id)=>{
+    const b = baseMap.get(id);
+    if(!b){ if(!result.has(id)) result.set(id, l); return; }
+    if(stableStringify(b) === stableStringify(l)) return;
+    const s = result.get(id);
+    if(s) result.set(id, mergeItem ? mergeItem(b, l, s) : l);
+  });
+  return Array.from(result.values());
+}
+
+function mergeSettings(base, local, server){
+  const out = Object.assign({}, server);
+  Object.keys(local || {}).forEach(k=>{
+    if(stableStringify((base || {})[k]) !== stableStringify(local[k])) out[k] = local[k];
+  });
+  return out;
+}
+
+function mergeStates(base, local, server){
+  const b = Object.assign(defaultState(), base || {});
+  const l = Object.assign(defaultState(), local || {});
+  const s = Object.assign(defaultState(), server || {});
+  const out = Object.assign({}, s);
+  out.accounts = mergeById(b.accounts, l.accounts, s.accounts, mergeAccount);
+  out.transactions = mergeById(b.transactions, l.transactions, s.transactions);
+  out.budgets = mergeById(b.budgets, l.budgets, s.budgets);
+  out.foodItems = mergeById(b.foodItems, l.foodItems, s.foodItems);
+  out.settings = mergeSettings(b.settings, l.settings, s.settings);
+  out.categories = {
+    expense: mergeById((b.categories || {}).expense, (l.categories || {}).expense, (s.categories || {}).expense),
+    income: mergeById((b.categories || {}).income, (l.categories || {}).income, (s.categories || {}).income)
+  };
+  delete out._rev;
+  return out;
+}
+
+// ---- Changes that could not be saved yet (offline etc.) survive an app restart ----
+function savePending(base, local){
+  try{ localStorage.setItem(PENDING_KEY, JSON.stringify({ base, local })); }catch(e){}
+}
+function loadPending(){
+  try{ const raw = localStorage.getItem(PENDING_KEY); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
+}
+function clearPending(){
+  try{ localStorage.removeItem(PENDING_KEY); }catch(e){}
+}
+
+// ---- Receiving data from the server ----
+// Returns true if the screen needs a re-render.
+function applyIncoming(raw){
+  raw = raw || {};
+  const incoming = Object.assign(defaultState(), raw);
+  if(lastSyncedState && raw._rev !== undefined && (raw._rev || 0) <= (lastSyncedState._rev || 0)) return false; // already have this or newer
+
+  const base = lastSyncedState ? withoutRev(lastSyncedState) : defaultState();
+  const pending = pendingApplied ? null : loadPending();
+  pendingApplied = true;
+
+  let newState;
+  if(pending && pending.local){
+    newState = mergeStates(pending.base, pending.local, incoming);
+  } else if(!sameContent(state, base)){
+    // this device has changes the server hasn't seen yet — keep them on top of the new data
+    newState = mergeStates(base, state, incoming);
+  } else {
+    newState = withoutRev(incoming);
+  }
+
+  lastSyncedState = cloneData(incoming);
+  const changed = !sameContent(newState, state);
+  if(changed) state = newState;
+  if(!sameContent(newState, incoming)) scheduleSave();
+  return changed;
+}
+
+function handleServerDoc(doc){
+  const fromCache = !!(doc.metadata && doc.metadata.fromCache);
+  const raw = doc.exists ? doc.data() : {};
+  const incoming = Object.assign(defaultState(), raw);
+
+  if(!fromCache && !looksLikeRealData(incoming) && looksLikeRealData(state) && !recoveryPromptShown){
+    // Server says empty, but this device is holding real-looking data. Don't silently overwrite it.
+    recoveryPromptShown = true;
+    hasSyncedOnce = true;
+    showRecoveryPrompt(state, raw);
+    return;
+  }
+  if(saveInFlight) return; // our own save refreshes from the server when it finishes
+
+  const firstTime = !hasSyncedOnce;
+  hasSyncedOnce = true;
+  const changed = applyIncoming(raw);
+  if(!fromCache) clearSetupBanner();
+  if(changed || firstTime) render();
+}
+
+async function refreshFromServer(){
+  if(!docRef || saveInFlight || !hasSyncedOnce) return;
+  try{
+    const snap = await docRef.get({ source: 'server' });
+    handleServerDoc(snap);
+  }catch(e){ /* offline or transient — the live listener will catch up */ }
+}
+
 async function loadState(){
   if(!FIREBASE_CONFIGURED){
     showSetupBanner();
     render();
     return;
   }
+  if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+  lastSyncedState = null; hasSyncedOnce = false; recoveryPromptShown = false; pendingApplied = false; saveRequested = false;
   docRef = db.collection('family-finance').doc('shared-data');
   unsubscribeSnapshot = docRef.onSnapshot((doc)=>{
-    const fromCache = !!(doc.metadata && doc.metadata.fromCache);
-    const incoming = doc.exists ? Object.assign(defaultState(), doc.data()) : defaultState();
-
-    if(!fromCache && !looksLikeRealData(incoming) && looksLikeRealData(state) && !recoveryPromptShown){
-      // Server says empty/default, but we're currently holding real-looking data
-      // (likely from this device's local cache). Don't silently overwrite it — ask first.
-      recoveryPromptShown = true;
-      hasSyncedOnce = true;
-      showRecoveryPrompt(state);
-      return;
-    }
-
-    state = incoming;
-    hasSyncedOnce = true;
-    clearSetupBanner();
-    render();
+    handleServerDoc(doc);
   }, (err)=>{
     console.error('Sync error', err);
     showSetupBanner('Could not connect. Check your Firestore security rules.');
@@ -675,7 +797,7 @@ async function loadState(){
   });
 }
 
-function showRecoveryPrompt(cachedGoodState){
+function showRecoveryPrompt(cachedGoodState, serverRaw){
   document.getElementById('fab').style.display = 'none';
   const nav = document.getElementById('bottomNav');
   if(nav) nav.style.display = 'none';
@@ -690,8 +812,10 @@ function showRecoveryPrompt(cachedGoodState){
   `;
   document.getElementById('recoveryRestoreBtn').onclick = async ()=>{
     try{
-      await docRef.set(cachedGoodState);
-      state = cachedGoodState;
+      const payload = Object.assign(cloneData(cachedGoodState), { _rev: (((lastSyncedState && lastSyncedState._rev) || (serverRaw && serverRaw._rev) || 0)) + 1 });
+      await docRef.set(payload);
+      lastSyncedState = cloneData(payload);
+      state = withoutRev(payload);
       document.getElementById('fab').style.display = '';
       if(nav) nav.style.display = '';
       render();
@@ -701,25 +825,93 @@ function showRecoveryPrompt(cachedGoodState){
     }
   };
   document.getElementById('recoveryDiscardBtn').onclick = ()=>{
+    const incoming = Object.assign(defaultState(), serverRaw || {});
+    lastSyncedState = cloneData(incoming);
+    state = withoutRev(incoming);
     document.getElementById('fab').style.display = '';
     if(nav) nav.style.display = '';
     render();
   };
 }
 
-async function saveState(){
+// ---- Saving: always merge into the LATEST server copy, never overwrite it ----
+function scheduleSave(){
+  saveRequested = true;
+  if(!saveInFlight) runSaveLoop();
+}
+
+function saveState(){
   if(!FIREBASE_CONFIGURED || !db) return;
   if(!hasSyncedOnce){
     console.warn('Blocked a save: the first sync from Firestore has not completed yet, so local state cannot be trusted to write.');
     showSetupBanner('Still connecting — please wait a moment before making changes.');
     return;
   }
-  try{
-    await db.collection('family-finance').doc('shared-data').set(state);
-  }catch(e){
-    console.error('Save failed', e);
-  }
+  scheduleSave();
 }
+
+function scheduleRetry(){
+  if(retryTimer) return;
+  retryTimer = setTimeout(()=>{ retryTimer = null; flushIfDirty(); }, 20000);
+}
+
+function flushIfDirty(){
+  if(!hasSyncedOnce || saveInFlight || !lastSyncedState) return;
+  if(!sameContent(state, lastSyncedState) || loadPending()) scheduleSave();
+}
+
+async function runSaveLoop(){
+  saveInFlight = true;
+  try{
+    while(saveRequested){
+      saveRequested = false;
+      const snapshotLocal = cloneData(state);
+      const base = lastSyncedState ? withoutRev(cloneData(lastSyncedState)) : defaultState();
+
+      if(typeof navigator !== 'undefined' && navigator.onLine === false){
+        savePending(base, snapshotLocal);
+        showSetupBanner("You're offline — your changes are kept on this device and will sync when you're back online.");
+        break;
+      }
+
+      let committed;
+      try{
+        committed = await db.runTransaction(async (tx)=>{
+          const snap = await tx.get(docRef);
+          const serverRaw = snap.exists ? snap.data() : {};
+          const merged = mergeStates(base, snapshotLocal, Object.assign(defaultState(), serverRaw));
+          const payload = Object.assign(cloneData(merged), { _rev: (serverRaw._rev || 0) + 1 });
+          tx.set(docRef, payload);
+          return payload;
+        });
+      }catch(e){
+        console.error('Save failed', e);
+        savePending(base, snapshotLocal);
+        showSetupBanner('Could not save right now — your changes are kept on this device and will retry automatically.');
+        scheduleRetry();
+        break;
+      }
+
+      clearPending();
+      clearSetupBanner();
+      lastSyncedState = cloneData(committed);
+      // fold in anything the other phone changed, and anything we changed while this save was running
+      const rebased = mergeStates(snapshotLocal, state, withoutRev(committed));
+      if(!sameContent(rebased, state)){ state = rebased; render(); }
+    }
+  } finally {
+    saveInFlight = false;
+  }
+  refreshFromServer();
+}
+
+// Catch up whenever the app returns to the foreground or the connection comes back
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible'){ refreshFromServer(); flushIfDirty(); }
+});
+window.addEventListener('online', ()=>{ flushIfDirty(); refreshFromServer(); });
+window.addEventListener('pageshow', ()=>{ refreshFromServer(); flushIfDirty(); });
+// ===== SYNC CORE END =====
 
 function showSetupBanner(customMsg){
   const el = document.getElementById('setupBanner');
@@ -1337,7 +1529,6 @@ function renderFoodView(){
   const items = sortedFoodItems().filter(i => filter === 'unused' ? !i.used : i.used);
 
   let html = `<div class="section" style="margin-top:22px;">
-    <div class="section-head"><div class="section-title">Food</div></div>
     <div class="chip-filter-row">
       <button class="chip-filter ${filter==='unused'?'active':''}" data-foodfilter="unused">Unused</button>
       <button class="chip-filter ${filter==='used'?'active':''}" data-foodfilter="used">Used</button>
@@ -1494,7 +1685,7 @@ document.getElementById('fab').onclick = ()=>{
   if(ui.tab === 'food'){
     openAddFoodSheet();
   } else {
-    openAddChooserSheet();
+    openAddTxSheet();
   }
 };
 
@@ -1532,14 +1723,7 @@ document.querySelectorAll('.nav-item').forEach(btn=>{
 })();
 
 async function doRefresh(){
-  if(!docRef) return;
-  try{
-    const doc = await docRef.get({ source: 'server' });
-    if(doc.exists){ state = Object.assign(defaultState(), doc.data()); }
-    render();
-  }catch(e){
-    console.warn('Refresh failed', e);
-  }
+  await refreshFromServer();
   await new Promise((resolve)=> setTimeout(resolve, 350));
 }
 
@@ -1681,46 +1865,6 @@ function openEditAccountSheet(accountId){
 }
 
 // ---------- ADD TRANSACTION ----------
-function openAddChooserSheet(){
-  const html = `
-    <div class="sheet-title">Add transaction</div>
-    <button class="choice-card" id="chooseManual">
-      <div class="choice-ic">⌨️</div>
-      <div class="choice-text"><div class="choice-title">Enter manually</div><div class="choice-sub">Type in the amount and details yourself</div></div>
-    </button>
-    <button class="choice-card" id="chooseReceipt">
-      <div class="choice-ic">📷</div>
-      <div class="choice-text"><div class="choice-title">Use a receipt photo</div><div class="choice-sub">Open a photo to read from while you fill in the details</div></div>
-    </button>
-    <input type="file" id="receiptInput" accept="image/*" style="display:none">
-  `;
-  showSheet(html, (wrap)=>{
-    wrap.querySelector('#chooseManual').onclick = ()=>{ closeSheet(wrap); openAddTxSheet(); };
-    wrap.querySelector('#chooseReceipt').onclick = ()=>{ wrap.querySelector('#receiptInput').click(); };
-    wrap.querySelector('#receiptInput').onchange = (e)=>{
-      const file = e.target.files[0];
-      if(!file) return;
-      closeSheet(wrap);
-      handleReceiptFile(file);
-    };
-  });
-}
-
-function fileToBase64(file){
-  return new Promise((resolve, reject)=>{
-    const r = new FileReader();
-    r.onload = ()=> resolve(r.result);
-    r.onerror = ()=> reject(new Error('Could not read file'));
-    r.readAsDataURL(file);
-  });
-}
-
-async function handleReceiptFile(file){
-  let photoUrl = null;
-  try{ photoUrl = await fileToBase64(file); }catch(e){ photoUrl = null; }
-  openAddTxSheet({ txType:'expense', photoUrl });
-}
-
 function openAddTxSheet(opts){
   opts = opts || {};
   const editingTx = opts.editingTx || null;
@@ -1734,7 +1878,6 @@ function openAddTxSheet(opts){
   function bodyHtml(){
     const cats = allCats(txType);
     return `
-      ${opts.photoUrl ? `<img src="${opts.photoUrl}" alt="Receipt photo" style="width:100%; max-height:200px; object-fit:contain; border-radius:12px; margin-bottom:14px; background:var(--bg-elevated-2);">` : ''}
       <label class="field-label" style="margin-top:0">Type</label>
       <div class="segmented" id="txTypeSeg">
         <button data-val="expense" class="${txType==='expense'?'active':''}">Expense</button>
@@ -2052,7 +2195,10 @@ function openManageCategoriesSheet(initialType){
     `;
   }
 
-  const wrap = showSheet(`<div class="sheet-title">Manage categories</div><div id="catManageBody">${bodyHtml()}</div>`, (w)=>bind(w));
+  const wrap = showSheet(`${sheetNavHtml('Manage categories', true)}<div id="catManageBody">${bodyHtml()}</div>`, (w)=>{
+    wireSheetBack(w, ()=>openSettingsSheet());
+    bind(w);
+  });
 
   function bind(w){
     w.querySelectorAll('#catTypeSeg button').forEach(b=>{
@@ -2080,7 +2226,7 @@ function openEditCategorySheet(type, catId){
   const cats = allCats(type);
   const existing = catId ? cats.find(c=>c.id===catId) : null;
   const html = `
-    <div class="sheet-title">${existing ? 'Edit category' : 'Add category'}</div>
+    ${sheetNavHtml(existing ? 'Edit category' : 'Add category', true)}
     <label class="field-label" style="margin-top:0">Icon</label>
     <input type="text" id="catIcon" value="${existing ? esc(existing.icon) : ''}" placeholder="🛒" maxlength="4" style="text-align:center; font-size:22px;">
     <div class="hint">Tap the field and use your keyboard's emoji picker.</div>
@@ -2091,6 +2237,7 @@ function openEditCategorySheet(type, catId){
     ${existing ? `<button class="btn-text-danger" id="catDelete">Delete category</button>` : ''}
   `;
   showSheet(html, (wrap)=>{
+    wireSheetBack(wrap, ()=>openManageCategoriesSheet(type));
     wrap.querySelector('#catSave').onclick = ()=>{
       const icon = wrap.querySelector('#catIcon').value.trim() || '📦';
       const name = wrap.querySelector('#catName').value.trim();
@@ -2111,6 +2258,16 @@ function openEditCategorySheet(type, catId){
       };
     }
   });
+}
+
+function sheetNavHtml(title, withBack){
+  const back = withBack ? `<button class="back-btn" id="sheetBackBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Back</button>` : '';
+  return `<div class="sheet-nav">${back}<div class="sheet-title">${title}</div></div>`;
+}
+
+function wireSheetBack(wrap, onBack){
+  const b = wrap.querySelector('#sheetBackBtn');
+  if(b) b.onclick = ()=>{ closeSheet(wrap); onBack(); };
 }
 
 function openSettingsSheet(){
@@ -2157,7 +2314,7 @@ function openSettingsSheet(){
 
 function openPersonSettingsSheet(){
   const html = `
-    <div class="sheet-title">Person</div>
+    ${sheetNavHtml('Person', true)}
     <label class="field-label" style="margin-top:0">Person 1 name</label>
     <input type="text" id="p1Name" value="${esc(state.settings.person1)}">
     <label class="field-label">Person 2 name</label>
@@ -2165,6 +2322,7 @@ function openPersonSettingsSheet(){
     <button class="btn-primary" id="personSave">Save</button>
   `;
   showSheet(html, (wrap)=>{
+    wireSheetBack(wrap, ()=>openSettingsSheet());
     wrap.querySelector('#personSave').onclick = ()=>{
       const p1 = wrap.querySelector('#p1Name').value.trim() || 'Me';
       const p2 = wrap.querySelector('#p2Name').value.trim() || 'Partner';
@@ -2176,12 +2334,13 @@ function openPersonSettingsSheet(){
 
 function openCurrencySettingsSheet(){
   const html = `
-    <div class="sheet-title">Currency</div>
+    ${sheetNavHtml('Currency', true)}
     <label class="field-label" style="margin-top:0">Currency symbol</label>
     <input type="text" id="curSym" value="${esc(state.settings.currency)}">
     <button class="btn-primary" id="currencySave">Save</button>
   `;
   showSheet(html, (wrap)=>{
+    wireSheetBack(wrap, ()=>openSettingsSheet());
     wrap.querySelector('#currencySave').onclick = ()=>{
       const cur = wrap.querySelector('#curSym').value.trim() || 'Rp';
       state.settings.currency = cur;
@@ -2193,7 +2352,7 @@ function openCurrencySettingsSheet(){
 function openAppearanceSettingsSheet(){
   const currentTheme = getThemePref();
   const html = `
-    <div class="sheet-title">Appearance</div>
+    ${sheetNavHtml('Appearance', true)}
     <div class="segmented" id="themeSeg" style="margin-top:0">
       <button data-val="system" class="${currentTheme==='system'?'active':''}">System</button>
       <button data-val="light" class="${currentTheme==='light'?'active':''}">Light</button>
@@ -2201,6 +2360,7 @@ function openAppearanceSettingsSheet(){
     </div>
   `;
   showSheet(html, (wrap)=>{
+    wireSheetBack(wrap, ()=>openSettingsSheet());
     wrap.querySelectorAll('#themeSeg button').forEach(b=>{
       b.onclick = ()=>{
         setThemePref(b.getAttribute('data-val'));
@@ -2316,6 +2476,7 @@ if(!FIREBASE_CONFIGURED){
       afterLogin();
     } else {
       if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+      hasSyncedOnce = false; lastSyncedState = null;
       showLoginScreen();
     }
   });
