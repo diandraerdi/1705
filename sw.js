@@ -1,4 +1,4 @@
-const CACHE_NAME = 'finance-1705-v15';
+const CACHE_NAME = 'finance-1705-v17';
 const ASSETS = [
   './',
   './index.html',
@@ -29,6 +29,8 @@ self.addEventListener('activate', (event)=>{
 
 self.addEventListener('fetch', (event)=>{
   if(event.request.method !== 'GET') return;
+  // "Is there a newer version?" checks must always reach the network, never the cache.
+  if(new URL(event.request.url).searchParams.has('vcheck')) return;
 
   event.respondWith(
     caches.match(event.request).then((cached)=>{

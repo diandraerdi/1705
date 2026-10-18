@@ -309,7 +309,7 @@
   .chip-filter.active{ background: var(--blue); color:#084734; }
   .food-row{ display:flex; align-items:center; gap:12px; background: var(--bg-elevated); border-radius:14px; padding:12px 14px; margin-bottom:8px; cursor:pointer; }
   .food-row:active{ transform: scale(0.98); }
-  .food-row.food-used{ opacity:0.55; }
+  .food-row.food-used .food-check, .food-row.food-used .food-mid{ opacity:0.55; }
   .food-row.food-used .food-name{ text-decoration: line-through; }
   .food-check{ width:24px; height:24px; border-radius:50%; border:2px solid var(--bg-elevated-3); background:none; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; color:#084734; }
   .food-check.checked{ background: var(--blue); border-color: var(--blue); }
@@ -347,7 +347,7 @@
   .budget-cat{ font-size:13px; font-weight:600; }
   .budget-figures{ font-size:11px; color: var(--label-secondary); }
   .budget-figures b{ color: var(--label); font-weight:600; }
-  .budget-bar-track{ height:6px; background: var(--bg-elevated-3); border-radius:3px; overflow:hidden; }
+  .budget-bar-track{ position:relative; height:6px; background: var(--bg-elevated-3); border-radius:3px; overflow:hidden; }
   .budget-bar-fill{ height:100%; border-radius:3px; background: var(--green); }
 
   /* Transactions */
@@ -468,6 +468,29 @@
   .menu-icon svg{ width:16px; height:16px; }
   .menu-label{ flex:1; font-size:13.5px; font-weight:500; color: var(--label); }
   .menu-chevron{ color: var(--label-secondary); font-size:15px; }
+  .menu-value{ font-size:11.5px; color: var(--label-secondary); margin-right:2px; }
+  .menu-value.warn{ color: var(--orange); font-weight:600; }
+  .ic-backup{ background: rgba(52,199,89,0.18); color: var(--green); }
+  .version-label{ text-align:center; font-size:10px; color: var(--label-tertiary); margin-top:14px; letter-spacing:0.2px; }
+  .backup-summary{ background: var(--bg-elevated-2); border-radius:14px; padding:14px; margin-bottom:16px; }
+  .backup-summary-title{ font-size:10.5px; font-weight:700; color: var(--label-secondary); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px; }
+  .backup-summary-text{ font-size:12.5px; color: var(--label); line-height:1.55; }
+  .backup-summary-text.stale{ color: var(--orange); font-weight:600; }
+  .status-msg{ font-size:11.5px; text-align:center; margin-top:10px; min-height:14px; line-height:1.4; }
+  .status-msg.ok{ color: var(--green); }
+  .status-msg.err{ color: var(--red); }
+  .compare-table{ background: var(--bg-elevated-2); border-radius:14px; padding:2px 14px; margin-bottom:14px; }
+  .compare-row{ display:grid; grid-template-columns:1fr 64px 92px; gap:6px; padding:10px 0; font-size:12.5px; border-bottom:1px solid var(--separator); align-items:center; }
+  .compare-row:last-child{ border-bottom:none; }
+  .compare-row span:not(:first-child){ text-align:right; font-variant-numeric: tabular-nums; }
+  .compare-row.head{ font-size:9.5px; font-weight:700; text-transform:uppercase; color: var(--label-secondary); letter-spacing:0.4px; }
+  .warn-box{ background: var(--red-tint); color: var(--red); font-size:11.5px; line-height:1.5; padding:11px 13px; border-radius:12px; margin-bottom:6px; }
+  .btn-primary.danger{ background: var(--red); color:#fff; }
+  .restore-done{ text-align:center; padding:10px 4px 0; }
+  .restore-done-icon{ width:46px; height:46px; border-radius:50%; background: rgba(52,199,89,0.18); color: var(--green); font-size:22px; font-weight:700; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
+  .restore-done-title{ font-size:16px; font-weight:700; margin-bottom:6px; }
+  .restore-done-text{ font-size:12px; color: var(--label-secondary); line-height:1.5; }
+
   .sheet-nav{ position:relative; display:flex; align-items:center; justify-content:center; min-height:28px; margin-bottom:18px; }
   .sheet-nav .sheet-title{ margin:0; }
   .sheet-nav .back-btn{ position:absolute; left:0; top:50%; transform:translateY(-50%); }
@@ -482,6 +505,59 @@
     color: var(--orange); font-size:10.5px; border-radius:10px; font-weight:600;
   }
   .setup-banner:not(:empty){ display:block; }
+
+  .update-banner{ display:none; align-items:center; gap:8px; margin:0 16px 6px 16px; padding:10px 12px; background: var(--accent-tint-strong); color: var(--accent-text); font-size:11.5px; font-weight:600; border-radius:12px; cursor:pointer; }
+  .update-banner.show{ display:flex; }
+  .update-banner .ub-text{ flex:1; }
+  .update-banner .ub-action{ font-weight:800; }
+  .update-banner .ub-close{ background:none; border:none; color:inherit; opacity:0.7; font-size:14px; padding:0 2px; cursor:pointer; font-family:inherit; }
+
+  .toast{ position:absolute; left:16px; right:16px; bottom:calc(84px + env(safe-area-inset-bottom)); z-index:60; display:flex; align-items:center; gap:12px; background: var(--bg-elevated-3); color: var(--label); border-radius:14px; padding:11px 14px; font-size:12.5px; box-shadow:0 8px 24px rgba(0,0,0,0.35); opacity:0; transform: translateY(12px); pointer-events:none; transition: opacity 0.2s ease, transform 0.2s ease; }
+  .toast.show{ opacity:1; transform: translateY(0); pointer-events:auto; }
+  .toast-msg{ flex:1; min-width:0; }
+  .toast-btn{ background:none; border:none; color: var(--accent-text); font-weight:800; font-size:12.5px; cursor:pointer; font-family:inherit; padding:2px 4px; }
+
+  .skeleton-wrap{ padding: 22px 4px 0 4px; }
+  .sk{ border-radius:12px; background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-elevated-2) 50%, var(--bg-elevated) 75%); background-size:200% 100%; animation: skShimmer 1.3s ease-in-out infinite; }
+  @keyframes skShimmer{ 0%{ background-position:200% 0; } 100%{ background-position:-200% 0; } }
+  .sk-label{ width:90px; height:12px; margin-bottom:12px; }
+  .sk-balance{ width:210px; height:34px; margin-bottom:10px; }
+  .sk-sub{ width:70px; height:10px; margin-bottom:30px; }
+  .sk-title{ width:110px; height:16px; margin-bottom:14px; }
+  .sk-row{ display:flex; gap:12px; margin-bottom:28px; }
+  .sk-card{ flex:1; height:92px; border-radius:16px; }
+  .sk-wide{ height:70px; border-radius:16px; margin-bottom:12px; }
+  .sk-note{ text-align:center; font-size:12px; color: var(--label-secondary); margin-top:18px; line-height:1.5; }
+
+  .due-row{ display:flex; align-items:center; gap:12px; background: var(--bg-elevated); border:1px solid var(--accent-tint-strong); border-radius:14px; padding:12px 14px; margin-bottom:8px; cursor:pointer; }
+  .due-row:active{ transform: scale(0.98); }
+  .due-right{ display:flex; flex-direction:column; align-items:flex-end; gap:2px; flex-shrink:0; }
+  .due-skip{ background:none; border:none; color: var(--label-secondary); font-size:10.5px; font-weight:600; cursor:pointer; padding:2px 0 0 10px; font-family:inherit; }
+
+  .budget-pace-tick{ position:absolute; top:0; bottom:0; width:2px; margin-left:-1px; background: var(--label); opacity:0.55; }
+  .budget-pace{ font-size:10.5px; margin-top:8px; color: var(--label-secondary); }
+  .budget-pace.warn{ color: var(--orange); font-weight:600; }
+  .budget-pace.over{ color: var(--red); font-weight:600; }
+
+  .suggest-list{ background: var(--bg-elevated-2); border-radius:12px; margin-top:8px; overflow:hidden; }
+  .suggest-row{ display:flex; align-items:center; gap:10px; padding:10px 12px; cursor:pointer; }
+  .suggest-row:not(:last-child){ border-bottom:1px solid var(--separator); }
+  .suggest-row:active{ background: var(--bg-elevated-3); }
+  .suggest-ic{ font-size:15px; width:20px; text-align:center; flex-shrink:0; }
+  .suggest-name{ flex:1; font-size:13px; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .suggest-meta{ font-size:10.5px; color: var(--label-secondary); flex-shrink:0; font-variant-numeric: tabular-nums; }
+
+  .food-rebuy{ background: var(--accent-tint-strong); color: var(--accent-text); border:none; border-radius:14px; padding:7px 12px; font-size:10.5px; font-weight:700; cursor:pointer; font-family:inherit; flex-shrink:0; }
+  .food-rebuy:active{ transform: scale(0.95); }
+
+  .rec-row{ display:flex; align-items:center; gap:10px; background: var(--bg-elevated-2); border-radius:12px; padding:10px 12px; cursor:pointer; }
+  .rec-icon{ font-size:18px; width:24px; text-align:center; flex-shrink:0; }
+  .rec-mid{ flex:1; min-width:0; }
+  .rec-title{ font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rec-sub{ font-size:10.5px; color: var(--label-secondary); margin-top:2px; }
+  .rec-amt{ font-size:12.5px; font-weight:700; flex-shrink:0; font-variant-numeric: tabular-nums; }
+  .rec-amt.income{ color: var(--green); }
+  .ic-recurring{ background: rgba(100,210,255,0.18); color:#64D2FF; }
 
 
   .cat-manage-list{ display:flex; flex-direction:column; gap:6px; margin-bottom:16px; max-height:320px; overflow-y:auto; }
@@ -524,6 +600,7 @@
     </button>
   </div>
   <div id="setupBanner" class="setup-banner"></div>
+  <div id="updateBanner" class="update-banner"></div>
   <div id="pullIndicator" class="pull-indicator"><div class="spinner"></div></div>
   <div id="scroll-area"><div id="pageInner"></div></div>
   <button id="fab" aria-label="Add">+</button>
@@ -537,6 +614,7 @@
       <span class="label">Food</span>
     </button>
   </div>
+  <div id="toast" class="toast"></div>
   <div id="sheetHost"></div>
 </div>
 
@@ -621,7 +699,7 @@ function defaultState(){
       expense: DEFAULT_EXPENSE_CATS.map(c=>Object.assign({}, c)),
       income: DEFAULT_INCOME_CATS.map(c=>Object.assign({}, c))
     },
-    foodItems: []
+    foodItems: [], recurring: []
   };
 }
 
@@ -635,6 +713,8 @@ let saveInFlight = false;
 let saveRequested = false;
 let pendingApplied = false;
 let retryTimer = null;
+let loadStatus = 'loading';   // loading | slow | offline | error  (only matters until the first sync)
+let loadSlowTimer = null;
 
 const PENDING_KEY = 'pending-save-v1';
 
@@ -648,16 +728,31 @@ function looksLikeRealData(s){
 
 function cloneData(o){ return JSON.parse(JSON.stringify(o)); }
 
-function stableStringify(v){
-  if(Array.isArray(v)) return '[' + v.map(stableStringify).join(',') + ']';
-  if(v && typeof v === 'object'){
-    return '{' + Object.keys(v).sort().filter(k=>v[k] !== undefined).map(k=>JSON.stringify(k) + ':' + stableStringify(v[k])).join(',') + '}';
+// Compares two pieces of data directly (object key order does not matter, list order does). Stops at the first difference.
+function deepEqual(a, b){
+  if(a === b) return true;
+  if(a && b && typeof a === 'object' && typeof b === 'object'){
+    const arrA = Array.isArray(a);
+    if(arrA !== Array.isArray(b)) return false;
+    if(arrA){
+      if(a.length !== b.length) return false;
+      for(let i = 0; i < a.length; i++){ if(!deepEqual(a[i], b[i])) return false; }
+      return true;
+    }
+    const ka = Object.keys(a).filter(k=>a[k] !== undefined);
+    const kb = Object.keys(b).filter(k=>b[k] !== undefined);
+    if(ka.length !== kb.length) return false;
+    for(let i = 0; i < ka.length; i++){
+      const k = ka[i];
+      if(b[k] === undefined || !deepEqual(a[k], b[k])) return false;
+    }
+    return true;
   }
-  return JSON.stringify(v);
+  return false;
 }
 
 function withoutRev(o){ const c = Object.assign({}, o); delete c._rev; return c; }
-function sameContent(a, b){ return stableStringify(withoutRev(a || {})) === stableStringify(withoutRev(b || {})); }
+function sameContent(a, b){ return deepEqual(withoutRev(a || {}), withoutRev(b || {})); }
 
 // ---- Three-way merge: server + (what THIS device changed since it last synced) ----
 function mergeAccount(base, local, server){
@@ -670,25 +765,34 @@ function mergeAccount(base, local, server){
 
 function mergeById(baseArr, localArr, serverArr, mergeItem){
   const baseMap = new Map((baseArr || []).map(x=>[x.id, x]));
-  const localMap = new Map((localArr || []).map(x=>[x.id, x]));
-  const result = new Map((serverArr || []).map(x=>[x.id, x]));
+  const localArr2 = localArr || [];
+  const localMap = new Map(localArr2.map(x=>[x.id, x]));
+  const out = (serverArr || []).slice();                 // start from what the server has, in its order
+  const at = (id)=> out.findIndex(x=>x.id === id);
   // items this device deleted
-  baseMap.forEach((b, id)=>{ if(!localMap.has(id)) result.delete(id); });
-  // items this device added or edited
-  localMap.forEach((l, id)=>{
-    const b = baseMap.get(id);
-    if(!b){ if(!result.has(id)) result.set(id, l); return; }
-    if(stableStringify(b) === stableStringify(l)) return;
-    const s = result.get(id);
-    if(s) result.set(id, mergeItem ? mergeItem(b, l, s) : l);
+  baseMap.forEach((b, id)=>{ if(!localMap.has(id)){ const i = at(id); if(i >= 0) out.splice(i, 1); } });
+  // items this device added or edited (in this device's order, so an undone delete returns to its old spot)
+  localArr2.forEach((l, li)=>{
+    const b = baseMap.get(id_(l));
+    if(b && deepEqual(b, l)) return;                                     // untouched here: keep the server's version
+    const i = at(l.id);
+    if(!b){
+      if(i >= 0) return;                                                 // already on the server
+      let pos = 0;                                                       // go right after the nearest earlier item we both have
+      for(let k = li - 1; k >= 0; k--){ const pi = at(localArr2[k].id); if(pi >= 0){ pos = pi + 1; break; } }
+      out.splice(pos, 0, l);
+      return;
+    }
+    if(i >= 0) out[i] = mergeItem ? mergeItem(b, l, out[i]) : l;        // edited here (if the other phone deleted it, leave it deleted)
   });
-  return Array.from(result.values());
+  return out;
 }
+function id_(x){ return x.id; }
 
 function mergeSettings(base, local, server){
   const out = Object.assign({}, server);
   Object.keys(local || {}).forEach(k=>{
-    if(stableStringify((base || {})[k]) !== stableStringify(local[k])) out[k] = local[k];
+    if(!deepEqual((base || {})[k], local[k])) out[k] = local[k];
   });
   return out;
 }
@@ -702,6 +806,7 @@ function mergeStates(base, local, server){
   out.transactions = mergeById(b.transactions, l.transactions, s.transactions);
   out.budgets = mergeById(b.budgets, l.budgets, s.budgets);
   out.foodItems = mergeById(b.foodItems, l.foodItems, s.foodItems);
+  out.recurring = mergeById(b.recurring, l.recurring, s.recurring);
   out.settings = mergeSettings(b.settings, l.settings, s.settings);
   out.categories = {
     expense: mergeById((b.categories || {}).expense, (l.categories || {}).expense, (s.categories || {}).expense),
@@ -766,6 +871,8 @@ function handleServerDoc(doc){
 
   const firstTime = !hasSyncedOnce;
   hasSyncedOnce = true;
+  clearTimeout(loadSlowTimer);
+  if(firstTime && typeof onFirstSync === 'function') onFirstSync();
   const changed = applyIncoming(raw);
   if(!fromCache) clearSetupBanner();
   if(changed || firstTime) render();
@@ -787,11 +894,20 @@ async function loadState(){
   }
   if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
   lastSyncedState = null; hasSyncedOnce = false; recoveryPromptShown = false; pendingApplied = false; saveRequested = false;
+  loadStatus = 'loading';
+  clearTimeout(loadSlowTimer);
+  loadSlowTimer = setTimeout(()=>{
+    if(hasSyncedOnce || !unsubscribeSnapshot) return;
+    loadStatus = (typeof navigator !== 'undefined' && navigator.onLine === false) ? 'offline' : 'slow';
+    render();
+  }, 7000);
   docRef = db.collection('family-finance').doc('shared-data');
   unsubscribeSnapshot = docRef.onSnapshot((doc)=>{
     handleServerDoc(doc);
   }, (err)=>{
     console.error('Sync error', err);
+    loadStatus = 'error';
+    clearTimeout(loadSlowTimer);
     showSetupBanner('Could not connect. Check your Firestore security rules.');
     render();
   });
@@ -911,7 +1027,467 @@ document.addEventListener('visibilitychange', ()=>{
 });
 window.addEventListener('online', ()=>{ flushIfDirty(); refreshFromServer(); });
 window.addEventListener('pageshow', ()=>{ refreshFromServer(); flushIfDirty(); });
+
+// ---- Restore: replaces the whole shared document with a backup (deliberate, not merged) ----
+async function restoreFromBackup(data){
+  if(!FIREBASE_CONFIGURED || !db || !docRef || !hasSyncedOnce) throw new Error('not-ready');
+  if(saveInFlight) throw new Error('busy');
+  saveInFlight = true; // keeps normal saves and refreshes out of the way while we replace everything
+  try{
+    const payload = await db.runTransaction(async (tx)=>{
+      const snap = await tx.get(docRef);
+      const serverRev = snap.exists ? ((snap.data()._rev) || 0) : 0;
+      const p = Object.assign(cloneData(Object.assign(defaultState(), data)), { _rev: serverRev + 1 });
+      tx.set(docRef, p);
+      return p;
+    });
+    clearPending();
+    saveRequested = false;
+    lastSyncedState = cloneData(payload);
+    state = withoutRev(cloneData(payload));
+  } finally {
+    saveInFlight = false;
+  }
+  render();
+}
+
 // ===== SYNC CORE END =====
+
+// ===== BACKUP CORE START =====
+const APP_VERSION = '17';
+const BACKUP_APP_ID = '1705-finance';
+const LAST_BACKUP_KEY = 'last-backup-at';
+const BACKUP_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function pad2(n){ return String(n).padStart(2, '0'); }
+function localDateStamp(d){ d = d || new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function backupFileName(prefix, ext){ return '1705-finance-' + prefix + '-' + localDateStamp() + '.' + ext; }
+
+function buildBackupObject(){
+  return {
+    app: BACKUP_APP_ID,
+    backupVersion: 1,
+    appVersion: APP_VERSION,
+    exportedAt: new Date().toISOString(),
+    data: withoutRev(cloneData(state))
+  };
+}
+
+// Checks a backup strictly, so a damaged or wrong file can never overwrite real data.
+function normalizeBackupData(raw){
+  const fail = (msg)=>({ ok: false, error: msg });
+  const isObj = (v)=> !!v && typeof v === 'object' && !Array.isArray(v);
+  const str = (v)=> typeof v === 'string' && v.length > 0;
+  const numeric = (v)=> (typeof v === 'number' || (typeof v === 'string' && v.trim() !== '')) && isFinite(Number(v));
+
+  if(!isObj(raw) || !Array.isArray(raw.accounts) || !Array.isArray(raw.transactions)){
+    return fail("This doesn't look like a 1705 Finance backup (accounts or transactions are missing).");
+  }
+  const d = defaultState();
+  const out = { accounts: [], transactions: [], budgets: [], foodItems: [], recurring: [] };
+  const uniqueTracker = ()=>{ const ids = new Set(); return (id)=>{ if(ids.has(id)) return false; ids.add(id); return true; }; };
+
+  let uniq = uniqueTracker();
+  for(let i = 0; i < raw.accounts.length; i++){
+    const a = raw.accounts[i];
+    if(!isObj(a) || !str(a.id) || !str(a.name) || !numeric(a.balance)) return fail('Account #' + (i + 1) + ' is incomplete or damaged.');
+    if(!uniq(a.id)) return fail('Account #' + (i + 1) + ' appears twice in the file.');
+    out.accounts.push(Object.assign({}, a, { balance: Number(a.balance), type: str(a.type) ? a.type : 'Regular Savings' }));
+  }
+
+  uniq = uniqueTracker();
+  for(let i = 0; i < raw.transactions.length; i++){
+    const t = raw.transactions[i];
+    if(!isObj(t) || !str(t.id)) return fail('Transaction #' + (i + 1) + ' has no valid id.');
+    if(t.type !== 'expense' && t.type !== 'income') return fail('Transaction #' + (i + 1) + ' has an unknown type.');
+    if(!numeric(t.amount)) return fail('Transaction #' + (i + 1) + ' has no valid amount.');
+    if(!str(t.date) || !BACKUP_DATE_RE.test(t.date)) return fail('Transaction #' + (i + 1) + ' has no valid date.');
+    if(!str(t.category)) return fail('Transaction #' + (i + 1) + ' has no category.');
+    if(t.person !== 'p1' && t.person !== 'p2') return fail('Transaction #' + (i + 1) + ' has an unknown person.');
+    if(!uniq(t.id)) return fail('Transaction #' + (i + 1) + ' appears twice in the file.');
+    out.transactions.push(Object.assign({}, t, {
+      amount: Number(t.amount),
+      note: typeof t.note === 'string' ? t.note : '',
+      accountId: str(t.accountId) ? t.accountId : null
+    }));
+  }
+
+  uniq = uniqueTracker();
+  const budgets = Array.isArray(raw.budgets) ? raw.budgets : [];
+  for(let i = 0; i < budgets.length; i++){
+    const b = budgets[i];
+    if(!isObj(b) || !str(b.id) || !str(b.category) || !numeric(b.limit)) return fail('Budget #' + (i + 1) + ' is incomplete or damaged.');
+    if(!uniq(b.id)) return fail('Budget #' + (i + 1) + ' appears twice in the file.');
+    out.budgets.push(Object.assign({}, b, { limit: Number(b.limit) }));
+  }
+
+  uniq = uniqueTracker();
+  const food = Array.isArray(raw.foodItems) ? raw.foodItems : [];
+  for(let i = 0; i < food.length; i++){
+    const f = food[i];
+    if(!isObj(f) || !str(f.id) || !str(f.name)) return fail('Food item #' + (i + 1) + ' is incomplete or damaged.');
+    if(!str(f.expiryDate) || !BACKUP_DATE_RE.test(f.expiryDate)) return fail('Food item #' + (i + 1) + ' has no valid expiry date.');
+    if(!uniq(f.id)) return fail('Food item #' + (i + 1) + ' appears twice in the file.');
+    out.foodItems.push(Object.assign({}, f, { used: !!f.used, amount: typeof f.amount === 'string' ? f.amount : '' }));
+  }
+
+  uniq = uniqueTracker();
+  const recurring = Array.isArray(raw.recurring) ? raw.recurring : [];
+  for(let i = 0; i < recurring.length; i++){
+    const r = recurring[i];
+    const label = 'Recurring entry #' + (i + 1);
+    if(!isObj(r) || !str(r.id)) return fail(label + ' has no valid id.');
+    if(r.type !== 'expense' && r.type !== 'income') return fail(label + ' has an unknown type.');
+    if(!numeric(r.amount)) return fail(label + ' has no valid amount.');
+    if(!str(r.category)) return fail(label + ' has no category.');
+    if(r.person !== 'p1' && r.person !== 'p2') return fail(label + ' has an unknown person.');
+    if(r.repeat !== 'monthly' && r.repeat !== 'days') return fail(label + ' has an unknown repeat pattern.');
+    if(r.repeat === 'monthly' && !(numeric(r.day) && Number(r.day) >= 1 && Number(r.day) <= 31)) return fail(label + ' has no valid day of month.');
+    if(r.repeat === 'days' && !(numeric(r.every) && Number(r.every) >= 1)) return fail(label + ' has no valid interval.');
+    if(!str(r.nextDue) || !BACKUP_DATE_RE.test(r.nextDue)) return fail(label + ' has no valid next due date.');
+    if(!uniq(r.id)) return fail(label + ' appears twice in the file.');
+    out.recurring.push(Object.assign({}, r, {
+      amount: Number(r.amount), note: typeof r.note === 'string' ? r.note : '',
+      accountId: str(r.accountId) ? r.accountId : null,
+      day: numeric(r.day) ? Number(r.day) : 1, every: numeric(r.every) ? Number(r.every) : 1
+    }));
+  }
+
+  const s = isObj(raw.settings) ? raw.settings : {};
+  out.settings = Object.assign({}, d.settings);
+  ['person1', 'person2', 'currency'].forEach(k=>{ if(str(s[k])) out.settings[k] = s[k]; });
+
+  const goodCats = (arr)=> Array.isArray(arr) && arr.length > 0 && arr.every(c=> isObj(c) && str(c.id) && str(c.label) && typeof c.icon === 'string');
+  const rc = isObj(raw.categories) ? raw.categories : {};
+  out.categories = {
+    expense: goodCats(rc.expense) ? rc.expense.map(c=>Object.assign({}, c)) : d.categories.expense,
+    income: goodCats(rc.income) ? rc.income.map(c=>Object.assign({}, c)) : d.categories.income
+  };
+  return { ok: true, data: out };
+}
+
+function parseBackupText(text){
+  let obj;
+  try{ obj = JSON.parse(text); }
+  catch(e){ return { ok: false, error: "This file can't be read — it isn't a valid backup." }; }
+  if(!obj || typeof obj !== 'object' || Array.isArray(obj)) return { ok: false, error: "This file isn't a valid backup." };
+  const raw = (obj.data && typeof obj.data === 'object') ? obj.data : obj;
+  const checked = normalizeBackupData(raw);
+  if(!checked.ok) return checked;
+  return { ok: true, data: checked.data, meta: { exportedAt: obj.exportedAt || null, appVersion: obj.appVersion || null } };
+}
+
+// ---- CSV export (opens in Excel / Google Sheets) ----
+function csvCell(v){
+  let s = String(v == null ? '' : v);
+  if(/^[=+\-@\t\r]/.test(s)) s = "'" + s;           // stops spreadsheets running text as a formula
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function transactionsToCsv(){
+  const rows = [['Date', 'Type', 'Amount', 'Category', 'Person', 'Account', 'To/From']];
+  sortedTransactions().forEach(t=>{
+    const acc = state.accounts.find(a=>a.id === t.accountId);
+    rows.push([t.date, t.type === 'income' ? 'Income' : 'Expense', Number(t.amount), catInfo(t.type, t.category).label, personName(t.person), acc ? acc.name : '', t.note || '']);
+  });
+  return '\uFEFF' + rows.map(r=>r.map((c, i)=> i === 2 ? String(c) : csvCell(c)).join(',')).join('\r\n') + '\r\n';
+}
+
+// ---- Getting a file off the phone: share sheet first (Save to Files, Drive, WhatsApp...), download as fallback ----
+async function deliverFile(filename, mimeType, text){
+  const types = [mimeType];
+  if(mimeType !== 'text/plain') types.push('text/plain');
+  try{
+    for(const type of types){
+      const file = new File([text], filename, { type });
+      if(navigator.canShare && navigator.canShare({ files: [file] })){
+        await navigator.share({ files: [file], title: filename });
+        return 'shared';
+      }
+    }
+  }catch(e){
+    if(e && e.name === 'AbortError') return 'cancelled';
+    /* anything else: fall back to a normal download */
+  }
+  const url = URL.createObjectURL(new Blob([text], { type: mimeType }));
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  return 'downloaded';
+}
+
+function getLastBackupAt(){
+  try{ const v = localStorage.getItem(LAST_BACKUP_KEY); return v ? new Date(v) : null; }catch(e){ return null; }
+}
+function markBackupDone(){
+  try{ localStorage.setItem(LAST_BACKUP_KEY, new Date().toISOString()); }catch(e){}
+}
+function backupStatus(){
+  const at = getLastBackupAt();
+  if(!at || isNaN(at.getTime())) return { text: 'Never', stale: true };
+  const days = Math.floor((Date.now() - at.getTime()) / 86400000);
+  if(days <= 0) return { text: 'Today', stale: false };
+  if(days === 1) return { text: 'Yesterday', stale: false };
+  return { text: days + ' days ago', stale: days >= 30 };
+}
+
+// ---- Which person does this phone usually add entries as? ----
+function getPhoneOwner(){
+  try{ const o = localStorage.getItem('phone-person'); return (o === 'p1' || o === 'p2') ? o : null; }catch(e){ return null; }
+}
+function getDefaultPerson(){
+  const owner = getPhoneOwner();
+  if(owner) return owner;
+  try{ const last = localStorage.getItem('last-person'); if(last === 'p1' || last === 'p2') return last; }catch(e){}
+  return 'p1';
+}
+function rememberPerson(p){ try{ localStorage.setItem('last-person', p); }catch(e){} }
+function setPhoneOwner(p){ try{ localStorage.setItem('phone-person', p); }catch(e){} }
+// ===== BACKUP CORE END =====
+
+// ===== FEATURES CORE START =====
+// ---- date helpers (all dates are plain "YYYY-MM-DD" text, in local time) ----
+function isoDate(y, m, d){ return y + '-' + pad2(m) + '-' + pad2(d); }
+function todayISO(now){ now = now || new Date(); return isoDate(now.getFullYear(), now.getMonth() + 1, now.getDate()); }
+function parseISODate(s){ const p = String(s).split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+function addDaysISO(s, n){ const d = parseISODate(s); d.setDate(d.getDate() + n); return isoDate(d.getFullYear(), d.getMonth() + 1, d.getDate()); }
+function daysInMonthOf(y, m){ return new Date(y, m, 0).getDate(); }
+
+// ---- recurring entries ----
+// the occurrence that comes AFTER fromISO
+function nextOccurrence(item, fromISO){
+  if(item.repeat === 'days') return addDaysISO(fromISO, Math.max(1, Math.round(Number(item.every)) || 1));
+  const p = fromISO.split('-').map(Number);
+  let y = p[0], m = p[1] + 1;
+  if(m > 12){ m = 1; y++; }
+  const want = Math.min(31, Math.max(1, Math.round(Number(item.day)) || p[2]));
+  return isoDate(y, m, Math.min(want, daysInMonthOf(y, m))); // 31st in a 30-day month -> 30th, but the wish stays 31
+}
+// first occurrence that is today or later
+function firstDueDate(repeat, day, every, now){
+  const t = todayISO(now);
+  if(repeat === 'days') return addDaysISO(t, Math.max(1, Math.round(Number(every)) || 1));
+  const today = parseISODate(t);
+  const want = Math.min(31, Math.max(1, Math.round(Number(day)) || today.getDate()));
+  const y = today.getFullYear(), m = today.getMonth() + 1;
+  const thisMonth = isoDate(y, m, Math.min(want, daysInMonthOf(y, m)));
+  if(thisMonth >= t) return thisMonth;
+  return nextOccurrence({ repeat: 'monthly', day: want }, thisMonth);
+}
+// first occurrence strictly after afterISO that is not in the past (used by "repeat this entry")
+function firstDueAfter(item, afterISO, now){
+  const t = todayISO(now);
+  let d = nextOccurrence(item, afterISO);
+  let guard = 0;
+  while(d < t && guard++ < 400) d = nextOccurrence(item, d);
+  return d;
+}
+function dueRecurring(list, now){
+  const t = todayISO(now);
+  return (list || []).filter(r => r && r.nextDue && r.nextDue <= t).sort((a, b) => a.nextDue < b.nextDue ? -1 : a.nextDue > b.nextDue ? 1 : 0);
+}
+function describeRepeat(r){
+  if(r.repeat === 'days'){
+    const n = Math.max(1, Math.round(Number(r.every)) || 1);
+    if(n === 1) return 'Daily';
+    if(n === 7) return 'Weekly';
+    if(n === 14) return 'Every 2 weeks';
+    return 'Every ' + n + ' days';
+  }
+  return 'Monthly · day ' + (r.day || '?');
+}
+
+// ---- suggestions for the "To / From" field ----
+function mostUsedKey(counts, order){
+  let best = null, bestN = 0;
+  (order || Object.keys(counts)).forEach(k=>{ if((counts[k] || 0) > bestN){ best = k; bestN = counts[k]; } });
+  return best;
+}
+// the category you use most for this kind of entry (ties go to the earlier one in the list)
+function mostUsedCategory(transactions, type, catList){
+  const counts = {};
+  (transactions || []).forEach(t=>{ if(t.type === type) counts[t.category] = (counts[t.category] || 0) + 1; });
+  const ids = (catList || []).map(c=>c.id);
+  return mostUsedKey(counts, ids) || (ids.length ? ids[0] : null);
+}
+function noteSuggestions(transactions, type, query, validCatIds, limit){
+  const q = String(query || '').trim().toLowerCase();
+  const stats = new Map();
+  (transactions || []).forEach(t=>{
+    if(t.type !== type) return;
+    const note = String(t.note || '').trim();
+    if(!note) return;
+    const key = note.toLowerCase();
+    let s = stats.get(key);
+    if(!s){ s = { note, count: 0, lastDate: '', lastCreated: 0, lastAmount: 0, cats: {} }; stats.set(key, s); }
+    s.count++;
+    s.cats[t.category] = (s.cats[t.category] || 0) + 1;
+    const when = String(t.date || ''), created = Number(t.createdAt || 0);
+    if(when > s.lastDate || (when === s.lastDate && created >= s.lastCreated)){
+      s.lastDate = when; s.lastCreated = created; s.lastAmount = Number(t.amount); s.note = note;
+    }
+  });
+  let list = Array.from(stats.values());
+  if(q) list = list.filter(s => s.note.toLowerCase().includes(q));
+  list.sort((a, b)=>{
+    if(q){
+      const as = a.note.toLowerCase().startsWith(q) ? 1 : 0, bs = b.note.toLowerCase().startsWith(q) ? 1 : 0;
+      if(as !== bs) return bs - as;
+    }
+    if(b.count !== a.count) return b.count - a.count;
+    return a.lastDate < b.lastDate ? 1 : a.lastDate > b.lastDate ? -1 : 0;
+  });
+  const ok = new Set(validCatIds || []);
+  return list.slice(0, limit || 5).map(s=>{
+    const cat = mostUsedKey(s.cats);
+    return { note: s.note, count: s.count, amount: s.lastAmount, category: (cat && (!validCatIds || ok.has(cat))) ? cat : null };
+  });
+}
+
+// ---- budget pace ----
+function budgetPace(limit, spent, now){
+  now = now || new Date();
+  limit = Number(limit) || 0; spent = Number(spent) || 0;
+  const dim = daysInMonthOf(now.getFullYear(), now.getMonth() + 1);
+  const day = now.getDate();
+  const daysLeft = dim - day + 1;                       // today still counts
+  const remaining = limit - spent;
+  const projected = day >= 3 ? Math.round(spent / day * dim) : null;   // too early in the month to predict
+  let status = 'ok';
+  if(spent >= limit) status = 'over';
+  else if(projected !== null && projected > limit) status = 'warn';
+  return {
+    limit, spent, remaining, day, dim, daysLeft, status, projected,
+    expectedPct: day / dim,
+    over: Math.max(0, spent - limit),
+    projectedOver: projected !== null ? Math.max(0, projected - limit) : 0,
+    perDay: remaining > 0 ? Math.floor(remaining / daysLeft) : 0
+  };
+}
+
+// ---- "is there a newer version online?" ----
+function parseRemoteVersion(htmlText){
+  const m = /const APP_VERSION = '(\d+)'/.exec(String(htmlText || ''));
+  return m ? Number(m[1]) : null;
+}
+function isNewerVersion(remote, local){
+  return remote !== null && remote !== undefined && isFinite(remote) && Number(remote) > Number(local);
+}
+
+// ---- food: how long did this last time? (shelf life, in days from buying) ----
+function suggestShelfLifeDays(name, foodItems){
+  const key = String(name || '').trim().toLowerCase();
+  if(!key) return null;
+  let best = null;
+  (foodItems || []).forEach(f=>{
+    if(String(f.name || '').trim().toLowerCase() !== key || !f.createdAt || !f.expiryDate) return;
+    const bought = new Date(f.createdAt);
+    const days = Math.round((parseISODate(f.expiryDate) - parseISODate(isoDate(bought.getFullYear(), bought.getMonth() + 1, bought.getDate()))) / 86400000);
+    if(days < 1 || days > 800) return;
+    if(!best || f.createdAt > best.createdAt) best = { days, createdAt: f.createdAt };
+  });
+  return best ? best.days : null;
+}
+// ===== FEATURES CORE END =====
+
+// ---------- UNDO TOAST ----------
+let toastTimer = null, toastAction = null;
+function hideToast(){
+  const el = document.getElementById('toast');
+  if(el) el.classList.remove('show');
+  clearTimeout(toastTimer);
+  toastAction = null;
+}
+function showUndoToast(message, undoFn, label){
+  const el = document.getElementById('toast');
+  if(!el) return;
+  toastAction = undoFn;
+  el.innerHTML = `<span class="toast-msg">${esc(message)}</span><button class="toast-btn" id="toastUndoBtn">${esc(label || 'Undo')}</button>`;
+  el.classList.add('show');
+  document.getElementById('toastUndoBtn').onclick = ()=>{ const fn = toastAction; hideToast(); if(fn) fn(); };
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, 6000);
+}
+
+// ---------- UPDATE CHECK ----------
+let updateAvailable = false, updateDismissed = false, lastVersionCheck = 0;
+function reloadPage(){ location.reload(); }
+function showUpdateBanner(){
+  const el = document.getElementById('updateBanner');
+  if(!el || updateDismissed) return;
+  el.innerHTML = `<span class="ub-text">A new version is available.</span><span class="ub-action">Update</span><button class="ub-close" id="updateClose" aria-label="Dismiss">✕</button>`;
+  el.classList.add('show');
+  el.onclick = (e)=>{
+    if(e.target && e.target.id === 'updateClose'){ updateDismissed = true; el.classList.remove('show'); return; }
+    applyUpdate();
+  };
+}
+async function checkForUpdate(force){
+  if(updateAvailable) return;
+  if(!force && Date.now() - lastVersionCheck < 10 * 60 * 1000) return;
+  if(typeof navigator !== 'undefined' && navigator.onLine === false) return;
+  lastVersionCheck = Date.now();
+  try{
+    const res = await fetch(location.pathname + '?vcheck=' + Date.now(), { cache: 'no-store' });
+    if(!res.ok) return;
+    if(isNewerVersion(parseRemoteVersion(await res.text()), APP_VERSION)){ updateAvailable = true; showUpdateBanner(); }
+  }catch(e){ /* offline or blocked — try again later */ }
+}
+async function applyUpdate(){
+  const el = document.getElementById('updateBanner');
+  const backOff = (msg)=>{
+    if(!el) return;
+    el.innerHTML = `<span class="ub-text">${esc(msg)}</span><span class="ub-action">Retry</span>`;
+    el.onclick = ()=> applyUpdate();
+  };
+  // Never clear the saved copy of the app unless we are sure we can load the new one.
+  if(typeof navigator !== 'undefined' && navigator.onLine === false){ backOff("You're offline. Connect to the internet, then tap here to update."); return; }
+  if(el){ el.onclick = null; el.innerHTML = '<span class="ub-text">Updating…</span>'; }
+  try{
+    const probe = await fetch(location.pathname + '?vcheck=' + Date.now(), { cache: 'no-store' });
+    if(!probe.ok) throw new Error('unreachable');
+  }catch(e){ backOff("Couldn't reach the server. Tap here to try again."); return; }
+  // let any unsaved change reach the server first
+  try{ flushIfDirty(); }catch(e){}
+  const t0 = Date.now();
+  while(Date.now() - t0 < 6000 && (saveInFlight || (lastSyncedState && !sameContent(state, lastSyncedState)))){
+    await new Promise(r=>setTimeout(r, 200));
+  }
+  try{
+    if(navigator.serviceWorker && navigator.serviceWorker.getRegistrations){
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister()));
+    }
+    if(window.caches){ const keys = await caches.keys(); await Promise.all(keys.map(k=>caches.delete(k))); }
+  }catch(e){ /* reload anyway */ }
+  reloadPage();
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible') checkForUpdate(false); });
+
+// ---------- LOADING SCREEN ----------
+function renderLoadingView(){
+  const messages = {
+    loading: 'Loading your data…',
+    slow: 'Still connecting… this is taking longer than usual.',
+    offline: "You're offline, and nothing is saved on this phone yet. Your data will appear once you're back online.",
+    error: "Couldn't connect. Check your connection and try again."
+  };
+  const retry = loadStatus !== 'loading' ? `<button class="btn-secondary" id="loadRetryBtn" style="max-width:200px; display:block; margin:14px auto 0;">Try again</button>` : '';
+  return `<div class="skeleton-wrap" aria-busy="true">
+    <div class="sk sk-label"></div><div class="sk sk-balance"></div><div class="sk sk-sub"></div>
+    <div class="sk sk-title"></div>
+    <div class="sk-row"><div class="sk sk-card"></div><div class="sk sk-card"></div></div>
+    <div class="sk sk-title"></div>
+    <div class="sk sk-wide"></div><div class="sk sk-wide"></div>
+    <div class="sk-note" id="loadNote">${esc(messages[loadStatus] || messages.loading)}${retry}</div>
+  </div>`;
+}
+function retryLoad(){ loadStatus = 'loading'; loadState(); render(); }
+function setChromeVisible(visible){
+  const fab = document.getElementById('fab'); if(fab) fab.style.display = visible ? '' : 'none';
+  const nav = document.getElementById('bottomNav'); if(nav) nav.style.display = visible ? '' : 'none';
+}
+function onFirstSync(){ setChromeVisible(true); checkForUpdate(true); }
 
 function showSetupBanner(customMsg){
   const el = document.getElementById('setupBanner');
@@ -1314,6 +1890,13 @@ function renderHistoryView(){
 function render(){
   const root = document.getElementById('pageInner');
 
+  if(FIREBASE_CONFIGURED && !hasSyncedOnce && !recoveryPromptShown){
+    root.innerHTML = renderLoadingView();
+    const retryBtn = document.getElementById('loadRetryBtn');
+    if(retryBtn) retryBtn.onclick = retryLoad;
+    return;
+  }
+
   if(ui.tab === 'food'){
     root.innerHTML = renderFoodView();
     attachFoodListeners();
@@ -1357,6 +1940,24 @@ function render(){
       <div class="expiry-banner-icon">⏰</div>
       <div class="expiry-banner-text"><b>${expiringItems.length} food item${expiringItems.length===1?'':'s'}</b> need attention</div>
       <div class="expiry-banner-arrow">›</div>
+    </div>`;
+  }
+
+  // Recurring entries that are due
+  const dueList = dueRecurring(state.recurring);
+  if(dueList.length > 0){
+    html += `<div class="section">
+      <div class="section-head"><div class="section-title">Due</div></div>
+      ${dueList.map(r=>{
+        const info = catInfo(r.type, r.category);
+        const lbl = dateLabel(r.nextDue);
+        const when = (lbl === 'Today' || lbl === 'Yesterday') ? lbl.toLowerCase() : lbl;
+        return `<div class="due-row" data-due="${r.id}">
+          <div class="tx-icon">${info.icon}</div>
+          <div class="tx-mid"><div class="tx-cat">${esc(r.note || info.label)}</div><div class="tx-sub">Due ${esc(when)} · ${esc(describeRepeat(r))}</div></div>
+          <div class="due-right"><div class="tx-amt ${r.type}">${r.type==='income' ? '+' : '−'}${fmt(r.amount)}</div><button class="due-skip" data-skip="${r.id}">Skip</button></div>
+        </div>`;
+      }).join('')}
     </div>`;
   }
 
@@ -1434,15 +2035,21 @@ function render(){
   } else {
     state.budgets.forEach(b=>{
       const spent = budgetSpent(b.category);
+      const pace = budgetPace(b.limit, spent);
       const pct = Math.min(100, Math.round((spent / Math.max(1,b.limit))*100));
       const info = catInfo('expense', b.category);
-      const over = spent > b.limit;
+      const barColor = pace.status === 'over' ? 'var(--red)' : (pace.status === 'warn' || pct > 80 ? 'var(--orange)' : 'var(--green)');
+      let paceText;
+      if(pace.status === 'over') paceText = pace.over > 0 ? `Over budget by ${fmt(pace.over)}` : 'Budget used up';
+      else if(pace.status === 'warn') paceText = `⚠ On pace to spend ${fmt(pace.projected)} — ${fmt(pace.projectedOver)} over`;
+      else paceText = `${fmt(pace.remaining)} left · about ${fmt(pace.perDay)} a day`;
       html += `<div class="budget-row" data-budget="${b.id}">
         <div class="budget-top">
           <div class="budget-cat">${info.icon} ${info.label}</div>
           <div class="budget-figures"><b>${fmt(spent)}</b> / ${fmt(b.limit)}</div>
         </div>
-        <div class="budget-bar-track"><div class="budget-bar-fill" style="width:${pct}%; background:${over ? 'var(--red)' : (pct>80?'var(--orange)':'var(--green)')}"></div></div>
+        <div class="budget-bar-track"><div class="budget-bar-fill" style="width:${pct}%; background:${barColor}"></div><div class="budget-pace-tick" style="left:${(pace.expectedPct * 100).toFixed(1)}%"></div></div>
+        <div class="budget-pace ${pace.status}">${paceText}</div>
       </div>`;
     });
   }
@@ -1546,6 +2153,7 @@ function renderFoodView(){
           <div class="food-name">${esc(item.name)}</div>
           <div class="food-sub">${item.amount ? esc(item.amount)+' · ' : ''}<span class="food-expiry-${ex.tone}">${esc(ex.text)}</span></div>
         </div>
+        ${item.used ? `<button class="food-rebuy" data-rebuy="${item.id}">Buy again</button>` : ''}
       </div>`;
     });
   }
@@ -1565,9 +2173,21 @@ function attachFoodListeners(){
       if(item){ item.used = !item.used; saveState(); render(); }
     };
   });
+  document.querySelectorAll('[data-rebuy]').forEach(btn=>{
+    btn.onclick = (e)=>{
+      e.stopPropagation();
+      const item = state.foodItems.find(f=>f.id === btn.getAttribute('data-rebuy'));
+      if(item) openFoodFormSheet(null, rebuyPrefill(item));
+    };
+  });
   document.querySelectorAll('[data-food]').forEach(row=>{
     row.onclick = ()=> openEditFoodSheet(row.getAttribute('data-food'));
   });
+}
+
+function rebuyPrefill(item){
+  const days = suggestShelfLifeDays(item.name, state.foodItems);
+  return { rebuy: true, name: item.name, amount: item.amount || '', expiryDate: days ? addDaysISO(todayISO(), days) : '', suggestedDays: days };
 }
 
 function openAddFoodSheet(){
@@ -1580,15 +2200,18 @@ function openEditFoodSheet(id){
   openFoodFormSheet(item);
 }
 
-function openFoodFormSheet(existing){
+function openFoodFormSheet(existing, prefill){
+  prefill = prefill || {};
+  const src = existing || prefill;
   const html = `
-    <div class="sheet-title">${existing ? 'Edit food item' : 'Add food item'}</div>
+    <div class="sheet-title">${existing ? 'Edit food item' : (prefill.rebuy ? 'Buy again' : 'Add food item')}</div>
     <label class="field-label" style="margin-top:0">Item name</label>
-    <input type="text" id="foodName" placeholder="e.g. Chicken breast" value="${existing ? esc(existing.name) : ''}">
+    <input type="text" id="foodName" placeholder="e.g. Chicken breast" value="${src.name ? esc(src.name) : ''}">
     <label class="field-label">Amount (optional)</label>
-    <input type="text" id="foodAmount" placeholder="e.g. 500g, 2 packs" value="${existing ? esc(existing.amount||'') : ''}">
+    <input type="text" id="foodAmount" placeholder="e.g. 500g, 2 packs" value="${esc(src.amount || '')}">
     <label class="field-label">Expiry date</label>
-    <div class="date-field-wrap"><input type="date" id="foodExpiry" value="${existing ? existing.expiryDate : ''}"></div>
+    <div class="date-field-wrap"><input type="date" id="foodExpiry" value="${existing ? existing.expiryDate : (prefill.expiryDate || '')}"></div>
+    ${(!existing && prefill.suggestedDays) ? `<div class="hint">Suggested from last time: it lasted ${prefill.suggestedDays} days. Change it if this one is different.</div>` : ''}
     <div class="field-error" id="foodErr"></div>
     <button class="btn-primary" id="foodSave">${existing ? 'Save changes' : 'Add item'}</button>
     ${existing ? `<button class="btn-text-danger" id="foodDelete">Delete item</button>` : ''}
@@ -1604,13 +2227,20 @@ function openFoodFormSheet(existing){
         existing.name = name; existing.amount = amount; existing.expiryDate = expiryDate;
       } else {
         state.foodItems.push({ id: uid(), name, amount, expiryDate, used: false, createdAt: Date.now() });
+        if(prefill.rebuy) ui.foodFilter = 'unused';
       }
       saveState(); render(); closeSheet(wrap);
     };
     if(existing){
       wrap.querySelector('#foodDelete').onclick = ()=>{
+        const idx = state.foodItems.findIndex(f=>f.id===existing.id);
+        const removed = state.foodItems[idx];
         state.foodItems = state.foodItems.filter(f=>f.id!==existing.id);
         saveState(); render(); closeSheet(wrap);
+        showUndoToast('Food item deleted', ()=>{
+          state.foodItems.splice(Math.min(idx, state.foodItems.length), 0, removed);
+          saveState(); render();
+        });
       };
     }
   });
@@ -1626,6 +2256,12 @@ function attachHomeListeners(){
     const scrollArea = document.getElementById('scroll-area');
     if(scrollArea) scrollArea.scrollTop = 0;
   };
+  document.querySelectorAll('[data-due]').forEach(row=>{
+    row.onclick = ()=> openDueConfirm(row.getAttribute('data-due'));
+  });
+  document.querySelectorAll('[data-skip]').forEach(btn=>{
+    btn.onclick = (e)=>{ e.stopPropagation(); skipDue(btn.getAttribute('data-skip')); };
+  });
   document.getElementById('addAccountCard').onclick = openAddAccountSheet;
   document.getElementById('addBudgetBtn').onclick = openAddBudgetSheet;
   document.querySelectorAll('#expenseTabChips button').forEach(b=>{
@@ -1858,8 +2494,14 @@ function openEditAccountSheet(accountId){
       saveState(); render(); closeSheet(wrap);
     };
     wrap.querySelector('#accDelete').onclick = ()=>{
+      const idx = state.accounts.findIndex(a=>a.id===accountId);
+      const removed = idx >= 0 ? state.accounts[idx] : null;
       state.accounts = state.accounts.filter(a=>a.id!==accountId);
       saveState(); render(); closeSheet(wrap);
+      if(removed) showUndoToast('Account deleted', ()=>{
+        state.accounts.splice(Math.min(idx, state.accounts.length), 0, removed);
+        saveState(); render();
+      });
     };
   });
 }
@@ -1870,10 +2512,11 @@ function openAddTxSheet(opts){
   const editingTx = opts.editingTx || null;
   const prefill = editingTx ? { amount: editingTx.amount, note: editingTx.note, date: editingTx.date } : (opts.prefill || {});
   let txType = editingTx ? editingTx.type : (opts.txType || 'expense');
-  let category = editingTx ? editingTx.category : (prefill.category || allCats(txType)[0].id);
-  let person = editingTx ? editingTx.person : 'p1';
-  let skipAccount = editingTx ? !editingTx.accountId : (txType === 'expense' ? true : state.accounts.length === 0);
-  let accountId = editingTx ? (editingTx.accountId || (state.accounts.length ? state.accounts[0].id : null)) : (state.accounts.length ? state.accounts[0].id : null);
+  let category = editingTx ? editingTx.category : (prefill.category || mostUsedCategory(state.transactions, txType, allCats(txType)) || allCats(txType)[0].id);
+  let person = editingTx ? editingTx.person : (opts.person || getDefaultPerson());
+  const presetAcc = (!editingTx && opts.accountId !== undefined) ? (state.accounts.find(a=>a.id === opts.accountId) ? opts.accountId : null) : undefined;
+  let skipAccount = editingTx ? !editingTx.accountId : (presetAcc !== undefined ? !presetAcc : (txType === 'expense' ? true : state.accounts.length === 0));
+  let accountId = editingTx ? (editingTx.accountId || (state.accounts.length ? state.accounts[0].id : null)) : (presetAcc ? presetAcc : (state.accounts.length ? state.accounts[0].id : null));
 
   function bodyHtml(){
     const cats = allCats(txType);
@@ -1904,7 +2547,8 @@ function openAddTxSheet(opts){
         ${state.accounts.map(a=>`<div class="account-pick-item ${a.id===accountId?'active':''}" data-acc="${a.id}"><span class="n">${esc(a.name)}</span><span class="b">${fmt(a.balance)}</span></div>`).join('')}
       </div>`}
       <label class="field-label">${txType==='expense' ? 'To (optional)' : 'From (optional)'}</label>
-      <input type="text" id="txNote" placeholder="${txType==='expense' ? 'e.g. Supermarket name' : 'e.g. Employer name'}" value="${esc(prefill.note||'')}">
+      <input type="text" id="txNote" autocomplete="off" placeholder="${txType==='expense' ? 'e.g. Supermarket name' : 'e.g. Employer name'}" value="${esc(prefill.note||'')}">
+      <div class="suggest-list" id="noteSuggest" style="display:none;"></div>
       <label class="field-label">Date</label>
       <div class="date-field-wrap"><input type="date" id="txDate" value="${prefill.date || new Date().toISOString().slice(0,10)}"></div>
       <div class="field-error" id="txErr"></div>
@@ -1919,10 +2563,41 @@ function openAddTxSheet(opts){
   }
 
   function bindBody(wrap){
+    const noteInput = wrap.querySelector('#txNote');
+    const sugBox = wrap.querySelector('#noteSuggest');
+    function pickSuggestion(s){
+      noteInput.value = s.note;
+      if(!editingTx){
+        if(s.category){
+          category = s.category;
+          wrap.querySelectorAll('#catGrid .cat-chip').forEach(c=>c.classList.toggle('active', c.getAttribute('data-cat') === category));
+        }
+        const amountEl = wrap.querySelector('#txAmount');
+        if(amountEl && !String(amountEl.value || '').trim()) amountEl.value = String(s.amount);
+      }
+      sugBox.style.display = 'none';
+    }
+    function showSuggestions(){
+      const list = noteSuggestions(state.transactions, txType, noteInput.value, allCats(txType).map(c=>c.id), 5);
+      if(!list.length){ sugBox.style.display = 'none'; return; }
+      sugBox.innerHTML = list.map((s, i)=>{
+        const ci = s.category ? catInfo(txType, s.category) : null;
+        return `<div class="suggest-row" data-sug="${i}"><span class="suggest-ic">${ci ? ci.icon : '•'}</span><span class="suggest-name">${esc(s.note)}</span><span class="suggest-meta">${fmt(s.amount)} · ×${s.count}</span></div>`;
+      }).join('');
+      sugBox.style.display = '';
+      sugBox.querySelectorAll('.suggest-row').forEach(row=>{
+        row.onmousedown = (e)=> e.preventDefault();   // keeps the keyboard open while you tap
+        row.onclick = ()=> pickSuggestion(list[Number(row.getAttribute('data-sug'))]);
+      });
+    }
+    noteInput.onfocus = showSuggestions;
+    noteInput.oninput = showSuggestions;
+    noteInput.onblur = ()=> setTimeout(()=>{ sugBox.style.display = 'none'; }, 180);
+
     wrap.querySelectorAll('#txTypeSeg button').forEach(b=>{
       b.onclick = ()=>{
         txType = b.getAttribute('data-val');
-        category = allCats(txType)[0].id;
+        category = mostUsedCategory(state.transactions, txType, allCats(txType)) || allCats(txType)[0].id;
         skipAccount = txType === 'expense' ? true : state.accounts.length === 0;
         wrap.querySelector('#txBody').innerHTML = bodyHtml();
         bindBody(wrap);
@@ -1966,6 +2641,11 @@ function openAddTxSheet(opts){
       } else {
         state.transactions.push({ id: uid(), type: txType, amount, category, person, accountId: acc ? acc.id : null, note, date, createdAt: Date.now() });
         if(acc){ acc.balance = Number(acc.balance) + (txType==='income' ? amount : -amount); }
+        rememberPerson(person);
+        if(opts.recurringId){
+          const rr = (state.recurring || []).find(x=>x.id === opts.recurringId);
+          if(rr) rr.nextDue = nextOccurrence(rr, rr.nextDue);
+        }
       }
       saveState(); render(); closeSheet(wrap);
     };
@@ -1987,6 +2667,7 @@ function openTxDetailSheet(txId){
       ${t.note ? `<div style="display:flex; justify-content:space-between; padding:12px 0; font-size:12px;"><span style="color:var(--label-secondary)">${t.type==='expense' ? 'To' : 'From'}</span><span>${esc(t.note)}</span></div>` : ''}
     </div>
     <button class="btn-secondary" id="txEdit">Edit transaction</button>
+    <button class="btn-secondary" id="txRepeat">Repeat this entry…</button>
     <button class="btn-text-danger" id="txDelete">Delete transaction</button>
   `;
   showSheet(html, (wrap)=>{
@@ -1994,10 +2675,25 @@ function openTxDetailSheet(txId){
       closeSheet(wrap);
       openAddTxSheet({ editingTx: t });
     };
+    wrap.querySelector('#txRepeat').onclick = ()=>{
+      closeSheet(wrap);
+      const day = Number(String(t.date).slice(8, 10)) || 1;
+      openRecurringFormSheet(null, {
+        type: t.type, amount: t.amount, category: t.category, person: t.person, accountId: t.accountId, note: t.note,
+        repeat: 'monthly', day, nextDue: firstDueAfter({ repeat: 'monthly', day }, t.date)
+      }, null);
+    };
     wrap.querySelector('#txDelete').onclick = ()=>{
+      const removed = t;
       if(acc){ acc.balance = Number(acc.balance) - (t.type==='income' ? t.amount : -t.amount); }
       state.transactions = state.transactions.filter(x=>x.id!==txId);
       saveState(); render(); closeSheet(wrap);
+      showUndoToast('Transaction deleted', ()=>{
+        state.transactions.push(removed);
+        const a = state.accounts.find(x=>x.id === removed.accountId);
+        if(a){ a.balance = Number(a.balance) + (removed.type==='income' ? Number(removed.amount) : -Number(removed.amount)); }
+        saveState(); render();
+      });
     };
   });
 }
@@ -2055,8 +2751,14 @@ function openEditBudgetSheet(budgetId){
       saveState(); render(); closeSheet(wrap);
     };
     wrap.querySelector('#bDelete').onclick = ()=>{
+      const idx = state.budgets.findIndex(x=>x.id===budgetId);
+      const removed = idx >= 0 ? state.budgets[idx] : null;
       state.budgets = state.budgets.filter(x=>x.id!==budgetId);
       saveState(); render(); closeSheet(wrap);
+      if(removed) showUndoToast('Budget deleted', ()=>{
+        state.budgets.splice(Math.min(idx, state.budgets.length), 0, removed);
+        saveState(); render();
+      });
     };
   });
 }
@@ -2252,9 +2954,15 @@ function openEditCategorySheet(type, catId){
     };
     if(existing){
       wrap.querySelector('#catDelete').onclick = ()=>{
+        const idx = state.categories[type].findIndex(c=>c.id===existing.id);
+        const removed = state.categories[type][idx];
         state.categories[type] = state.categories[type].filter(c=>c.id!==existing.id);
         saveState(); render(); closeSheet(wrap);
         openManageCategoriesSheet(type);
+        showUndoToast('Category deleted', ()=>{
+          state.categories[type].splice(Math.min(idx, state.categories[type].length), 0, removed);
+          saveState(); render();
+        });
       };
     }
   });
@@ -2271,6 +2979,7 @@ function wireSheetBack(wrap, onBack){
 }
 
 function openSettingsSheet(){
+  const bs = backupStatus();
   const html = `
     <div class="sheet-title">Settings</div>
     <div class="menu-group">
@@ -2294,6 +3003,18 @@ function openSettingsSheet(){
         <div class="menu-label">Categories</div>
         <div class="menu-chevron">›</div>
       </div>
+      <div class="menu-row" id="menuRecurring">
+        <div class="menu-icon ic-recurring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div>
+        <div class="menu-label">Recurring</div>
+        ${(state.recurring || []).length ? `<div class="menu-value">${(state.recurring || []).length}</div>` : ''}
+        <div class="menu-chevron">›</div>
+      </div>
+      <div class="menu-row" id="menuBackup">
+        <div class="menu-icon ic-backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></div>
+        <div class="menu-label">Backup</div>
+        <div class="menu-value ${bs.stale ? 'warn' : ''}">${esc(bs.text)}</div>
+        <div class="menu-chevron">›</div>
+      </div>
     </div>
     <div class="menu-group">
       <div class="menu-row destructive" id="menuSignOut">
@@ -2302,27 +3023,44 @@ function openSettingsSheet(){
       </div>
     </div>
     <div class="hint">This data is shared between everyone who opens this app — that's how you and your partner see the same balances.</div>
+    <div class="version-label">1705 Finance · Version ${APP_VERSION}</div>
   `;
   showSheet(html, (wrap)=>{
     wrap.querySelector('#menuPerson').onclick = ()=>{ closeSheet(wrap); openPersonSettingsSheet(); };
     wrap.querySelector('#menuCurrency').onclick = ()=>{ closeSheet(wrap); openCurrencySettingsSheet(); };
     wrap.querySelector('#menuAppearance').onclick = ()=>{ closeSheet(wrap); openAppearanceSettingsSheet(); };
     wrap.querySelector('#menuCategories').onclick = ()=>{ closeSheet(wrap); openManageCategoriesSheet(); };
+    wrap.querySelector('#menuRecurring').onclick = ()=>{ closeSheet(wrap); openRecurringSheet(); };
+    wrap.querySelector('#menuBackup').onclick = ()=>{ closeSheet(wrap); openBackupSheet(); };
     wrap.querySelector('#menuSignOut').onclick = ()=>{ closeSheet(wrap); signOutApp(); };
   });
 }
 
 function openPersonSettingsSheet(){
+  const owner = getPhoneOwner();
   const html = `
     ${sheetNavHtml('Person', true)}
     <label class="field-label" style="margin-top:0">Person 1 name</label>
     <input type="text" id="p1Name" value="${esc(state.settings.person1)}">
     <label class="field-label">Person 2 name</label>
     <input type="text" id="p2Name" value="${esc(state.settings.person2)}">
+    <label class="field-label">This phone belongs to</label>
+    <div class="segmented" id="ownerSeg">
+      <button data-val="p1" class="${owner==='p1'?'active':''}">${esc(state.settings.person1)}</button>
+      <button data-val="p2" class="${owner==='p2'?'active':''}">${esc(state.settings.person2)}</button>
+    </div>
+    <div class="hint">Only affects this phone. New entries start with this person selected, so you don't have to switch every time.</div>
     <button class="btn-primary" id="personSave">Save</button>
   `;
   showSheet(html, (wrap)=>{
     wireSheetBack(wrap, ()=>openSettingsSheet());
+    wrap.querySelectorAll('#ownerSeg button').forEach(b=>{
+      b.onclick = ()=>{
+        setPhoneOwner(b.getAttribute('data-val'));
+        wrap.querySelectorAll('#ownerSeg button').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+      };
+    });
     wrap.querySelector('#personSave').onclick = ()=>{
       const p1 = wrap.querySelector('#p1Name').value.trim() || 'Me';
       const p2 = wrap.querySelector('#p2Name').value.trim() || 'Partner';
@@ -2345,6 +3083,344 @@ function openCurrencySettingsSheet(){
       const cur = wrap.querySelector('#curSym').value.trim() || 'Rp';
       state.settings.currency = cur;
       saveState(); render(); closeSheet(wrap);
+    };
+  });
+}
+
+// ---------- RECURRING ENTRIES ----------
+function openDueConfirm(id){
+  const r = (state.recurring || []).find(x=>x.id === id);
+  if(!r) return;
+  openAddTxSheet({
+    recurringId: r.id, txType: r.type, person: r.person, accountId: r.accountId || null,
+    prefill: { amount: r.amount, note: r.note || '', date: r.nextDue, category: r.category }
+  });
+}
+
+function skipDue(id){
+  const r = (state.recurring || []).find(x=>x.id === id);
+  if(!r) return;
+  const before = r.nextDue;
+  r.nextDue = nextOccurrence(r, r.nextDue);
+  saveState(); render();
+  const label = r.note || catInfo(r.type, r.category).label;
+  showUndoToast('Skipped ' + label, ()=>{
+    const again = (state.recurring || []).find(x=>x.id === id);
+    if(again){ again.nextDue = before; saveState(); render(); }
+  });
+}
+
+function openRecurringSheet(){
+  const list = [...(state.recurring || [])].sort((a, b)=> a.nextDue < b.nextDue ? -1 : a.nextDue > b.nextDue ? 1 : 0);
+  const rows = list.map(r=>{
+    const info = catInfo(r.type, r.category);
+    return `<div class="rec-row" data-rec="${r.id}">
+      <span class="rec-icon">${info.icon}</span>
+      <div class="rec-mid"><div class="rec-title">${esc(r.note || info.label)}</div><div class="rec-sub">${esc(describeRepeat(r))} · next ${esc(dateLabel(r.nextDue))}</div></div>
+      <span class="rec-amt ${r.type}">${r.type==='income' ? '+' : '−'}${fmt(r.amount)}</span>
+    </div>`;
+  }).join('');
+  const html = `
+    ${sheetNavHtml('Recurring', true)}
+    ${list.length ? `<div class="cat-manage-list">${rows}</div>` : `<div class="empty-state">No recurring entries yet. Add things that repeat, like utilities, interest, or the water galon.</div>`}
+    <button class="btn-secondary" id="addRecBtn">+ Add recurring entry</button>
+    <div class="hint">When one is due it shows up on the Finance page. Tap it to confirm (or change the amount). Nothing is ever added automatically.</div>
+  `;
+  showSheet(html, (wrap)=>{
+    wireSheetBack(wrap, ()=>openSettingsSheet());
+    wrap.querySelectorAll('[data-rec]').forEach(row=>{
+      row.onclick = ()=>{
+        const item = state.recurring.find(x=>x.id === row.getAttribute('data-rec'));
+        if(item){ closeSheet(wrap); openRecurringFormSheet(item, null, ()=>openRecurringSheet()); }
+      };
+    });
+    wrap.querySelector('#addRecBtn').onclick = ()=>{ closeSheet(wrap); openRecurringFormSheet(null, null, ()=>openRecurringSheet()); };
+  });
+}
+
+function openRecurringFormSheet(existing, seed, backFn){
+  const base = existing || seed || {};
+  const hasBase = !!(existing || seed);
+  const validAcc = (id)=> !!(id && state.accounts.find(a=>a.id === id));
+  let type = base.type || 'expense';
+  let category = base.category || mostUsedCategory(state.transactions, type, allCats(type)) || allCats(type)[0].id;
+  let person = base.person || getDefaultPerson();
+  let accountId = validAcc(base.accountId) ? base.accountId : (state.accounts.length ? state.accounts[0].id : null);
+  let skipAccount = hasBase ? !validAcc(base.accountId) : (type === 'expense' ? true : state.accounts.length === 0);
+  let repeat = base.repeat || 'monthly';
+  let amountVal = base.amount != null ? String(base.amount) : '';
+  let noteVal = base.note || '';
+  let dayVal = String(base.day || (base.nextDue ? Number(String(base.nextDue).slice(8, 10)) : new Date().getDate()));
+  let everyVal = String(base.every || 7);
+  let dueEdited = !!base.nextDue;
+  let dueVal = base.nextDue || firstDueDate(repeat, dayVal, everyVal);
+
+  function bodyHtml(){
+    const cats = allCats(type);
+    return `
+      <label class="field-label" style="margin-top:0">Type</label>
+      <div class="segmented" id="recTypeSeg">
+        <button data-val="expense" class="${type==='expense'?'active':''}">Expense</button>
+        <button data-val="income" class="${type==='income'?'active':''}">Income</button>
+      </div>
+      <label class="field-label">Amount</label>
+      <div class="amount-input-wrap"><span>${state.settings.currency}</span><input type="number" id="recAmount" placeholder="0" inputmode="decimal" value="${esc(amountVal)}"></div>
+      <label class="field-label">Category</label>
+      <div class="cat-grid" id="recCatGrid">
+        ${cats.map(c=>`<div class="cat-chip ${c.id===category?'active':''}" data-cat="${c.id}"><div class="ic">${c.icon}</div><div class="lb">${c.label}</div></div>`).join('')}
+      </div>
+      <label class="field-label">Added by</label>
+      <div class="segmented" id="recPersonSeg">
+        <button data-val="p1" class="${person==='p1'?'active':''}">${esc(state.settings.person1)}</button>
+        <button data-val="p2" class="${person==='p2'?'active':''}">${esc(state.settings.person2)}</button>
+      </div>
+      <label class="field-label">${type==='expense' ? 'From account' : 'To account'}</label>
+      <div class="skip-toggle-row">
+        <span>${type==='expense' ? "Don't deduct from any account" : "Don't add to any account"}</span>
+        <button class="switch ${skipAccount?'on':''}" id="recSkipToggle" role="switch" aria-checked="${skipAccount}"><span class="knob"></span></button>
+      </div>
+      ${state.accounts.length === 0 ? '' : `
+      <div class="account-pick" id="recAccountPick" style="${skipAccount ? 'display:none;' : ''}">
+        ${state.accounts.map(a=>`<div class="account-pick-item ${a.id===accountId?'active':''}" data-acc="${a.id}"><span class="n">${esc(a.name)}</span><span class="b">${fmt(a.balance)}</span></div>`).join('')}
+      </div>`}
+      <label class="field-label">${type==='expense' ? 'To (optional)' : 'From (optional)'}</label>
+      <input type="text" id="recNote" placeholder="${type==='expense' ? 'e.g. Electricity, Galon' : 'e.g. Interest'}" value="${esc(noteVal)}">
+      <label class="field-label">Repeats</label>
+      <div class="segmented" id="recRepeatSeg">
+        <button data-val="monthly" class="${repeat==='monthly'?'active':''}">Every month</button>
+        <button data-val="days" class="${repeat==='days'?'active':''}">Every few days</button>
+      </div>
+      ${repeat === 'monthly'
+        ? `<label class="field-label">Day of the month</label><input type="number" id="recDay" min="1" max="31" inputmode="numeric" value="${esc(dayVal)}"><div class="hint">In shorter months it's due on the last day.</div>`
+        : `<label class="field-label">Every how many days?</label><input type="number" id="recEvery" min="1" max="365" inputmode="numeric" value="${esc(everyVal)}">`}
+      <label class="field-label">Next due</label>
+      <div class="date-field-wrap"><input type="date" id="recDue" value="${esc(dueVal)}"></div>
+      <div class="field-error" id="recErr"></div>
+      <button class="btn-primary" id="recSave">${existing ? 'Save changes' : 'Add recurring entry'}</button>
+      ${existing ? `<button class="btn-text-danger" id="recDelete">Delete recurring entry</button>` : ''}
+    `;
+  }
+
+  function capture(wrap){
+    const val = (sel)=>{ const el = wrap.querySelector(sel); return el ? el.value : null; };
+    const a = val('#recAmount'); if(a !== null) amountVal = a;
+    const n = val('#recNote'); if(n !== null) noteVal = n;
+    const d = val('#recDay'); if(d !== null) dayVal = d;
+    const e = val('#recEvery'); if(e !== null) everyVal = e;
+    const du = val('#recDue'); if(du !== null) dueVal = du;
+  }
+  function redraw(wrap){ capture(wrap); wrap.querySelector('#recBody').innerHTML = bodyHtml(); bind(wrap); }
+  function recomputeDue(wrap){
+    if(dueEdited) return;
+    dueVal = firstDueDate(repeat, dayVal, everyVal);
+    const el = wrap.querySelector('#recDue'); if(el) el.value = dueVal;
+  }
+
+  const title = existing ? 'Edit recurring' : 'New recurring entry';
+  showSheet(`${sheetNavHtml(title, !!backFn)}<div id="recBody">${bodyHtml()}</div>`, (wrap)=>{
+    if(backFn) wireSheetBack(wrap, backFn);
+    bind(wrap);
+  });
+
+  function bind(wrap){
+    wrap.querySelectorAll('#recTypeSeg button').forEach(b=>{
+      b.onclick = ()=>{
+        capture(wrap);
+        type = b.getAttribute('data-val');
+        category = mostUsedCategory(state.transactions, type, allCats(type)) || allCats(type)[0].id;
+        skipAccount = type === 'expense' ? true : state.accounts.length === 0;
+        redraw(wrap);
+      };
+    });
+    wrap.querySelectorAll('#recCatGrid .cat-chip').forEach(chip=>{
+      chip.onclick = ()=>{ category = chip.getAttribute('data-cat'); wrap.querySelectorAll('#recCatGrid .cat-chip').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); };
+    });
+    wrap.querySelectorAll('#recPersonSeg button').forEach(b=>{
+      b.onclick = ()=>{ person = b.getAttribute('data-val'); wrap.querySelectorAll('#recPersonSeg button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); };
+    });
+    const skipBtn = wrap.querySelector('#recSkipToggle');
+    if(skipBtn){
+      skipBtn.onclick = ()=>{
+        skipAccount = !skipAccount;
+        skipBtn.classList.toggle('on', skipAccount);
+        skipBtn.setAttribute('aria-checked', skipAccount);
+        const pick = wrap.querySelector('#recAccountPick');
+        if(pick) pick.style.display = skipAccount ? 'none' : '';
+      };
+    }
+    wrap.querySelectorAll('#recAccountPick .account-pick-item').forEach(item=>{
+      item.onclick = ()=>{ accountId = item.getAttribute('data-acc'); wrap.querySelectorAll('#recAccountPick .account-pick-item').forEach(x=>x.classList.remove('active')); item.classList.add('active'); };
+    });
+    wrap.querySelectorAll('#recRepeatSeg button').forEach(b=>{
+      b.onclick = ()=>{ capture(wrap); repeat = b.getAttribute('data-val'); recomputeDue(wrap); redraw(wrap); };
+    });
+    const dayEl = wrap.querySelector('#recDay');
+    if(dayEl) dayEl.oninput = ()=>{ dayVal = dayEl.value; recomputeDue(wrap); };
+    const everyEl = wrap.querySelector('#recEvery');
+    if(everyEl) everyEl.oninput = ()=>{ everyVal = everyEl.value; recomputeDue(wrap); };
+    const dueEl = wrap.querySelector('#recDue');
+    if(dueEl) dueEl.onchange = ()=>{ dueVal = dueEl.value; dueEdited = true; };
+
+    wrap.querySelector('#recSave').onclick = ()=>{
+      capture(wrap);
+      const err = (m)=>{ wrap.querySelector('#recErr').textContent = m; };
+      const amount = parseFloat(amountVal || '0');
+      const day = parseInt(dayVal, 10), every = parseInt(everyVal, 10);
+      if(!amount || amount <= 0) return err('Enter an amount greater than 0.');
+      if(repeat === 'monthly' && !(day >= 1 && day <= 31)) return err('Enter a day between 1 and 31.');
+      if(repeat === 'days' && !(every >= 1 && every <= 365)) return err('Enter a number of days between 1 and 365.');
+      if(!dueVal || !/^\d{4}-\d{2}-\d{2}$/.test(dueVal)) return err('Select the next due date.');
+      let acc = null;
+      if(!skipAccount && state.accounts.length){
+        acc = state.accounts.find(a=>a.id === accountId);
+        if(!acc) return err('Select an account.');
+      }
+      const item = {
+        type, amount, category, person, accountId: acc ? acc.id : null, note: noteVal.trim(),
+        repeat, day: (day >= 1 && day <= 31) ? day : 1, every: (every >= 1) ? every : 1, nextDue: dueVal
+      };
+      if(existing){ Object.assign(existing, item); }
+      else { state.recurring = state.recurring || []; state.recurring.push(Object.assign({ id: uid(), createdAt: Date.now() }, item)); }
+      saveState(); render(); closeSheet(wrap);
+      if(backFn) backFn();
+    };
+
+    const delBtn = wrap.querySelector('#recDelete');
+    if(delBtn){
+      delBtn.onclick = ()=>{
+        const idx = state.recurring.findIndex(x=>x.id === existing.id);
+        const removed = state.recurring[idx];
+        state.recurring = state.recurring.filter(x=>x.id !== existing.id);
+        saveState(); render(); closeSheet(wrap);
+        if(backFn) backFn();
+        showUndoToast('Recurring entry deleted', ()=>{
+          state.recurring.splice(Math.min(idx, state.recurring.length), 0, removed);
+          saveState(); render();
+        });
+      };
+    }
+  }
+}
+
+// ---------- BACKUP & RESTORE ----------
+function readFileAsText(file){
+  return new Promise((resolve, reject)=>{
+    const r = new FileReader();
+    r.onload = ()=> resolve(String(r.result || ''));
+    r.onerror = ()=> reject(new Error('read-failed'));
+    r.readAsText(file);
+  });
+}
+
+function openBackupSheet(){
+  const bs = backupStatus();
+  const html = `
+    ${sheetNavHtml('Backup', true)}
+    <div class="backup-summary">
+      <div class="backup-summary-title">Your data</div>
+      <div class="backup-summary-text">${state.accounts.length} accounts · ${state.transactions.length} transactions · ${state.budgets.length} budgets · ${state.foodItems.length} food items</div>
+      <div class="backup-summary-text ${bs.stale ? 'stale' : ''}" id="lastBackupText">Last backup: ${esc(bs.text)}</div>
+    </div>
+    <button class="btn-primary" id="backupSaveBtn" style="margin-top:0">Save backup file</button>
+    <button class="btn-secondary" id="backupCsvBtn">Export transactions (CSV)</button>
+    <button class="btn-secondary" id="backupRestoreBtn">Restore from a backup file…</button>
+    <input type="file" id="backupFileInput" accept=".json,application/json,text/plain" style="display:none">
+    <div class="status-msg" id="backupMsg"></div>
+    <div class="hint">The backup file contains everything: accounts, transactions, budgets, categories and food items. On your phone this opens the share sheet, so you can pick “Save to Files”, Google Drive, or send it to yourself on WhatsApp.</div>
+  `;
+  showSheet(html, (wrap)=>{
+    wireSheetBack(wrap, ()=>openSettingsSheet());
+    const msg = (text, kind)=>{ const el = wrap.querySelector('#backupMsg'); el.textContent = text; el.className = 'status-msg ' + (kind || ''); };
+
+    wrap.querySelector('#backupSaveBtn').onclick = async ()=>{
+      try{
+        const res = await deliverFile(backupFileName('backup', 'json'), 'application/json', JSON.stringify(buildBackupObject(), null, 2));
+        if(res === 'cancelled') return;
+        markBackupDone();
+        const el = wrap.querySelector('#lastBackupText');
+        el.textContent = 'Last backup: Today'; el.classList.remove('stale');
+        msg(res === 'shared' ? 'Backup ready.' : 'Backup downloaded.', 'ok');
+      }catch(e){ msg("Couldn't save the backup file on this device.", 'err'); }
+    };
+
+    wrap.querySelector('#backupCsvBtn').onclick = async ()=>{
+      try{
+        const res = await deliverFile(backupFileName('transactions', 'csv'), 'text/csv', transactionsToCsv());
+        if(res === 'cancelled') return;
+        msg(res === 'shared' ? 'Transactions exported.' : 'Transactions downloaded.', 'ok');
+      }catch(e){ msg("Couldn't export the transactions.", 'err'); }
+    };
+
+    const input = wrap.querySelector('#backupFileInput');
+    wrap.querySelector('#backupRestoreBtn').onclick = ()=> input.click();
+    input.onchange = async ()=>{
+      const file = input.files && input.files[0];
+      input.value = '';
+      if(!file) return;
+      try{
+        const result = parseBackupText(await readFileAsText(file));
+        if(!result.ok){ msg(result.error, 'err'); return; }
+        closeSheet(wrap);
+        openRestoreConfirmSheet(result.data, result.meta);
+      }catch(e){ msg("Couldn't read that file.", 'err'); }
+    };
+  });
+}
+
+function openRestoreConfirmSheet(data, meta){
+  const when = meta && meta.exportedAt ? new Date(meta.exportedAt) : null;
+  const whenText = when && !isNaN(when.getTime()) ? when.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : null;
+  const row = (label, now, file)=>`<div class="compare-row"><span>${label}</span><span>${now}</span><span>${file}</span></div>`;
+  const html = `
+    ${sheetNavHtml('Restore backup', true)}
+    <div id="restoreBody">
+      <div class="compare-table">
+        <div class="compare-row head"><span></span><span>Now</span><span>Backup file</span></div>
+        ${row('Accounts', state.accounts.length, data.accounts.length)}
+        ${row('Transactions', state.transactions.length, data.transactions.length)}
+        ${row('Budgets', state.budgets.length, data.budgets.length)}
+        ${row('Food items', state.foodItems.length, data.foodItems.length)}
+      </div>
+      ${whenText ? `<div class="hint" style="margin:0 0 12px 2px;">This backup was made on ${esc(whenText)}.</div>` : ''}
+      <div class="warn-box">Restoring replaces everything currently in the app, on both phones, with what's in this file. It can't be undone, so save a backup of the current data first if you're unsure.</div>
+      <button class="btn-secondary" id="restoreSaveFirstBtn">Save a backup of the current data first</button>
+      <button class="btn-primary danger" id="restoreConfirmBtn">Restore and replace everything</button>
+      <div class="status-msg" id="restoreMsg"></div>
+    </div>
+  `;
+  showSheet(html, (wrap)=>{
+    wireSheetBack(wrap, ()=>openBackupSheet());
+    const msg = (text, kind)=>{ const el = wrap.querySelector('#restoreMsg'); el.textContent = text; el.className = 'status-msg ' + (kind || ''); };
+
+    wrap.querySelector('#restoreSaveFirstBtn').onclick = async ()=>{
+      try{
+        const res = await deliverFile(backupFileName('backup', 'json'), 'application/json', JSON.stringify(buildBackupObject(), null, 2));
+        if(res === 'cancelled') return;
+        markBackupDone();
+        msg('Current data saved. You can restore now.', 'ok');
+      }catch(e){ msg("Couldn't save the backup file on this device.", 'err'); }
+    };
+
+    const btn = wrap.querySelector('#restoreConfirmBtn');
+    btn.onclick = async ()=>{
+      btn.disabled = true; btn.textContent = 'Restoring…';
+      try{
+        await restoreFromBackup(data);
+        wrap.querySelector('#restoreBody').innerHTML = `
+          <div class="restore-done">
+            <div class="restore-done-icon">✓</div>
+            <div class="restore-done-title">Backup restored</div>
+            <div class="restore-done-text">${data.transactions.length} transactions, ${data.accounts.length} accounts, ${data.budgets.length} budgets and ${data.foodItems.length} food items are now in the app, and on your partner's phone too.</div>
+            <button class="btn-primary" id="restoreDoneBtn">Done</button>
+          </div>`;
+        wrap.querySelector('#restoreDoneBtn').onclick = ()=> closeSheet(wrap);
+      }catch(e){
+        btn.disabled = false; btn.textContent = 'Restore and replace everything';
+        const m = (e && e.message === 'not-ready') ? 'Still connecting. Try again in a moment.'
+                : (e && e.message === 'busy') ? 'A save is in progress. Try again in a few seconds.'
+                : "Couldn't restore. Check your connection and try again. Nothing was changed.";
+        msg(m, 'err');
+      }
     };
   });
 }
@@ -2446,10 +3522,9 @@ function afterLogin(){
     firebase.auth().signOut();
     return;
   }
-  document.getElementById('fab').style.display = '';
-  const nav = document.getElementById('bottomNav');
-  if(nav) nav.style.display = '';
+  setChromeVisible(false);   // shown again once the data has arrived
   loadState();
+  render();                  // shows the loading screen right away
   setInterval(()=>{
     if(loginExpired()){
       clearLoginRecord();
@@ -2476,7 +3551,7 @@ if(!FIREBASE_CONFIGURED){
       afterLogin();
     } else {
       if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
-      hasSyncedOnce = false; lastSyncedState = null;
+      hasSyncedOnce = false; lastSyncedState = null; clearTimeout(loadSlowTimer);
       showLoginScreen();
     }
   });
