@@ -559,6 +559,76 @@
   .rec-amt.income{ color: var(--green); }
   .ic-recurring{ background: rgba(100,210,255,0.18); color:#64D2FF; }
 
+  .topbar-right{ display:flex; align-items:center; gap:8px; }
+  .sync-pill{ display:flex; align-items:center; gap:5px; height:34px; padding:0 11px; border:none; border-radius:17px; background: var(--bg-elevated-2); color: var(--label-secondary); font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .sync-pill svg{ width:15px; height:15px; flex-shrink:0; }
+  .sync-pill.icon-only{ width:34px; padding:0; justify-content:center; }
+  .sync-pill.saved{ color: var(--green); }
+  .sync-pill.waiting, .sync-pill.offline{ color: var(--orange); background: var(--orange-tint); }
+  .sync-pill.error{ color: var(--red); background: var(--red-tint); }
+  .sync-spinner{ animation: syncSpin 0.9s linear infinite; }
+  @keyframes syncSpin{ to{ transform: rotate(360deg); } }
+  .sync-head{ display:flex; align-items:center; gap:12px; background: var(--bg-elevated-2); border-radius:14px; padding:14px; margin-bottom:14px; }
+  .sync-head-icon{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; background: var(--bg-elevated-3); flex-shrink:0; }
+  .sync-head-icon svg{ width:18px; height:18px; }
+  .sync-head.saved .sync-head-icon{ background: rgba(52,199,89,0.18); color: var(--green); }
+  .sync-head.waiting .sync-head-icon, .sync-head.offline .sync-head-icon{ background: var(--orange-tint); color: var(--orange); }
+  .sync-head.error .sync-head-icon{ background: var(--red-tint); color: var(--red); }
+  .sync-head-text{ font-size:13.5px; font-weight:600; line-height:1.35; }
+  .info-row{ display:flex; justify-content:space-between; gap:12px; padding:12px 14px; font-size:12.5px; }
+  .info-row + .info-row{ border-top:1px solid var(--separator); }
+  .info-row span:first-child{ color: var(--label-secondary); }
+  .info-row .warn{ color: var(--orange); font-weight:600; }
+  .spend-all-right{ text-align:right; }
+  .spend-cmp{ font-size:10.5px; font-weight:600; margin-top:3px; line-height:1.3; }
+  .spend-cmp.up{ color: var(--orange); }
+  .spend-cmp.down{ color: var(--green); }
+  .spend-cmp.flat{ color: var(--label-secondary); }
+  .recap-row{ display:flex; align-items:center; gap:12px; width:100%; margin-top:12px; background: var(--bg-elevated); border:none; border-radius:14px; padding:13px 14px; color: var(--label); font-family:inherit; cursor:pointer; text-align:left; }
+  .recap-row:active{ transform: scale(0.98); }
+  .recap-row .recap-ic{ font-size:18px; width:24px; text-align:center; }
+  .recap-row .recap-text{ flex:1; display:flex; flex-direction:column; gap:1px; font-size:13px; }
+  .recap-row .recap-text span{ font-size:10.5px; color: var(--label-secondary); }
+
+  .places-card{ background: var(--bg-elevated); border-radius:16px; padding:16px; margin-top:12px; }
+  .places-title{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color: var(--label-secondary); margin-bottom:10px; }
+  .place-row{ padding:9px 0; cursor:pointer; }
+  .place-row + .place-row{ border-top:1px solid var(--separator); }
+  .place-top{ display:flex; justify-content:space-between; gap:10px; font-size:13px; font-weight:600; }
+  .place-name{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .place-amt{ font-variant-numeric: tabular-nums; flex-shrink:0; }
+  .place-sub{ font-size:10.5px; color: var(--label-secondary); margin-top:2px; }
+  .place-bar{ height:4px; background: var(--bg-elevated-3); border-radius:2px; margin-top:7px; overflow:hidden; }
+  .place-bar div{ height:100%; background: var(--blue); border-radius:2px; }
+  .place-foot{ font-size:10.5px; color: var(--label-tertiary); margin-top:10px; }
+
+  .recap-hero{ text-align:center; margin:2px 0 16px; }
+  .recap-total{ font-size:28px; font-weight:700; letter-spacing:-0.5px; font-variant-numeric: tabular-nums; }
+  .recap-sub{ font-size:11.5px; color: var(--label-secondary); margin-top:4px; }
+  .recap-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  .recap-stat{ background: var(--bg-elevated-2); border-radius:12px; padding:11px 12px; display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .recap-stat span{ font-size:10.5px; color: var(--label-secondary); }
+  .recap-stat b{ font-size:14px; font-variant-numeric: tabular-nums; }
+  .recap-stat small{ font-size:10px; color: var(--label-secondary); }
+  .recap-card{ background: var(--bg-elevated-2); border-radius:14px; padding:12px 14px; margin-bottom:12px; }
+  .recap-card-title{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color: var(--label-secondary); margin-bottom:6px; }
+  .recap-line{ display:flex; align-items:center; gap:10px; padding:7px 0; }
+  .recap-line + .recap-line{ border-top:1px solid var(--separator); }
+  .recap-line.tap{ cursor:pointer; }
+  .recap-line-ic{ font-size:16px; width:22px; text-align:center; flex-shrink:0; }
+  .recap-line-mid{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .recap-line-mid b{ font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .recap-line-mid small{ font-size:10.5px; color: var(--label-secondary); margin-top:1px; }
+  .recap-line .amt{ font-size:12.5px; font-weight:700; font-variant-numeric: tabular-nums; flex-shrink:0; }
+  .recap-line .amt.up{ color: var(--orange); }
+  .recap-line .amt.down{ color: var(--green); }
+  .recap-budget{ padding:8px 0; }
+  .recap-budget + .recap-budget{ border-top:1px solid var(--separator); }
+  .recap-budget-top{ display:flex; justify-content:space-between; gap:10px; font-size:12.5px; margin-bottom:7px; }
+  .recap-budget-status{ font-size:10.5px; margin-top:6px; color: var(--green); font-weight:600; }
+  .recap-budget-status.over{ color: var(--red); }
+  .banner-close{ background:none; border:none; color: var(--orange); opacity:0.75; font-size:14px; padding:0 4px; cursor:pointer; font-family:inherit; }
+
 
   .cat-manage-list{ display:flex; flex-direction:column; gap:6px; margin-bottom:16px; max-height:320px; overflow-y:auto; }
   .cat-manage-row{ display:flex; align-items:center; gap:10px; background: var(--bg-elevated-2); border-radius:12px; padding:10px 12px; }
@@ -595,9 +665,12 @@
       <polygon points="0,0 76,0 76,25 63,38 0,38" fill="#084734"></polygon>
       <text x="34" y="25" text-anchor="middle" font-family="'Stack Sans Text', sans-serif" font-weight="700" font-size="16" letter-spacing="0.5" fill="#CCF180">1705</text>
     </svg>
+    <div class="topbar-right">
+    <button class="sync-pill" id="syncPill" aria-label="Sync status" style="display:none;"></button>
     <button class="icon-btn" id="settingsBtn" aria-label="Settings">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     </button>
+    </div>
   </div>
   <div id="setupBanner" class="setup-banner"></div>
   <div id="updateBanner" class="update-banner"></div>
@@ -715,6 +788,8 @@ let pendingApplied = false;
 let retryTimer = null;
 let loadStatus = 'loading';   // loading | slow | offline | error  (only matters until the first sync)
 let loadSlowTimer = null;
+let lastSyncedAt = 0;        // when this phone last knew it matched the server
+let lastSaveFailed = false;  // true after a save attempt failed, until one succeeds
 
 const PENDING_KEY = 'pending-save-v1';
 
@@ -753,6 +828,36 @@ function deepEqual(a, b){
 
 function withoutRev(o){ const c = Object.assign({}, o); delete c._rev; return c; }
 function sameContent(a, b){ return deepEqual(withoutRev(a || {}), withoutRev(b || {})); }
+
+// ---- What the "Saved" indicator reports ----
+function notifySyncStatus(){
+  if(typeof onSyncStatus === 'function'){ try{ onSyncStatus(); }catch(e){} }
+}
+// How many things on this phone the server has not got yet (added, changed or removed).
+function countPendingChanges(base, local){
+  base = base || defaultState(); local = local || {};
+  let n = 0;
+  const diffById = (b, l)=>{
+    const bm = new Map((b || []).map(x=>[x.id, x]));
+    const lm = new Map((l || []).map(x=>[x.id, x]));
+    lm.forEach((item, id)=>{ const o = bm.get(id); if(!o || !deepEqual(o, item)) n++; });
+    bm.forEach((o, id)=>{ if(!lm.has(id)) n++; });
+  };
+  ['accounts', 'transactions', 'budgets', 'foodItems', 'recurring'].forEach(k=>diffById(base[k], local[k]));
+  diffById((base.categories || {}).expense, (local.categories || {}).expense);
+  diffById((base.categories || {}).income, (local.categories || {}).income);
+  Object.keys(local.settings || {}).forEach(k=>{ if(!deepEqual((base.settings || {})[k], local.settings[k])) n++; });
+  return n;
+}
+function getSyncStatus(){
+  const offline = (typeof navigator !== 'undefined' && navigator.onLine === false);
+  if(!hasSyncedOnce) return { state: 'connecting', pending: 0, offline, lastSyncedAt };
+  const pending = lastSyncedState ? countPendingChanges(withoutRev(lastSyncedState), state) : 0;
+  let st = 'saved';
+  if(saveInFlight) st = 'saving';
+  else if(pending > 0) st = offline ? 'offline' : (lastSaveFailed ? 'error' : 'waiting');
+  return { state: st, pending, offline, lastSyncedAt };
+}
 
 // ---- Three-way merge: server + (what THIS device changed since it last synced) ----
 function mergeAccount(base, local, server){
@@ -851,7 +956,8 @@ function applyIncoming(raw){
   lastSyncedState = cloneData(incoming);
   const changed = !sameContent(newState, state);
   if(changed) state = newState;
-  if(!sameContent(newState, incoming)) scheduleSave();
+  if(sameContent(newState, incoming)) lastSyncedAt = Date.now(); else scheduleSave();
+  notifySyncStatus();
   return changed;
 }
 
@@ -895,6 +1001,7 @@ async function loadState(){
   if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
   lastSyncedState = null; hasSyncedOnce = false; recoveryPromptShown = false; pendingApplied = false; saveRequested = false;
   loadStatus = 'loading';
+  lastSyncedAt = 0; lastSaveFailed = false;
   clearTimeout(loadSlowTimer);
   loadSlowTimer = setTimeout(()=>{
     if(hasSyncedOnce || !unsubscribeSnapshot) return;
@@ -978,6 +1085,7 @@ function flushIfDirty(){
 
 async function runSaveLoop(){
   saveInFlight = true;
+  notifySyncStatus();
   try{
     while(saveRequested){
       saveRequested = false;
@@ -1002,6 +1110,7 @@ async function runSaveLoop(){
         });
       }catch(e){
         console.error('Save failed', e);
+        lastSaveFailed = true;
         savePending(base, snapshotLocal);
         showSetupBanner('Could not save right now — your changes are kept on this device and will retry automatically.');
         scheduleRetry();
@@ -1010,6 +1119,7 @@ async function runSaveLoop(){
 
       clearPending();
       clearSetupBanner();
+      lastSaveFailed = false; lastSyncedAt = Date.now();
       lastSyncedState = cloneData(committed);
       // fold in anything the other phone changed, and anything we changed while this save was running
       const rebased = mergeStates(snapshotLocal, state, withoutRev(committed));
@@ -1017,6 +1127,7 @@ async function runSaveLoop(){
     }
   } finally {
     saveInFlight = false;
+    notifySyncStatus();
   }
   refreshFromServer();
 }
@@ -1025,7 +1136,8 @@ async function runSaveLoop(){
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'visible'){ refreshFromServer(); flushIfDirty(); }
 });
-window.addEventListener('online', ()=>{ flushIfDirty(); refreshFromServer(); });
+window.addEventListener('online', ()=>{ notifySyncStatus(); flushIfDirty(); refreshFromServer(); });
+window.addEventListener('offline', ()=>{ notifySyncStatus(); });
 window.addEventListener('pageshow', ()=>{ refreshFromServer(); flushIfDirty(); });
 
 // ---- Restore: replaces the whole shared document with a backup (deliberate, not merged) ----
@@ -1045,8 +1157,10 @@ async function restoreFromBackup(data){
     saveRequested = false;
     lastSyncedState = cloneData(payload);
     state = withoutRev(cloneData(payload));
+    lastSaveFailed = false; lastSyncedAt = Date.now();
   } finally {
     saveInFlight = false;
+    notifySyncStatus();
   }
   render();
 }
@@ -1054,7 +1168,7 @@ async function restoreFromBackup(data){
 // ===== SYNC CORE END =====
 
 // ===== BACKUP CORE START =====
-const APP_VERSION = '17';
+const APP_VERSION = '18';
 const BACKUP_APP_ID = '1705-finance';
 const LAST_BACKUP_KEY = 'last-backup-at';
 const BACKUP_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -1388,6 +1502,183 @@ function suggestShelfLifeDays(name, foodItems){
   });
   return best ? best.days : null;
 }
+
+// ---- month helpers ----
+function monthStartISO(y, m){ return isoDate(y, m, 1); }
+function monthEndISO(y, m){ return isoDate(y, m, daysInMonthOf(y, m)); }
+function prevMonthOf(y, m){ return m === 1 ? { y: y - 1, m: 12 } : { y: y, m: m - 1 }; }
+function monthLabel(y, m){ return new Date(y, m - 1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }); }
+function monthName(m){ return new Date(2000, m - 1, 1).toLocaleDateString('en-GB', { month: 'long' }); }
+function earliestMonth(transactions){
+  let min = null;
+  (transactions || []).forEach(t=>{ if(t && /^\d{4}-\d{2}-\d{2}$/.test(t.date || '') && (!min || t.date < min)) min = t.date; });
+  return min ? { y: Number(min.slice(0, 4)), m: Number(min.slice(5, 7)) } : null;
+}
+
+// ---- "vs last month" ----
+// The stretch of time the Summary filter covers. Periods that are still running end today.
+function periodBounds(filter, now){
+  now = now || new Date();
+  const y = now.getFullYear(), m = now.getMonth() + 1, today = todayISO(now);
+  if(filter.range === 'last_month'){ const p = prevMonthOf(y, m); return { start: monthStartISO(p.y, p.m), end: monthEndISO(p.y, p.m) }; }
+  if(filter.range === 'this_year') return { start: isoDate(y, 1, 1), end: today };
+  if(filter.range === 'custom'){
+    return (filter.customStart && filter.customEnd && filter.customStart <= filter.customEnd) ? { start: filter.customStart, end: filter.customEnd } : null;
+  }
+  return { start: monthStartISO(y, m), end: today };
+}
+// The matching earlier stretch, like for like (same number of days).
+function previousPeriod(filter, now){
+  now = now || new Date();
+  const b = periodBounds(filter, now);
+  if(!b) return null;
+  const y = now.getFullYear(), m = now.getMonth() + 1;
+  if(filter.range === 'last_month'){
+    const p = prevMonthOf(y, m), pp = prevMonthOf(p.y, p.m);
+    return { start: monthStartISO(pp.y, pp.m), end: monthEndISO(pp.y, pp.m), label: 'month before', short: 'month before' };
+  }
+  if(filter.range === 'this_year'){
+    return { start: isoDate(y - 1, 1, 1), end: isoDate(y - 1, m, Math.min(now.getDate(), daysInMonthOf(y - 1, m))), label: 'same period last year', short: 'last year' };
+  }
+  if(filter.range === 'custom'){
+    const len = Math.round((parseISODate(b.end) - parseISODate(b.start)) / 86400000) + 1;
+    const end = addDaysISO(b.start, -1);
+    return { start: addDaysISO(end, -(len - 1)), end, label: 'previous period', short: 'previous period' };
+  }
+  const p = prevMonthOf(y, m);
+  return { start: monthStartISO(p.y, p.m), end: isoDate(p.y, p.m, Math.min(now.getDate(), daysInMonthOf(p.y, p.m))), label: 'same days last month', short: 'last month' };
+}
+function spendByPerson(transactions, startISO, endISO, categories){
+  const out = { all: 0, p1: 0, p2: 0 };
+  (transactions || []).forEach(t=>{
+    if(!t || t.type !== 'expense' || !t.date || t.date < startISO || t.date > endISO) return;
+    if(categories && categories.length && !categories.includes(t.category)) return;
+    const a = Number(t.amount) || 0;
+    out.all += a;
+    if(t.person === 'p1') out.p1 += a; else if(t.person === 'p2') out.p2 += a;
+  });
+  return out;
+}
+function pctChange(cur, prev){ return prev > 0 ? (cur - prev) / prev * 100 : null; }
+function describeChange(pct){
+  if(pct === null || pct === undefined || !isFinite(pct)) return null;
+  const r = Math.round(Math.abs(pct));
+  if(r < 1) return { arrow: '≈', text: 'about the same', tone: 'flat', pct: 0 };
+  return pct > 0 ? { arrow: '▲', text: r + '%', tone: 'up', pct: r } : { arrow: '▼', text: r + '%', tone: 'down', pct: -r };
+}
+function comparePeriods(transactions, filter, now){
+  now = now || new Date();
+  const b = periodBounds(filter, now), prev = previousPeriod(filter, now);
+  if(!b || !prev) return null;
+  if((!filter.range || filter.range === 'this_month') && now.getDate() < 3) return null;   // 1-2 days is too little to compare
+  const cats = filter.categories || [];
+  const cur = spendByPerson(transactions, b.start, b.end, cats), old = spendByPerson(transactions, prev.start, prev.end, cats);
+  const make = (k)=>({ cur: cur[k], prev: old[k], change: describeChange(pctChange(cur[k], old[k])) });
+  return { label: prev.label, short: prev.short, all: make('all'), p1: make('p1'), p2: make('p2') };
+}
+
+// ---- top places (grouped by the "To" name) ----
+function topPlaces(transactions, startISO, endISO, limit){
+  const map = new Map();
+  let total = 0, unnamed = 0, unnamedCount = 0;
+  (transactions || []).forEach(t=>{
+    if(!t || t.type !== 'expense' || !t.date || t.date < startISO || t.date > endISO) return;
+    const amt = Number(t.amount) || 0;
+    total += amt;
+    const name = String(t.note || '').trim();
+    if(!name){ unnamed += amt; unnamedCount++; return; }
+    const key = name.toLowerCase();
+    let p = map.get(key);
+    if(!p){ p = { name, total: 0, count: 0, lastDate: '' }; map.set(key, p); }
+    p.total += amt; p.count++;
+    if(t.date >= p.lastDate){ p.lastDate = t.date; p.name = name; }
+  });
+  const list = Array.from(map.values()).sort((a, b)=> b.total - a.total || b.count - a.count || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  return {
+    places: list.slice(0, limit || 5).map(p=>({ name: p.name, total: p.total, count: p.count, avg: Math.round(p.total / p.count), share: total > 0 ? p.total / total : 0 })),
+    total, unnamed, unnamedCount, placeCount: list.length
+  };
+}
+
+// ---- monthly recap ----
+function monthRecap(transactions, budgets, y, m, now){
+  now = now || new Date();
+  transactions = transactions || [];
+  const nowY = now.getFullYear(), nowM = now.getMonth() + 1;
+  const isCurrent = (y === nowY && m === nowM);
+  const isFuture = (y > nowY) || (y === nowY && m > nowM);
+  const start = monthStartISO(y, m), end = monthEndISO(y, m);
+  const pm = prevMonthOf(y, m);
+  const prevStart = monthStartISO(pm.y, pm.m);
+  const prevEnd = isoDate(pm.y, pm.m, isCurrent ? Math.min(now.getDate(), daysInMonthOf(pm.y, pm.m)) : daysInMonthOf(pm.y, pm.m));
+  const compareEnd = isCurrent ? todayISO(now) : end;
+  const num = (t)=> Number(t.amount) || 0;
+  const within = (t, a, b)=> !!t.date && t.date >= a && t.date <= b;
+  const sum = (arr)=> arr.reduce((s, t)=> s + num(t), 0);
+  const byCat = (arr)=>{ const o = {}; arr.forEach(t=>{ o[t.category] = (o[t.category] || 0) + num(t); }); return o; };
+
+  const exp = transactions.filter(t=>t.type === 'expense' && within(t, start, end));
+  const inc = transactions.filter(t=>t.type === 'income' && within(t, start, end));
+  const total = sum(exp);
+  const elapsed = isFuture ? 0 : (isCurrent ? now.getDate() : daysInMonthOf(y, m));
+  const catTotals = byCat(exp);
+  const categories = Object.keys(catTotals).map(id=>({ id, total: catTotals[id], share: total > 0 ? catTotals[id] / total : 0 })).sort((a, b)=> b.total - a.total);
+
+  // like-for-like with the previous month: a month still running is compared with the same days
+  const curCmp = exp.filter(t=>t.date <= compareEnd);
+  const prevCmp = transactions.filter(t=>t.type === 'expense' && within(t, prevStart, prevEnd));
+  const curCmpTotal = sum(curCmp), prevCmpTotal = sum(prevCmp);
+  const cc = byCat(curCmp), pc = byCat(prevCmp);
+  let biggestChange = null;
+  if(prevCmp.length){
+    Object.keys(Object.assign({}, cc, pc)).forEach(id=>{
+      const delta = (cc[id] || 0) - (pc[id] || 0);
+      if(delta !== 0 && (!biggestChange || Math.abs(delta) > Math.abs(biggestChange.delta))) biggestChange = { id, delta, cur: cc[id] || 0, prev: pc[id] || 0 };
+    });
+  }
+  let biggest = null;
+  exp.forEach(t=>{
+    if(!biggest || num(t) > biggest.amount || (num(t) === biggest.amount && t.date > biggest.date)){
+      biggest = { id: t.id, note: t.note || '', category: t.category, amount: num(t), date: t.date, person: t.person };
+    }
+  });
+  const tooEarly = isCurrent && now.getDate() < 3;
+  return {
+    y, m, isCurrent, isFuture, start, end, total,
+    entries: exp.length,
+    dailyAvg: elapsed > 0 ? Math.round(total / elapsed) : 0,
+    byPerson: { p1: sum(exp.filter(t=>t.person === 'p1')), p2: sum(exp.filter(t=>t.person === 'p2')) },
+    income: sum(inc), incomeCount: inc.length,
+    biggest, categories, topCategory: categories[0] || null, biggestChange,
+    compare: { cur: curCmpTotal, prev: prevCmpTotal, prevY: pm.y, prevM: pm.m, sameDays: isCurrent, change: tooEarly ? null : describeChange(pctChange(curCmpTotal, prevCmpTotal)) },
+    places: topPlaces(exp, start, end, 3).places,
+    budgets: (budgets || []).map(b=>{
+      const spent = catTotals[b.category] || 0, limit = Number(b.limit) || 0;
+      return { id: b.id, category: b.category, limit, spent, over: Math.max(0, spent - limit), pct: limit > 0 ? spent / limit : 0, status: spent > limit ? 'over' : 'within' };
+    }),
+    hasData: exp.length > 0 || inc.length > 0
+  };
+}
+
+// ---- reminders & labels ----
+function shouldShowBackupReminder(lastBackupAt, snoozeUntilMs, now){
+  const nowMs = (now || new Date()).getTime();
+  if(snoozeUntilMs && nowMs < snoozeUntilMs) return false;
+  if(!lastBackupAt || isNaN(lastBackupAt.getTime())) return true;
+  return nowMs - lastBackupAt.getTime() >= 30 * 86400000;
+}
+function timeAgo(ms, nowMs){
+  if(!ms) return 'not yet';
+  const s = Math.floor(Math.max(0, (nowMs || Date.now()) - ms) / 1000);
+  if(s < 10) return 'just now';
+  if(s < 60) return s + ' seconds ago';
+  const mins = Math.floor(s / 60);
+  if(mins < 60) return mins + (mins === 1 ? ' minute ago' : ' minutes ago');
+  const hrs = Math.floor(mins / 60);
+  if(hrs < 24) return hrs + (hrs === 1 ? ' hour ago' : ' hours ago');
+  const days = Math.floor(hrs / 24);
+  return days + (days === 1 ? ' day ago' : ' days ago');
+}
 // ===== FEATURES CORE END =====
 
 // ---------- UNDO TOAST ----------
@@ -1488,6 +1779,89 @@ function setChromeVisible(visible){
   const nav = document.getElementById('bottomNav'); if(nav) nav.style.display = visible ? '' : 'none';
 }
 function onFirstSync(){ setChromeVisible(true); checkForUpdate(true); }
+
+// ---------- SYNC INDICATOR ----------
+let pillTextUntil = 0, pillPrevState = '', pillTimer = null, syncSheetWrap = null;
+const SYNC_ICONS = {
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  spinner: '<svg class="sync-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.55"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  offline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l20 20"/><path d="M8.5 16.4a5 5 0 0 1 7 0"/><path d="M5 12.9a10 10 0 0 1 5.2-2.7"/><path d="M19 12.9a10 10 0 0 0-2.4-1.9"/><path d="M12 20h.01"/></svg>',
+  alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>'
+};
+function syncDisplay(s){
+  const n = s.pending;
+  const plural = (k)=> k + (k === 1 ? ' change' : ' changes');
+  if(s.state === 'saving') return { cls: 'saving', icon: SYNC_ICONS.spinner, text: 'Saving…', head: 'Saving…', label: 'Saving your changes' };
+  if(s.state === 'error') return { cls: 'error', icon: SYNC_ICONS.alert, text: 'Not saved', head: "Couldn't save " + plural(n) + '. Retrying…', label: "Couldn't save " + plural(n) };
+  if(s.state === 'offline') return { cls: 'offline', icon: SYNC_ICONS.offline, text: 'Offline · ' + n, head: "You're offline. " + plural(n) + " will sync when you're back online.", label: 'Offline, ' + plural(n) + ' waiting' };
+  if(s.state === 'waiting') return { cls: 'waiting', icon: SYNC_ICONS.clock, text: n + ' waiting', head: plural(n) + ' waiting to sync', label: plural(n) + ' waiting to sync' };
+  if(s.offline) return { cls: 'offline', icon: SYNC_ICONS.offline, text: 'Offline', head: "You're offline. Everything so far is saved.", label: 'Offline, everything so far is saved' };
+  return { cls: 'saved', icon: SYNC_ICONS.check, text: 'Saved', head: 'All changes saved', label: 'All changes saved' };
+}
+function updateSyncPill(){
+  const pill = document.getElementById('syncPill');
+  if(!pill) return;
+  if(!FIREBASE_CONFIGURED){ pill.style.display = 'none'; return; }
+  const s = getSyncStatus();
+  if(s.state === 'connecting'){ pill.style.display = 'none'; pillPrevState = ''; syncSheetRefresh(); return; }
+  if(s.state === 'saved' && !s.offline && pillPrevState && pillPrevState !== 'saved'){
+    pillTextUntil = Date.now() + 2500;           // say "Saved" for a moment, then settle to a quiet tick
+    clearTimeout(pillTimer);
+    pillTimer = setTimeout(updateSyncPill, 2600);
+  }
+  pillPrevState = s.state;
+  const d = syncDisplay(s);
+  const showText = d.cls !== 'saved' || Date.now() < pillTextUntil;
+  pill.className = 'sync-pill ' + d.cls + (showText ? '' : ' icon-only');
+  pill.innerHTML = d.icon + (showText ? '<span>' + esc(d.text) + '</span>' : '');
+  pill.setAttribute('aria-label', d.label);
+  pill.style.display = '';
+  syncSheetRefresh();
+}
+function onSyncStatus(){ updateSyncPill(); }
+
+function syncSheetBodyHtml(){
+  const s = getSyncStatus(), d = syncDisplay(s), bs = backupStatus();
+  const row = (k, v, cls)=>`<div class="info-row"><span>${k}</span><span class="${cls || ''}">${v}</span></div>`;
+  return `
+    <div class="sync-head ${d.cls}"><div class="sync-head-icon">${d.icon}</div><div class="sync-head-text">${esc(d.head)}</div></div>
+    <div class="menu-group">
+      ${row('Last saved', esc(timeAgo(s.lastSyncedAt)))}
+      ${row('Waiting to sync', s.pending ? String(s.pending) : 'Nothing')}
+      ${row('Connection', s.offline ? 'Offline' : 'Online', s.offline ? 'warn' : '')}
+      ${row('Last backup', esc(bs.text), bs.stale ? 'warn' : '')}
+      ${row('App version', esc(APP_VERSION))}
+    </div>`;
+}
+function syncSheetRefresh(){
+  if(!syncSheetWrap) return;
+  if(!document.body.contains(syncSheetWrap)){ syncSheetWrap = null; return; }
+  const body = syncSheetWrap.querySelector('#syncSheetBody');
+  if(body) body.innerHTML = syncSheetBodyHtml();
+}
+function openSyncStatusSheet(){
+  const html = `
+    <div class="sheet-title">Sync status</div>
+    <div id="syncSheetBody">${syncSheetBodyHtml()}</div>
+    <button class="btn-primary" id="syncNowBtn">Sync now</button>
+    <button class="btn-secondary" id="syncBackupBtn">Back up…</button>
+    <div class="hint">Changes are saved to the cloud so both phones stay in step. If you're offline they wait on this phone and sync by themselves.</div>
+  `;
+  showSheet(html, (w)=>{
+    syncSheetWrap = w;
+    w.querySelector('#syncNowBtn').onclick = async ()=>{
+      const b = w.querySelector('#syncNowBtn');
+      b.disabled = true; b.textContent = 'Syncing…';
+      flushIfDirty();
+      await refreshFromServer();
+      b.disabled = false; b.textContent = 'Sync now';
+      syncSheetRefresh();
+    };
+    w.querySelector('#syncBackupBtn').onclick = ()=>{ closeSheet(w); openBackupSheet(); };
+  });
+}
+(function(){ const p = document.getElementById('syncPill'); if(p) p.onclick = openSyncStatusSheet; })();
 
 function showSetupBanner(customMsg){
   const el = document.getElementById('setupBanner');
@@ -1790,6 +2164,7 @@ function resetHistoryFilter(){
 
 function openHistoryWithFilter(overrides){
   resetHistoryFilter();
+  ui.historyFilter.query = '';
   Object.assign(ui.historyFilter, overrides || {});
   goToView('history');
 }
@@ -1943,6 +2318,20 @@ function render(){
     </div>`;
   }
 
+  // Backup reminder
+  let backupSnoozeUntil = 0;
+  try{ backupSnoozeUntil = Number(localStorage.getItem('backup-snooze-until')) || 0; }catch(e){}
+  const lastBackup = getLastBackupAt();
+  if(shouldShowBackupReminder(lastBackup, backupSnoozeUntil)){
+    const backupDays = (lastBackup && !isNaN(lastBackup.getTime())) ? Math.floor((Date.now() - lastBackup.getTime()) / 86400000) : null;
+    html += `<div class="expiry-banner" id="backupBanner">
+      <div class="expiry-banner-icon">💾</div>
+      <div class="expiry-banner-text">${backupDays === null ? "You haven't backed up yet. <b>Save a backup</b>" : `It's been <b>${backupDays} days</b> since your last backup`}</div>
+      <button class="banner-close" id="backupSnooze" aria-label="Remind me later">✕</button>
+      <div class="expiry-banner-arrow">›</div>
+    </div>`;
+  }
+
   // Recurring entries that are due
   const dueList = dueRecurring(state.recurring);
   if(dueList.length > 0){
@@ -1988,6 +2377,14 @@ function render(){
 
   // Expenses: Summary / Trend / Categories
   const trendMonths = getTrendMonths();
+  const cmp = ui.expenseTab === 'summary' ? comparePeriods(state.transactions, ui.spendFilter) : null;
+  const cmpHtml = (c, long)=>{
+    if(!c || !c.change) return '';
+    const ch = c.change, label = esc(long ? cmp.label : cmp.short);
+    const text = ch.arrow === '≈' ? `≈ Flat vs ${label}` : `${ch.arrow} ${ch.text} vs ${label}`;
+    return `<div class="spend-cmp ${ch.tone}">${text}</div>`;
+  };
+  const recapMonth = recapMonthForFilter();
   html += `<div class="section">
     <div class="section-title">Expenses</div>
     <div class="expenses-subrow">
@@ -2009,19 +2406,26 @@ function render(){
     ${ui.expenseTab==='summary' ? `
     <div class="spend-all-card" id="spendAllCard">
       <div class="spend-all-label">All</div>
-      <div class="spend-all-amount">${fmt(spend.all||0)}</div>
+      <div class="spend-all-right"><div class="spend-all-amount">${fmt(spend.all||0)}</div>${cmpHtml(cmp && cmp.all, true)}</div>
     </div>
     <div class="spend-grid">
       <div class="spend-card" id="spendCardP1">
         <div class="spend-person"><div class="avatar p1">${esc(personInitial('p1'))}</div><div class="spend-name">${esc(state.settings.person1)}</div></div>
         <div class="spend-amount">${fmt(spend.p1||0)}</div>
+        ${cmpHtml(cmp && cmp.p1, false)}
       </div>
       <div class="spend-card" id="spendCardP2">
         <div class="spend-person"><div class="avatar p2">${esc(personInitial('p2'))}</div><div class="spend-name">${esc(state.settings.person2)}</div></div>
         <div class="spend-amount">${fmt(spend.p2||0)}</div>
+        ${cmpHtml(cmp && cmp.p2, false)}
       </div>
     </div>
-    ` : ui.expenseTab==='trend' ? renderTrendChart(trendMonths) : renderCategoryPie()}
+    <button class="recap-row" id="openRecapBtn">
+      <span class="recap-ic">📊</span>
+      <span class="recap-text"><b>Monthly recap</b><span>${esc(monthLabel(recapMonth.y, recapMonth.m))}</span></span>
+      <span class="menu-chevron">›</span>
+    </button>
+    ` : ui.expenseTab==='trend' ? renderTrendChart(trendMonths) : renderCategoryPie() + renderTopPlaces()}
   </div>`;
 
   // Budgets
@@ -2256,6 +2660,24 @@ function attachHomeListeners(){
     const scrollArea = document.getElementById('scroll-area');
     if(scrollArea) scrollArea.scrollTop = 0;
   };
+  const backupBanner = document.getElementById('backupBanner');
+  if(backupBanner) backupBanner.onclick = (e)=>{
+    if(e.target && e.target.id === 'backupSnooze'){
+      try{ localStorage.setItem('backup-snooze-until', String(Date.now() + 7 * 86400000)); }catch(err){}
+      render();
+      return;
+    }
+    openBackupSheet();
+  };
+  const openRecapBtn = document.getElementById('openRecapBtn');
+  if(openRecapBtn) openRecapBtn.onclick = ()=>{ const rm = recapMonthForFilter(); openMonthRecapSheet(rm.y, rm.m); };
+  document.querySelectorAll('[data-place]').forEach(row=>{
+    row.onclick = ()=> openHistoryWithFilter({
+      query: row.getAttribute('data-place'),
+      range: ui.spendFilter.range, customStart: ui.spendFilter.customStart, customEnd: ui.spendFilter.customEnd,
+      type: 'expense'
+    });
+  });
   document.querySelectorAll('[data-due]').forEach(row=>{
     row.onclick = ()=> openDueConfirm(row.getAttribute('data-due'));
   });
@@ -3087,6 +3509,113 @@ function openCurrencySettingsSheet(){
   });
 }
 
+// ---------- TOP PLACES ----------
+function renderTopPlaces(){
+  const list = state.transactions.filter(t=>t.type === 'expense' && inFilterRange(t.date, ui.spendFilter));
+  const tp = topPlaces(list, '0000-01-01', '9999-12-31', 5);
+  if(!tp.places.length) return '';
+  const max = tp.places[0].total || 1;
+  const rows = tp.places.map(p=>`<div class="place-row" data-place="${esc(p.name)}">
+      <div class="place-top"><span class="place-name">${esc(p.name)}</span><span class="place-amt">${fmt(p.total)}</span></div>
+      <div class="place-sub">${p.count} ${p.count === 1 ? 'visit' : 'visits'} · avg ${fmt(p.avg)} · ${Math.round(p.share * 100)}%</div>
+      <div class="place-bar"><div style="width:${Math.max(3, Math.round(p.total / max * 100))}%"></div></div>
+    </div>`).join('');
+  const foot = tp.unnamedCount > 0 ? `<div class="place-foot">${tp.unnamedCount} ${tp.unnamedCount === 1 ? 'entry has' : 'entries have'} no “To” name (${esc(fmt(tp.unnamed))})</div>` : '';
+  return `<div class="places-card"><div class="places-title">Top places</div>${rows}${foot}</div>`;
+}
+
+// ---------- MONTHLY RECAP ----------
+function recapMonthForFilter(){
+  const now = new Date();
+  if(ui.spendFilter.range === 'last_month') return prevMonthOf(now.getFullYear(), now.getMonth() + 1);
+  return { y: now.getFullYear(), m: now.getMonth() + 1 };
+}
+
+function openMonthRecapSheet(y0, m0){
+  let y = y0, m = m0;
+  const now = new Date(), curY = now.getFullYear(), curM = now.getMonth() + 1;
+  const canPrev = ()=>{ const e = earliestMonth(state.transactions); return !!e && (y > e.y || (y === e.y && m > e.m)); };
+  const canNext = ()=> y < curY || (y === curY && m < curM);
+  const pct = (part, whole)=> whole > 0 ? Math.round(part / whole * 100) : 0;
+  const shortDate = (iso)=> parseISODate(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+  function bodyHtml(){
+    const r = monthRecap(state.transactions, state.budgets, y, m);
+    if(!r.hasData) return `<div class="empty-state">No entries in ${esc(monthLabel(y, m))}.</div>`;
+    const ch = r.compare.change;
+    let cmpLine = '';
+    if(ch){
+      const lead = ch.arrow === '≈' ? '≈ Flat vs' : `${ch.arrow} ${ch.text} vs`;
+      cmpLine = `<div class="spend-cmp ${ch.tone}" style="margin-top:6px;">${lead} ${r.compare.sameDays ? 'the same days in ' : ''}${esc(monthName(r.compare.prevM))}</div>`;
+    } else if(r.compare.prev === 0 && !r.isFuture){
+      cmpLine = `<div class="spend-cmp flat" style="margin-top:6px;">No spending in ${esc(monthName(r.compare.prevM))} to compare</div>`;
+    }
+    let h = `<div class="recap-hero">
+      <div class="recap-total">${fmt(r.total)}</div>
+      <div class="recap-sub">${r.isCurrent ? 'spent so far this month' : 'spent in ' + esc(monthName(m))} · ${r.entries} ${r.entries === 1 ? 'entry' : 'entries'}</div>
+      ${cmpLine}
+    </div>
+    <div class="recap-grid">
+      <div class="recap-stat"><span>Daily average</span><b>${fmt(r.dailyAvg)}</b></div>
+      <div class="recap-stat"><span>Income</span><b>${fmt(r.income)}</b></div>
+      <div class="recap-stat"><span>${esc(state.settings.person1)}</span><b>${fmt(r.byPerson.p1)}</b><small>${pct(r.byPerson.p1, r.total)}% of spending</small></div>
+      <div class="recap-stat"><span>${esc(state.settings.person2)}</span><b>${fmt(r.byPerson.p2)}</b><small>${pct(r.byPerson.p2, r.total)}% of spending</small></div>
+    </div>`;
+    if(r.biggest){
+      const bi = catInfo('expense', r.biggest.category);
+      h += `<div class="recap-card"><div class="recap-card-title">Biggest purchase</div>
+        <div class="recap-line"><span class="recap-line-ic">${bi.icon}</span><div class="recap-line-mid"><b>${esc(r.biggest.note || bi.label)}</b><small>${esc(shortDate(r.biggest.date))} · ${esc(personName(r.biggest.person))}</small></div><span class="amt">${fmt(r.biggest.amount)}</span></div>
+      </div>`;
+    }
+    if(r.topCategory){
+      const ti = catInfo('expense', r.topCategory.id);
+      let lines = `<div class="recap-line"><span class="recap-line-ic">${ti.icon}</span><div class="recap-line-mid"><b>${esc(ti.label)}</b><small>Most spent on · ${Math.round(r.topCategory.share * 100)}% of spending</small></div><span class="amt">${fmt(r.topCategory.total)}</span></div>`;
+      if(r.biggestChange){
+        const bc = r.biggestChange, ci = catInfo('expense', bc.id), up = bc.delta > 0;
+        lines += `<div class="recap-line"><span class="recap-line-ic">${ci.icon}</span><div class="recap-line-mid"><b>${esc(ci.label)}</b><small>Biggest change · ${up ? 'up' : 'down'} vs ${r.compare.sameDays ? 'the same days in ' : ''}${esc(monthName(r.compare.prevM))}</small></div><span class="amt ${up ? 'up' : 'down'}">${up ? '▲' : '▼'} ${fmt(Math.abs(bc.delta))}</span></div>`;
+      }
+      h += `<div class="recap-card"><div class="recap-card-title">Where it went</div>${lines}</div>`;
+    }
+    if(r.places.length){
+      h += `<div class="recap-card"><div class="recap-card-title">Top places</div>${r.places.map(p=>`<div class="recap-line tap" data-recapplace="${esc(p.name)}"><div class="recap-line-mid"><b>${esc(p.name)}</b><small>${p.count} ${p.count === 1 ? 'visit' : 'visits'}</small></div><span class="amt">${fmt(p.total)}</span></div>`).join('')}</div>`;
+    }
+    if(r.budgets.length){
+      h += `<div class="recap-card"><div class="recap-card-title">Budgets</div>${r.budgets.map(b=>{
+        const bi = catInfo('expense', b.category), over = b.status === 'over';
+        const w = Math.min(100, Math.round(b.pct * 100));
+        const status = over ? `Over by ${fmt(b.over)}` : (r.isCurrent ? 'Within budget so far' : 'Within budget');
+        return `<div class="recap-budget"><div class="recap-budget-top"><span>${bi.icon} ${esc(bi.label)}</span><span><b>${fmt(b.spent)}</b> / ${fmt(b.limit)}</span></div>
+          <div class="budget-bar-track"><div class="budget-bar-fill" style="width:${w}%; background:${over ? 'var(--red)' : (b.pct > 0.8 ? 'var(--orange)' : 'var(--green)')}"></div></div>
+          <div class="recap-budget-status ${over ? 'over' : ''}">${status}</div></div>`;
+      }).join('')}</div>`;
+    }
+    h += `<button class="btn-secondary" id="recapSeeAll">See all entries this month</button>`;
+    return h;
+  }
+
+  showSheet(`<div class="sheet-title">Monthly recap</div>
+    <div class="period-nav-sheet"><button class="period-btn-lg" id="recapPrev" aria-label="Earlier month">‹</button><div class="period-label-lg" id="recapLabel"></div><button class="period-btn-lg" id="recapNext" aria-label="Later month">›</button></div>
+    <div id="recapBody"></div>`, (wrap)=>{
+    function draw(){
+      wrap.querySelector('#recapLabel').textContent = monthLabel(y, m);
+      wrap.querySelector('#recapPrev').disabled = !canPrev();
+      wrap.querySelector('#recapNext').disabled = !canNext();
+      wrap.querySelector('#recapBody').innerHTML = bodyHtml();
+      wrap.querySelectorAll('[data-recapplace]').forEach(row=>{
+        row.onclick = ()=>{
+          closeSheet(wrap);
+          openHistoryWithFilter({ query: row.getAttribute('data-recapplace'), range: 'custom', customStart: monthStartISO(y, m), customEnd: monthEndISO(y, m), type: 'expense' });
+        };
+      });
+      const all = wrap.querySelector('#recapSeeAll');
+      if(all) all.onclick = ()=>{ closeSheet(wrap); openHistoryWithFilter({ range: 'custom', customStart: monthStartISO(y, m), customEnd: monthEndISO(y, m), type: 'expense' }); };
+    }
+    wrap.querySelector('#recapPrev').onclick = ()=>{ if(!canPrev()) return; const p = prevMonthOf(y, m); y = p.y; m = p.m; draw(); };
+    wrap.querySelector('#recapNext').onclick = ()=>{ if(!canNext()) return; m++; if(m > 12){ m = 1; y++; } draw(); };
+    draw();
+  });
+}
+
 // ---------- RECURRING ENTRIES ----------
 function openDueConfirm(id){
   const r = (state.recurring || []).find(x=>x.id === id);
@@ -3552,6 +4081,7 @@ if(!FIREBASE_CONFIGURED){
     } else {
       if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
       hasSyncedOnce = false; lastSyncedState = null; clearTimeout(loadSlowTimer);
+      updateSyncPill();
       showLoginScreen();
     }
   });
