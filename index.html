@@ -55,6 +55,7 @@
     --tile-bg:#0F3A2C; --tile-bg-on:#14503C;
     --shell-bg: linear-gradient(180deg, #0A1710 0%, #050805 45%, #000000 100%);
     --nav-shadow: rgba(0,0,0,0.35);
+    --nav-line: rgba(255,255,255,0.09);
   }
 
   @media (prefers-color-scheme: light){
@@ -84,6 +85,7 @@
     --tile-bg:#DDEBDD; --tile-bg-on:#CFE5D2;
       --shell-bg: linear-gradient(180deg, #EEF6E2 0%, #EFF2E7 45%, #EAEAEE 100%);
       --nav-shadow: rgba(0,0,0,0.14);
+    --nav-line: rgba(0,0,0,0.06);
     }
   }
   :root[data-theme="light"]{
@@ -112,6 +114,7 @@
     --tile-bg:#DDEBDD; --tile-bg-on:#CFE5D2;
     --shell-bg: linear-gradient(180deg, #EEF6E2 0%, #EFF2E7 45%, #EAEAEE 100%);
     --nav-shadow: rgba(0,0,0,0.14);
+    --nav-line: rgba(0,0,0,0.06);
   }
   :root[data-theme="dark"]{
     --bg:#000000;
@@ -139,6 +142,7 @@
     --tile-bg:#0F3A2C; --tile-bg-on:#14503C;
     --shell-bg: linear-gradient(180deg, #0A1710 0%, #050805 45%, #000000 100%);
     --nav-shadow: rgba(0,0,0,0.35);
+    --nav-line: rgba(255,255,255,0.09);
   }
   *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
   html,body{ height:100%; margin:0; overflow:hidden; touch-action: manipulation; }
@@ -175,11 +179,11 @@
   #scroll-area::-webkit-scrollbar{ display:none; }
 
   #bottomNav{
-    position:absolute; left:calc(20px + env(safe-area-inset-left)); width:158px;
+    position:absolute; left:calc(20px + env(safe-area-inset-left)); width:164px;
     bottom:calc(8px + env(safe-area-inset-bottom)); height:58px;
     background: var(--bg-elevated); border-radius:29px;
     display:flex; align-items:center; padding:0 5px;
-    box-shadow: 0 6px 18px var(--nav-shadow);
+    box-shadow: 0 6px 18px var(--nav-shadow), inset 0 0 0 1px var(--nav-line);
     z-index:20;
     transform: translateY(0); opacity:1;
     transition: transform 0.3s cubic-bezier(.32,.72,0,1), opacity 0.25s ease;
@@ -188,13 +192,13 @@
   .nav-item{
     flex:0 0 auto; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:0;
     background:none; border:none; color: var(--label-tertiary); font-family:inherit;
-    font-size:12px; font-weight:600; cursor:pointer;
-    padding:9px 11px; border-radius:22px;
+    font-size:13px; font-weight:600; cursor:pointer;
+    height:48px; padding:0 14px; border-radius:24px;
     transition: flex-grow 0.34s cubic-bezier(.22,.61,.36,1), background-color 0.34s ease, color 0.2s ease, padding 0.34s ease;
   }
-  .nav-item svg{ flex-shrink:0; }
+  .nav-item svg{ flex-shrink:0; width:18px; height:18px; }
   .nav-item .label{ overflow:hidden; white-space:nowrap; max-width:0; opacity:0; margin-left:0; transition: max-width 0.3s ease, opacity 0.2s ease 0.05s, margin-left 0.3s ease; }
-  .nav-item.active{ background: var(--blue); color:#084734; flex:1; padding:9px 16px; }
+  .nav-item.active{ background: var(--blue); color:#084734; flex:1; padding:0 16px; }
   .nav-item.active .label{ max-width:80px; opacity:1; margin-left:6px; }
   .nav-item:active{ opacity:0.7; }
 
@@ -384,7 +388,7 @@
   /* FAB */
   #fab{
     position:absolute; bottom:calc(8px + env(safe-area-inset-bottom)); right:calc(22px + env(safe-area-inset-right)); width:58px; height:58px; border-radius:50%;
-    background: var(--blue); border:none; color:#084734; font-size:26px; font-weight:400;
+    background: var(--blue); border:none; color:#084734; font-size:34px; font-weight:300; line-height:1; padding:0 0 3px 0;
     display:flex; align-items:center; justify-content:center; cursor:pointer;
     box-shadow: 0 6px 18px var(--fab-shadow);
     z-index:20;
@@ -723,6 +727,12 @@
   .pick-check{ color: var(--accent-text); font-weight:800; opacity:0; }
   .pick-row.active .pick-check{ opacity:1; }
   @media (max-width: 480px){ html, body{ background: var(--shell-end); } }
+  /* iOS 26 (WebKit bug 301108): an installed app with a translucent status bar gets a viewport shorter than the screen by the
+     status-bar height, but only while the page is no taller than that viewport. Making the page at least that tall gives the
+     app the whole screen. (No effect elsewhere: the safe-area inset is 0 on Android and desktop.) */
+  @media (display-mode: standalone){
+    @supports (min-height: 100lvh){ html{ min-height: min(100lvh, calc(100% + env(safe-area-inset-top))); } }
+  }
   .info-row .small{ font-size:11px; text-align:right; }
   .add-close.danger{ color: var(--red); }
   .add-chips.wrap{ flex-wrap:wrap; overflow:visible; }
@@ -1286,7 +1296,7 @@ async function restoreFromBackup(data){
 // ===== SYNC CORE END =====
 
 // ===== BACKUP CORE START =====
-const APP_VERSION = '22';
+const APP_VERSION = '24';
 const BACKUP_APP_ID = '1705-finance';
 const LAST_BACKUP_KEY = 'last-backup-at';
 const BACKUP_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -1876,18 +1886,6 @@ function dayGroups(list, totalsSource){
   return groups;
 }
 
-// ---- iPhone home-screen apps can start with an app area shorter than the screen ----
-// How many pixels the app must be stretched downwards so it reaches the real bottom of the screen.
-//   0    = nothing to do      null = leave things exactly as they are (the keyboard is up)
-// Only for an iPhone home-screen app held upright; the gap has to look like a status bar (10-80 px).
-function computeShellGap(i){
-  if(!i) return 0;
-  if(i.typing) return null;
-  if(!i.standalone || !i.phone || !i.portrait) return 0;
-  const gap = Math.round((Number(i.fullHeight) || 0) - (Number(i.shellBottom) || 0));
-  return (gap >= 10 && gap <= 80) ? gap : 0;
-}
-
 // ---- food: remembering what you buy ----
 const EXPIRY_PRESETS = [{ label: '3 days', days: 3 }, { label: '1 week', days: 7 }, { label: '2 weeks', days: 14 }, { label: '1 month', days: 30 }, { label: '3 months', days: 90 }];
 // Things you have bought before (same name = same thing), most bought first, with how long they usually last.
@@ -2126,44 +2124,18 @@ function openSyncStatusSheet(){
 }
 (function(){ const p = document.getElementById('syncPill'); if(p) p.onclick = openSyncStatusSheet; })();
 
-// ---------- FIT THE APP TO THE REAL SCREEN (iPhone home-screen apps) ----------
-// An iPhone home-screen app can start with an app area shorter than the screen (the gap is as tall as the status bar),
-// so everything pinned to the bottom stops too high. Measure where the app really ends, and stretch it down if needed.
-let shellGap = 0;
-function fitShellToScreen(){
-  const shell = document.getElementById('shell');
-  if(!shell) return;
-  let typing = false;
-  try{ const el = document.activeElement; typing = !!(el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)); }catch(e){}
-  if(typing) return;                       // the keyboard changes sizes; leave things exactly as they are
-  shell.style.bottom = '';                 // measure where the app ends on its own
-  let gap = 0;
-  try{
-    const mm = (q)=> !!(window.matchMedia && window.matchMedia(q).matches);
-    gap = computeShellGap({
-      standalone: window.navigator.standalone === true || mm('(display-mode: standalone)'),
-      phone: /iPhone|iPod/.test(navigator.userAgent || ''),
-      portrait: window.matchMedia ? mm('(orientation: portrait)') : true,
-      typing: false,
-      fullHeight: Math.max(screen.width || 0, screen.height || 0),
-      shellBottom: shell.getBoundingClientRect().bottom
-    }) || 0;
-  }catch(e){ gap = 0; }
-  shell.style.bottom = gap ? (-gap) + 'px' : '';
-  shellGap = gap;
-}
+// ---------- DISPLAY INFO (shown in the Sync status sheet, so layout problems can be read off a screenshot) ----------
 function displayInfo(){
-  let standalone = false;
+  let standalone = false, lvh = '?', page = '?';
   try{ standalone = window.navigator.standalone === true || !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches); }catch(e){}
-  return window.innerWidth + '×' + window.innerHeight + ' of ' + screen.width + '×' + screen.height + (standalone ? ' · app' : ' · browser') + (shellGap ? ' · +' + shellGap + 'px fix' : '');
+  try{
+    const p = document.createElement('div');
+    p.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:100lvh;visibility:hidden;pointer-events:none';
+    document.body.appendChild(p); lvh = p.offsetHeight; p.remove();
+    page = document.documentElement.clientHeight;
+  }catch(e){}
+  return window.innerWidth + '×' + window.innerHeight + ' of ' + screen.width + '×' + screen.height + (standalone ? ' · app' : ' · browser') + ' · page ' + page + ' · lvh ' + lvh;
 }
-fitShellToScreen();
-[50, 300, 1000, 2500].forEach(ms=> setTimeout(fitShellToScreen, ms));      // iOS settles a moment after launch
-window.addEventListener('pageshow', ()=>{ fitShellToScreen(); setTimeout(fitShellToScreen, 400); });
-window.addEventListener('resize', fitShellToScreen);
-window.addEventListener('orientationchange', ()=> setTimeout(fitShellToScreen, 350));
-document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible'){ fitShellToScreen(); setTimeout(fitShellToScreen, 400); } });
-document.addEventListener('focusout', ()=> setTimeout(fitShellToScreen, 450));   // once the keyboard has closed
 
 function showSetupBanner(customMsg){
   const el = document.getElementById('setupBanner');
