@@ -1143,7 +1143,7 @@ async function loadState(){
     console.error('Sync error', err);
     loadStatus = 'error';
     clearTimeout(loadSlowTimer);
-    showSetupBanner('Could not connect. Check your Firestore security rules.');
+    showSetupBanner("Couldn't connect. Check your Firestore security rules.");
     render();
   });
 }
@@ -1156,7 +1156,7 @@ function showRecoveryPrompt(cachedGoodState, serverRaw){
   root.innerHTML = `
     <div class="lock-screen">
       <div class="lock-title">Data mismatch found</div>
-      <div class="lock-sub">This device has real-looking data saved locally, but the server copy looks empty. This can happen after a sync problem. Would you like to restore this device's copy back to the server, or continue with the server's (empty) version?</div>
+      <div class="lock-sub">This device has saved data, but the server copy looks empty. This can happen after a sync problem. Restore this device's data to the server, or continue with the empty server version?</div>
       <button class="btn-primary" id="recoveryRestoreBtn" style="max-width:260px;">Restore this device's data</button>
       <button class="btn-secondary" id="recoveryDiscardBtn" style="max-width:260px;">Use the empty server version</button>
     </div>
@@ -1172,7 +1172,7 @@ function showRecoveryPrompt(cachedGoodState, serverRaw){
       render();
     }catch(e){
       console.error('Recovery restore failed', e);
-      showSetupBanner('Could not restore. Try again.');
+      showSetupBanner("Couldn't restore. Try again.");
     }
   };
   document.getElementById('recoveryDiscardBtn').onclick = ()=>{
@@ -1195,7 +1195,7 @@ function saveState(){
   if(!FIREBASE_CONFIGURED || !db) return;
   if(!hasSyncedOnce){
     console.warn('Blocked a save: the first sync from Firestore has not completed yet, so local state cannot be trusted to write.');
-    showSetupBanner('Still connecting — please wait a moment before making changes.');
+    showSetupBanner('Still connecting. Try again in a moment.');
     return;
   }
   scheduleSave();
@@ -1222,7 +1222,7 @@ async function runSaveLoop(){
 
       if(typeof navigator !== 'undefined' && navigator.onLine === false){
         savePending(base, snapshotLocal);
-        showSetupBanner("You're offline — your changes are kept on this device and will sync when you're back online.");
+        showSetupBanner("You're offline. Changes are saved on this device and will sync when you're back online.");
         break;
       }
 
@@ -1240,7 +1240,7 @@ async function runSaveLoop(){
         console.error('Save failed', e);
         lastSaveFailed = true;
         savePending(base, snapshotLocal);
-        showSetupBanner('Could not save right now — your changes are kept on this device and will retry automatically.');
+        showSetupBanner("Couldn't save. Your changes are kept on this device and will retry automatically.");
         scheduleRetry();
         break;
       }
@@ -1296,7 +1296,7 @@ async function restoreFromBackup(data){
 // ===== SYNC CORE END =====
 
 // ===== BACKUP CORE START =====
-const APP_VERSION = '24';
+const APP_VERSION = '25';
 const BACKUP_APP_ID = '1705-finance';
 const LAST_BACKUP_KEY = 'last-backup-at';
 const BACKUP_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -1411,7 +1411,7 @@ function normalizeBackupData(raw){
 function parseBackupText(text){
   let obj;
   try{ obj = JSON.parse(text); }
-  catch(e){ return { ok: false, error: "This file can't be read — it isn't a valid backup." }; }
+  catch(e){ return { ok: false, error: "This isn't a valid backup file." }; }
   if(!obj || typeof obj !== 'object' || Array.isArray(obj)) return { ok: false, error: "This file isn't a valid backup." };
   const raw = (obj.data && typeof obj.data === 'object') ? obj.data : obj;
   const checked = normalizeBackupData(raw);
@@ -1993,7 +1993,7 @@ async function applyUpdate(){
   };
   // Never clear the saved copy of the app unless we are sure we can load the new one.
   if(typeof navigator !== 'undefined' && navigator.onLine === false){ backOff("You're offline. Connect to the internet, then tap here to update."); return; }
-  if(el){ el.onclick = null; el.innerHTML = '<span class="ub-text">Updating…</span>'; }
+  if(el){ el.onclick = null; el.innerHTML = '<span class="ub-text">Updating</span>'; }
   try{
     const probe = await fetch(location.pathname + '?vcheck=' + Date.now(), { cache: 'no-store' });
     if(!probe.ok) throw new Error('unreachable');
@@ -2018,8 +2018,8 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState 
 // ---------- LOADING SCREEN ----------
 function renderLoadingView(){
   const messages = {
-    loading: 'Loading your data…',
-    slow: 'Still connecting… this is taking longer than usual.',
+    loading: 'Loading your data',
+    slow: 'Still connecting. This is taking longer than usual.',
     offline: "You're offline, and nothing is saved on this phone yet. Your data will appear once you're back online.",
     error: "Couldn't connect. Check your connection and try again."
   };
@@ -2052,8 +2052,8 @@ const SYNC_ICONS = {
 function syncDisplay(s){
   const n = s.pending;
   const plural = (k)=> k + (k === 1 ? ' change' : ' changes');
-  if(s.state === 'saving') return { cls: 'saving', icon: SYNC_ICONS.spinner, text: 'Saving…', head: 'Saving…', label: 'Saving your changes' };
-  if(s.state === 'error') return { cls: 'error', icon: SYNC_ICONS.alert, text: 'Not saved', head: "Couldn't save " + plural(n) + '. Retrying…', label: "Couldn't save " + plural(n) };
+  if(s.state === 'saving') return { cls: 'saving', icon: SYNC_ICONS.spinner, text: 'Saving', head: 'Saving', label: 'Saving your changes' };
+  if(s.state === 'error') return { cls: 'error', icon: SYNC_ICONS.alert, text: 'Not saved', head: "Couldn't save " + plural(n) + '. Retrying', label: "Couldn't save " + plural(n) };
   if(s.state === 'offline') return { cls: 'offline', icon: SYNC_ICONS.offline, text: 'Offline · ' + n, head: "You're offline. " + plural(n) + " will sync when you're back online.", label: 'Offline, ' + plural(n) + ' waiting' };
   if(s.state === 'waiting') return { cls: 'waiting', icon: SYNC_ICONS.clock, text: n + ' waiting', head: plural(n) + ' waiting to sync', label: plural(n) + ' waiting to sync' };
   if(s.offline) return { cls: 'offline', icon: SYNC_ICONS.offline, text: 'Offline', head: "You're offline. Everything so far is saved.", label: 'Offline, everything so far is saved' };
@@ -2106,14 +2106,14 @@ function openSyncStatusSheet(){
     <div class="sheet-title">Sync status</div>
     <div id="syncSheetBody">${syncSheetBodyHtml()}</div>
     <button class="btn-primary" id="syncNowBtn">Sync now</button>
-    <button class="btn-secondary" id="syncBackupBtn">Back up…</button>
-    <div class="hint">Changes are saved to the cloud so both phones stay in step. If you're offline they wait on this phone and sync by themselves.</div>
+    <button class="btn-secondary" id="syncBackupBtn">Back up</button>
+    <div class="hint">Changes sync to the cloud so both phones stay in step. Offline changes wait on this phone and sync automatically.</div>
   `;
   showSheet(html, (w)=>{
     syncSheetWrap = w;
     w.querySelector('#syncNowBtn').onclick = async ()=>{
       const b = w.querySelector('#syncNowBtn');
-      b.disabled = true; b.textContent = 'Syncing…';
+      b.disabled = true; b.textContent = 'Syncing';
       flushIfDirty();
       await refreshFromServer();
       b.disabled = false; b.textContent = 'Sync now';
@@ -2123,6 +2123,13 @@ function openSyncStatusSheet(){
   });
 }
 (function(){ const p = document.getElementById('syncPill'); if(p) p.onclick = openSyncStatusSheet; })();
+
+// Desktop browsers only open the date picker from the tiny calendar icon, so the date chips (an invisible date field over the chip) open it on click.
+document.addEventListener('click', (e)=>{
+  const el = e.target;
+  if(!el || el.tagName !== 'INPUT' || el.type !== 'date' || !el.closest || !el.closest('.achip, .opt-chip')) return;
+  try{ if(!window.matchMedia('(pointer: coarse)').matches && typeof el.showPicker === 'function') el.showPicker(); }catch(err){}
+});
 
 // ---------- DISPLAY INFO (shown in the Sync status sheet, so layout problems can be read off a screenshot) ----------
 function displayInfo(){
@@ -2139,7 +2146,7 @@ function displayInfo(){
 
 function showSetupBanner(customMsg){
   const el = document.getElementById('setupBanner');
-  if(el) el.textContent = customMsg || "This app isn't connected to a database yet. Open the code and add your Firebase config to start saving data.";
+  if(el) el.textContent = customMsg || "Not connected to a database yet. Add your Firebase config to start saving data.";
 }
 
 function clearSetupBanner(){
@@ -2811,7 +2818,7 @@ function render(){
       <button class="section-action" id="addBudgetBtn">+ Add</button>
     </div>`;
   if(state.budgets.length === 0){
-    html += `<div class="empty-state">No budgets yet. Set a monthly limit per category to track your spending.</div>`;
+    html += `<div class="empty-state">No budgets yet. Set a monthly limit per category.</div>`;
   } else {
     state.budgets.forEach(b=>{
       const spent = budgetSpent(b.category);
@@ -2821,7 +2828,7 @@ function render(){
       const barColor = pace.status === 'over' ? 'var(--red)' : (pace.status === 'warn' || pct > 80 ? 'var(--orange)' : 'var(--green)');
       let paceText;
       if(pace.status === 'over') paceText = pace.over > 0 ? `Over budget by ${fmt(pace.over)}` : 'Budget used up';
-      else if(pace.status === 'warn') paceText = `⚠ On pace to spend ${fmt(pace.projected)} — ${fmt(pace.projectedOver)} over`;
+      else if(pace.status === 'warn') paceText = `⚠ On pace to spend ${fmt(pace.projected)}, ${fmt(pace.projectedOver)} over`;
       else paceText = `${fmt(pace.remaining)} left · about ${fmt(pace.perDay)} a day`;
       html += `<div class="budget-row" data-budget="${b.id}">
         <div class="budget-top">
@@ -2840,7 +2847,7 @@ function render(){
   html += `<div class="section">
     <div class="section-head"><div class="section-title">Recent activity</div>${sortedAll.length > 5 ? `<button class="section-action" id="seeAllBtn">See all</button>` : ''}</div>`;
   if(sortedAll.length === 0){
-    html += `<div class="empty-state">No transactions yet. Tap the + button to add your first expense or income.</div>`;
+    html += `<div class="empty-state">No transactions yet. Tap + to add one.</div>`;
   } else {
     html += renderTxList(sortedAll.slice(0,5), sortedAll);
     if(sortedAll.length > 5){
@@ -3640,7 +3647,7 @@ function openAddBudgetSheet(){
   const usedCats = state.budgets.map(b=>b.category);
   const available = state.categories.expense.filter(c=>!usedCats.includes(c.id));
   if(available.length===0){
-    showSheet(`<div class="sheet-title">Add budget</div><div class="empty-state">Every category already has a budget. Edit or delete one to make changes.</div>`);
+    showSheet(`<div class="sheet-title">Add budget</div><div class="empty-state">Every category already has a budget.</div>`);
     return;
   }
   let category = available[0].id;
@@ -3868,7 +3875,7 @@ function openEditCategorySheet(type, catId){
     ${sheetNavHtml(existing ? 'Edit category' : 'Add category', true)}
     <label class="field-label" style="margin-top:0">Icon</label>
     <input type="text" id="catIcon" value="${existing ? esc(existing.icon) : ''}" placeholder="🛒" maxlength="4" style="text-align:center; font-size:22px;">
-    <div class="hint">Tap the field and use your keyboard's emoji picker.</div>
+    <div class="hint">Pick an emoji from your keyboard.</div>
     <label class="field-label">Name</label>
     <input type="text" id="catName" value="${existing ? esc(existing.label) : ''}" placeholder="e.g. Groceries">
     <div class="field-error" id="catErr"></div>
@@ -3959,7 +3966,7 @@ function openSettingsSheet(){
         <div class="menu-label">Sign Out</div>
       </div>
     </div>
-    <div class="hint">This data is shared between everyone who opens this app — that's how you and your partner see the same balances.</div>
+    <div class="hint">Data is shared with everyone who uses this app, so you both see the same balances.</div>
     <div class="version-label">1705 Finance · Version ${APP_VERSION}</div>
   `;
   showSheet(html, (wrap)=>{
@@ -3986,7 +3993,7 @@ function openPersonSettingsSheet(){
       <button data-val="p1" class="${owner==='p1'?'active':''}">${esc(state.settings.person1)}</button>
       <button data-val="p2" class="${owner==='p2'?'active':''}">${esc(state.settings.person2)}</button>
     </div>
-    <div class="hint">Only affects this phone. New entries start with this person selected, so you don't have to switch every time.</div>
+    <div class="hint">Only affects this phone. New entries start with this person selected.</div>
     <button class="btn-primary" id="personSave">Save</button>
   `;
   showSheet(html, (wrap)=>{
@@ -4179,9 +4186,9 @@ function openRecurringSheet(){
   const due = sorted.filter(r=>r.nextDue <= today), later = sorted.filter(r=>r.nextDue > today);
   const html = `
     ${sheetNavHtml('Recurring', true)}
-    ${sorted.length ? `<div class="rec-list">${section('Due now', due)}${section(due.length ? 'Coming up' : 'Scheduled', later)}</div>` : `<div class="empty-state">No recurring entries yet. Add things that repeat, like utilities, interest, or the water galon.</div>`}
+    ${sorted.length ? `<div class="rec-list">${section('Due now', due)}${section(due.length ? 'Coming up' : 'Scheduled', later)}</div>` : `<div class="empty-state">No recurring entries yet. Add things that repeat, like bills, interest or the galon.</div>`}
     <button class="btn-secondary" id="addRecBtn">+ Add recurring entry</button>
-    <div class="hint">When one is due it shows up on the Finance page. Tap it to confirm (or change the amount). Nothing is ever added automatically.</div>
+    <div class="hint">Due entries appear on the Finance page. Tap one to confirm or change the amount. Nothing is added automatically.</div>
   `;
   showSheet(html, (wrap)=>{
     wireSheetBack(wrap, ()=>openSettingsSheet());
@@ -4440,7 +4447,7 @@ function openBackupSheet(){
     </div>
     <button class="btn-primary" id="backupSaveBtn" style="margin-top:0">Save backup file</button>
     <button class="btn-secondary" id="backupCsvBtn">Export transactions (CSV)</button>
-    <button class="btn-secondary" id="backupRestoreBtn">Restore from a backup file…</button>
+    <button class="btn-secondary" id="backupRestoreBtn">Restore from backup</button>
     <input type="file" id="backupFileInput" accept=".json,application/json,text/plain" style="display:none">
     <div class="status-msg" id="backupMsg"></div>
     <div class="hint">The backup file contains everything: accounts, transactions, budgets, categories and food items. On your phone this opens the share sheet, so you can pick “Save to Files”, Google Drive, or send it to yourself on WhatsApp.</div>
@@ -4499,7 +4506,7 @@ function openRestoreConfirmSheet(data, meta){
         ${row('Food items', state.foodItems.length, data.foodItems.length)}
       </div>
       ${whenText ? `<div class="hint" style="margin:0 0 12px 2px;">This backup was made on ${esc(whenText)}.</div>` : ''}
-      <div class="warn-box">Restoring replaces everything currently in the app, on both phones, with what's in this file. It can't be undone, so save a backup of the current data first if you're unsure.</div>
+      <div class="warn-box">Restoring replaces everything in the app, on both phones. It can't be undone, so save a backup of the current data first if you're unsure.</div>
       <button class="btn-secondary" id="restoreSaveFirstBtn">Save a backup of the current data first</button>
       <button class="btn-primary danger" id="restoreConfirmBtn">Restore and replace everything</button>
       <div class="status-msg" id="restoreMsg"></div>
@@ -4520,7 +4527,7 @@ function openRestoreConfirmSheet(data, meta){
 
     const btn = wrap.querySelector('#restoreConfirmBtn');
     btn.onclick = async ()=>{
-      btn.disabled = true; btn.textContent = 'Restoring…';
+      btn.disabled = true; btn.textContent = 'Restoring';
       try{
         await restoreFromBackup(data);
         wrap.querySelector('#restoreBody').innerHTML = `
@@ -4600,7 +4607,7 @@ function showLoginScreen(errorMsg){
     <div class="lock-screen">
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--label-secondary); margin-bottom:14px;"><path d="M4 4h16v16H4z"></path><path d="M22 6l-10 7L2 6"></path></svg>
       <div class="lock-title">Sign in</div>
-      <div class="lock-sub">Use the email your account was set up with. You'll need to sign in again once a day.</div>
+      <div class="lock-sub">Use your account email. You'll sign in again once a day.</div>
       <input type="email" id="loginEmail" class="pin-input" style="letter-spacing:normal; width:240px; text-align:left; font-size:15px; padding:12px 14px;" placeholder="name@example.com" autocomplete="username">
       <div style="height:10px"></div>
       <input type="password" id="loginPassword" class="pin-input" style="letter-spacing:normal; width:240px; text-align:left; font-size:15px; padding:12px 14px;" placeholder="Password" autocomplete="current-password">
