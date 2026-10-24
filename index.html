@@ -51,6 +51,8 @@
     --purple:#BF5AF2;
     --purple-tint: rgba(191,90,242,0.15);
     --page-outer:#0b0b0c;
+    --shell-end:#000000;
+    --tile-bg:#0F3A2C; --tile-bg-on:#14503C;
     --shell-bg: linear-gradient(180deg, #0A1710 0%, #050805 45%, #000000 100%);
     --nav-shadow: rgba(0,0,0,0.35);
   }
@@ -78,6 +80,8 @@
       --purple:#8944AB;
       --purple-tint: rgba(137,68,171,0.12);
       --page-outer:#dcdce1;
+    --shell-end:#EAEAEE;
+    --tile-bg:#DDEBDD; --tile-bg-on:#CFE5D2;
       --shell-bg: linear-gradient(180deg, #EEF6E2 0%, #EFF2E7 45%, #EAEAEE 100%);
       --nav-shadow: rgba(0,0,0,0.14);
     }
@@ -104,6 +108,8 @@
     --purple:#8944AB;
     --purple-tint: rgba(137,68,171,0.12);
     --page-outer:#dcdce1;
+    --shell-end:#EAEAEE;
+    --tile-bg:#DDEBDD; --tile-bg-on:#CFE5D2;
     --shell-bg: linear-gradient(180deg, #EEF6E2 0%, #EFF2E7 45%, #EAEAEE 100%);
     --nav-shadow: rgba(0,0,0,0.14);
   }
@@ -129,6 +135,8 @@
     --purple:#BF5AF2;
     --purple-tint: rgba(191,90,242,0.15);
     --page-outer:#0b0b0c;
+    --shell-end:#000000;
+    --tile-bg:#0F3A2C; --tile-bg-on:#14503C;
     --shell-bg: linear-gradient(180deg, #0A1710 0%, #050805 45%, #000000 100%);
     --nav-shadow: rgba(0,0,0,0.35);
   }
@@ -356,7 +364,7 @@
   .tx-row{ position:relative; z-index:1; display:flex; align-items:center; gap:12px; background: var(--bg-elevated); padding:12px 14px; cursor:pointer; touch-action:pan-y; user-select:none; -webkit-user-select:none; transition: transform 0.22s cubic-bezier(.2,.8,.2,1); }
   .tx-row.drag{ transition:none; }
   .tx-row:active{ transform: scale(0.98); }
-  .tx-icon{ width:42px; height:42px; border-radius:14px; background: var(--bg-elevated-3); background: color-mix(in srgb, var(--c, #8E8E93) 24%, var(--bg-elevated)); display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
+  .tx-icon{ width:42px; height:42px; border-radius:14px; background: var(--bg-elevated-3); background: var(--tile-bg); display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
   .tx-mid{ flex:1; min-width:0; }
   .tx-cat{ font-size:13px; font-weight:600; }
   .tx-sub{ font-size:10.5px; color: var(--label-secondary); margin-top:2px; }
@@ -678,10 +686,10 @@
   .add-tiles{ display:flex; gap:10px; overflow-x:auto; padding:14px 0 6px; flex-shrink:0; scrollbar-width:none; }
   .add-tiles::-webkit-scrollbar{ display:none; }
   .add-tiles .cat-chip{ flex:0 0 62px; padding:0; background:none; border:none; border-radius:0; gap:6px; font-family:inherit; color:inherit; }
-  .add-tiles .cat-chip .sq{ width:52px; height:52px; border-radius:17px; display:flex; align-items:center; justify-content:center; font-size:23px; background: var(--bg-elevated-3); background: color-mix(in srgb, var(--c) 24%, var(--bg-elevated)); transition: box-shadow 0.15s, transform 0.15s; }
+  .add-tiles .cat-chip .sq{ width:52px; height:52px; border-radius:17px; display:flex; align-items:center; justify-content:center; font-size:23px; background: var(--bg-elevated-3); background: var(--tile-bg); transition: box-shadow 0.15s, transform 0.15s; }
   .add-tiles .cat-chip .lb{ font-size:11px; font-weight:500; color: var(--label-secondary); max-width:62px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .add-tiles .cat-chip.active{ background:none; border:none; }
-  .add-tiles .cat-chip.active .sq{ box-shadow: 0 0 0 2px var(--accent-text); transform: scale(1.04); background: color-mix(in srgb, var(--c) 34%, var(--bg-elevated)); }
+  .add-tiles .cat-chip.active .sq{ box-shadow: 0 0 0 2px var(--accent-text); transform: scale(1.04); background: var(--tile-bg-on); }
   .add-tiles .cat-chip.active .lb{ color: var(--label); font-weight:700; }
   .add-chips{ display:flex; gap:6px; padding:8px 0 0; overflow-x:auto; flex-shrink:0; scrollbar-width:none; }
   .add-chips::-webkit-scrollbar{ display:none; }
@@ -714,6 +722,29 @@
   .pick-main small{ font-size:11px; color: var(--label-secondary); }
   .pick-check{ color: var(--accent-text); font-weight:800; opacity:0; }
   .pick-row.active .pick-check{ opacity:1; }
+  @media (max-width: 480px){ html, body{ background: var(--shell-end); } }
+  .info-row .small{ font-size:11px; text-align:right; }
+  .add-close.danger{ color: var(--red); }
+  .add-chips.wrap{ flex-wrap:wrap; overflow:visible; }
+  .rec-list{ max-height:50vh; overflow-y:auto; margin-bottom:12px; scrollbar-width:none; }
+  .rec-list::-webkit-scrollbar{ display:none; }
+  .food-caption{ font-size:13px; font-weight:700; color: var(--label-secondary); }
+  .food-hero{ flex:0 0 auto; display:flex; align-items:center; justify-content:center; padding:38px 0 20px; }
+  .food-form .add-save{ margin-top:auto; }
+  .food-form .add-place{ margin-top:4px; }
+  .food-hero .food-hero-input{ width:100%; max-width:100%; text-align:center; font-size:32px; font-weight:700; letter-spacing:-1px; background:none; border:none; padding:0; color: var(--label); font-family:inherit; }
+  .food-hero .food-hero-input::placeholder{ color: var(--label-tertiary); }
+  .food-hero .food-hero-input:focus{ outline:none; }
+  .food-label{ font-size:11px; font-weight:700; letter-spacing:0.4px; text-transform:uppercase; color: var(--label-secondary); margin:14px 0 0; flex-shrink:0; }
+  .food-presets{ padding-top:8px; flex-wrap:wrap; overflow:visible; }
+  .opt-chip{ position:relative; flex-shrink:0; display:flex; align-items:center; gap:6px; height:34px; padding:0 13px; border-radius:17px; border:1px solid transparent; background: var(--bg-elevated-2); color: var(--label); font-size:12px; font-weight:600; font-family:inherit; white-space:nowrap; cursor:pointer; overflow:hidden; }
+  .opt-chip.hint{ border-color: var(--accent-tint-strong); color: var(--accent-text); }
+  .opt-chip.active{ background: var(--accent-tint); border-color: var(--accent-text); color: var(--accent-text); }
+  .opt-chip svg{ flex-shrink:0; opacity:0.85; }
+  .opt-chip input[type=date]{ position:absolute; inset:0; width:100%; height:100%; min-width:0; max-width:none; padding:0; border:none; background:none; opacity:0; font-size:16px; cursor:pointer; }
+  .food-expiry-line{ font-size:12.5px; font-weight:600; color: var(--label-secondary); margin-top:10px; min-height:18px; text-align:center; flex-shrink:0; }
+  .food-expiry-line.warn{ color: var(--orange); }
+  .food-expiry-line.bad{ color: var(--red); }
   .banner-close{ background:none; border:none; color: var(--orange); opacity:0.75; font-size:14px; padding:0 4px; cursor:pointer; font-family:inherit; }
 
 
@@ -1255,7 +1286,7 @@ async function restoreFromBackup(data){
 // ===== SYNC CORE END =====
 
 // ===== BACKUP CORE START =====
-const APP_VERSION = '19';
+const APP_VERSION = '22';
 const BACKUP_APP_ID = '1705-finance';
 const LAST_BACKUP_KEY = 'last-backup-at';
 const BACKUP_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -1844,6 +1875,72 @@ function dayGroups(list, totalsSource){
   groups.forEach(g=>{ const o = totals[g.date]; if(o){ g.spent = o.spent; g.income = o.income; } });
   return groups;
 }
+
+// ---- iPhone home-screen apps can start with an app area shorter than the screen ----
+// How many pixels the app must be stretched downwards so it reaches the real bottom of the screen.
+//   0    = nothing to do      null = leave things exactly as they are (the keyboard is up)
+// Only for an iPhone home-screen app held upright; the gap has to look like a status bar (10-80 px).
+function computeShellGap(i){
+  if(!i) return 0;
+  if(i.typing) return null;
+  if(!i.standalone || !i.phone || !i.portrait) return 0;
+  const gap = Math.round((Number(i.fullHeight) || 0) - (Number(i.shellBottom) || 0));
+  return (gap >= 10 && gap <= 80) ? gap : 0;
+}
+
+// ---- food: remembering what you buy ----
+const EXPIRY_PRESETS = [{ label: '3 days', days: 3 }, { label: '1 week', days: 7 }, { label: '2 weeks', days: 14 }, { label: '1 month', days: 30 }, { label: '3 months', days: 90 }];
+// Things you have bought before (same name = same thing), most bought first, with how long they usually last.
+function foodSuggestions(foodItems, query, limit){
+  const q = String(query || '').trim().toLowerCase();
+  const stats = new Map();
+  (foodItems || []).forEach(f=>{
+    const name = String((f && f.name) || '').trim();
+    if(!name) return;
+    const key = name.toLowerCase();
+    let st = stats.get(key);
+    if(!st){ st = { name, count: 0, amount: '', last: -1 }; stats.set(key, st); }
+    st.count++;
+    const when = Number(f.createdAt) || 0;
+    if(when >= st.last){ st.last = when; st.name = name; st.amount = typeof f.amount === 'string' ? f.amount : ''; }
+  });
+  let list = Array.from(stats.values());
+  if(q) list = list.filter(x=>x.name.toLowerCase().includes(q));
+  list.sort((a, b)=>{
+    if(q){ const as = a.name.toLowerCase().startsWith(q) ? 1 : 0, bs = b.name.toLowerCase().startsWith(q) ? 1 : 0; if(as !== bs) return bs - as; }
+    if(b.count !== a.count) return b.count - a.count;
+    if(b.last !== a.last) return b.last - a.last;
+    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+  });
+  return list.slice(0, limit || 6).map(x=>({ name: x.name, amount: x.amount, count: x.count, days: suggestShelfLifeDays(x.name, foodItems) }));
+}
+function daysUntilISO(iso, now){ return Math.round((parseISODate(iso) - parseISODate(todayISO(now))) / 86400000); }
+function describeExpiry(iso, now){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ''))) return { text: '', tone: '', days: null };
+  const d = daysUntilISO(iso, now);
+  if(d < 0) return { text: d === -1 ? 'That was yesterday' : 'That date has already passed', tone: 'bad', days: d };
+  if(d === 0) return { text: 'Expires today', tone: 'warn', days: d };
+  if(d === 1) return { text: 'Expires tomorrow', tone: 'warn', days: d };
+  if(d <= 3) return { text: 'Expires in ' + d + ' days', tone: 'warn', days: d };
+  if(d <= 60) return { text: 'Expires in ' + d + ' days', tone: '', days: d };
+  return { text: 'Expires in about ' + Math.round(d / 30) + ' months', tone: '', days: d };
+}
+function expiryLongLabel(iso, now){
+  now = now || new Date();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ''))) return '';
+  const d = parseISODate(iso);
+  const wd = d.toLocaleDateString('en-GB', { weekday: 'short' }), dm = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  return wd + ' ' + dm + (d.getFullYear() !== now.getFullYear() ? ' ' + d.getFullYear() : '');
+}
+
+// ---- recurring: the one-line summary of how it repeats ----
+function repeatChipText(repeat, day, every){
+  if(repeat === 'days'){
+    const n = Math.max(1, Math.round(Number(every)) || 1);
+    return n === 1 ? 'Every day' : n === 7 ? 'Every week' : n === 14 ? 'Every 2 weeks' : 'Every ' + n + ' days';
+  }
+  return 'Every month · day ' + Math.min(31, Math.max(1, Math.round(Number(day)) || 1));
+}
 // ===== FEATURES CORE END =====
 
 // ---------- UNDO TOAST ----------
@@ -1997,6 +2094,7 @@ function syncSheetBodyHtml(){
       ${row('Connection', s.offline ? 'Offline' : 'Online', s.offline ? 'warn' : '')}
       ${row('Last backup', esc(bs.text), bs.stale ? 'warn' : '')}
       ${row('App version', esc(APP_VERSION))}
+      ${row('Display', esc(displayInfo()), 'small')}
     </div>`;
 }
 function syncSheetRefresh(){
@@ -2027,6 +2125,45 @@ function openSyncStatusSheet(){
   });
 }
 (function(){ const p = document.getElementById('syncPill'); if(p) p.onclick = openSyncStatusSheet; })();
+
+// ---------- FIT THE APP TO THE REAL SCREEN (iPhone home-screen apps) ----------
+// An iPhone home-screen app can start with an app area shorter than the screen (the gap is as tall as the status bar),
+// so everything pinned to the bottom stops too high. Measure where the app really ends, and stretch it down if needed.
+let shellGap = 0;
+function fitShellToScreen(){
+  const shell = document.getElementById('shell');
+  if(!shell) return;
+  let typing = false;
+  try{ const el = document.activeElement; typing = !!(el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)); }catch(e){}
+  if(typing) return;                       // the keyboard changes sizes; leave things exactly as they are
+  shell.style.bottom = '';                 // measure where the app ends on its own
+  let gap = 0;
+  try{
+    const mm = (q)=> !!(window.matchMedia && window.matchMedia(q).matches);
+    gap = computeShellGap({
+      standalone: window.navigator.standalone === true || mm('(display-mode: standalone)'),
+      phone: /iPhone|iPod/.test(navigator.userAgent || ''),
+      portrait: window.matchMedia ? mm('(orientation: portrait)') : true,
+      typing: false,
+      fullHeight: Math.max(screen.width || 0, screen.height || 0),
+      shellBottom: shell.getBoundingClientRect().bottom
+    }) || 0;
+  }catch(e){ gap = 0; }
+  shell.style.bottom = gap ? (-gap) + 'px' : '';
+  shellGap = gap;
+}
+function displayInfo(){
+  let standalone = false;
+  try{ standalone = window.navigator.standalone === true || !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches); }catch(e){}
+  return window.innerWidth + '×' + window.innerHeight + ' of ' + screen.width + '×' + screen.height + (standalone ? ' · app' : ' · browser') + (shellGap ? ' · +' + shellGap + 'px fix' : '');
+}
+fitShellToScreen();
+[50, 300, 1000, 2500].forEach(ms=> setTimeout(fitShellToScreen, ms));      // iOS settles a moment after launch
+window.addEventListener('pageshow', ()=>{ fitShellToScreen(); setTimeout(fitShellToScreen, 400); });
+window.addEventListener('resize', fitShellToScreen);
+window.addEventListener('orientationchange', ()=> setTimeout(fitShellToScreen, 350));
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible'){ fitShellToScreen(); setTimeout(fitShellToScreen, 400); } });
+document.addEventListener('focusout', ()=> setTimeout(fitShellToScreen, 450));   // once the keyboard has closed
 
 function showSetupBanner(customMsg){
   const el = document.getElementById('setupBanner');
@@ -2874,24 +3011,101 @@ function openEditFoodSheet(id){
 function openFoodFormSheet(existing, prefill){
   prefill = prefill || {};
   const src = existing || prefill;
-  const html = `
-    <div class="sheet-title">${existing ? 'Edit food item' : (prefill.rebuy ? 'Buy again' : 'Add food item')}</div>
-    <label class="field-label" style="margin-top:0">Item name</label>
-    <input type="text" id="foodName" placeholder="e.g. Chicken breast" value="${src.name ? esc(src.name) : ''}">
-    <label class="field-label">Amount (optional)</label>
-    <input type="text" id="foodAmount" placeholder="e.g. 500g, 2 packs" value="${esc(src.amount || '')}">
-    <label class="field-label">Expiry date</label>
-    <div class="date-field-wrap"><input type="date" id="foodExpiry" value="${existing ? existing.expiryDate : (prefill.expiryDate || '')}"></div>
-    ${(!existing && prefill.suggestedDays) ? `<div class="hint">Suggested from last time: it lasted ${prefill.suggestedDays} days. Change it if this one is different.</div>` : ''}
-    <div class="field-error" id="foodErr"></div>
-    <button class="btn-primary" id="foodSave">${existing ? 'Save changes' : 'Add item'}</button>
-    ${existing ? `<button class="btn-text-danger" id="foodDelete">Delete item</button>` : ''}
-  `;
-  showSheet(html, (wrap)=>{
+  let nameVal = src.name || '';
+  let expiry = existing ? (existing.expiryDate || '') : (prefill.expiryDate || '');
+  let suggestedDays = existing ? null : (prefill.suggestedDays || (nameVal ? suggestShelfLifeDays(nameVal, state.foodItems) : null));
+  let sugsHidden = false, nameFocused = false;
+  const title = existing ? 'Edit food item' : (prefill.rebuy ? 'Buy again' : 'Add food item');
+  const caption = existing ? 'Edit food item' : (prefill.rebuy ? 'Buy again' : 'New food item');
+
+  function chipsHtml(){
+    const t = todayISO(), list = [];
+    if(suggestedDays) list.push({ days: suggestedDays, label: 'Like last time · ' + suggestedDays + (suggestedDays === 1 ? ' day' : ' days'), hint: true });
+    EXPIRY_PRESETS.forEach(p=>{ if(p.days !== suggestedDays) list.push({ days: p.days, label: p.label, hint: false }); });
+    return list.map(c=>`<button type="button" class="opt-chip${c.hint ? ' hint' : ''}${expiry && expiry === addDaysISO(t, c.days) ? ' active' : ''}" data-days="${c.days}">${esc(c.label)}</button>`).join('');
+  }
+  function expiryLine(){
+    if(!expiry) return { text: 'Choose how long it will last', tone: '' };
+    const d = describeExpiry(expiry);
+    return { text: d.text + ' · ' + expiryLongLabel(expiry), tone: d.tone };
+  }
+  function bodyHtml(){
+    const line = expiryLine();
+    return `
+      <div class="sheet-title sr-only">${title}</div>
+      <div class="add-head">
+        <button type="button" class="add-close" id="addClose" aria-label="Close">${F_CLOSE}</button>
+        <div class="food-caption">${caption}</div>
+        ${existing ? `<button type="button" class="add-close danger" id="foodDelete" aria-label="Delete">${F_BIN}</button>` : '<span class="add-head-spacer"></span>'}
+      </div>
+      <div class="food-hero"><input type="text" id="foodName" class="food-hero-input" autocomplete="off" enterkeyhint="next" placeholder="What did you buy?" value="${esc(nameVal)}"></div>
+      <div class="add-sugs" id="foodSuggest" style="display:none;"></div>
+      <div class="add-place">${F_BOX}<input type="text" id="foodAmount" autocomplete="off" enterkeyhint="done" placeholder="Amount (optional), e.g. 500g, 2 packs" value="${esc(src.amount || '')}"></div>
+      <div class="food-label">How long will it last?</div>
+      <div class="add-sugs food-presets" id="expiryPresets"><span id="presetChips" style="display:contents">${chipsHtml()}</span><label class="opt-chip" id="expDateChip">${F_CAL}<span id="expDateText">${expiry ? esc(shortDateLabel(expiry)) : 'Pick date'}</span><input type="date" id="foodExpiry" value="${esc(expiry)}"></label></div>
+      <div class="food-expiry-line ${line.tone}" id="expiryLine">${esc(line.text)}</div>
+      <div class="field-error" id="foodErr"></div>
+      <button type="button" class="add-save" id="foodSave">${existing ? 'Save changes' : 'Add to food list'}</button>
+    `;
+  }
+  showSheet(`<div class="add-body food-form">${bodyHtml()}</div>`, (wrap)=>{
+    const sheetEl = wrap.querySelector('.sheet');
+    const nameInput = wrap.querySelector('#foodName'), amountInput = wrap.querySelector('#foodAmount');
+    const sugBox = wrap.querySelector('#foodSuggest'), dateInput = wrap.querySelector('#foodExpiry');
+    wrap.querySelector('#addClose').onclick = ()=> closeSheet(wrap);
+
+    function refreshExpiry(){
+      wrap.querySelector('#presetChips').innerHTML = chipsHtml();
+      bindChips();
+      const line = expiryLine(), el = wrap.querySelector('#expiryLine');
+      el.textContent = line.text; el.className = 'food-expiry-line ' + line.tone;
+      wrap.querySelector('#expDateText').textContent = expiry ? shortDateLabel(expiry) : 'Pick date';
+      dateInput.value = expiry;
+      wrap.querySelector('#foodErr').textContent = '';
+    }
+    function bindChips(){
+      wrap.querySelectorAll('#presetChips .opt-chip').forEach(b=>{
+        b.onclick = ()=>{ expiry = addDaysISO(todayISO(), Number(b.getAttribute('data-days'))); refreshExpiry(); };
+      });
+    }
+    dateInput.onchange = ()=>{ expiry = dateInput.value; refreshExpiry(); };
+    bindChips();
+
+    function showSuggestions(){
+      if(sugsHidden || (existing && !nameFocused)){ sugBox.style.display = 'none'; return; }
+      const list = foodSuggestions(state.foodItems, nameInput.value, 6);
+      if(!list.length){ sugBox.style.display = 'none'; return; }
+      sugBox.innerHTML = list.map((s, i)=>`<button type="button" class="sug" data-sug="${i}">${esc(s.name)}<small>${s.days ? '~' + s.days + ' days' : esc(s.amount || '')}</small></button>`).join('');
+      sugBox.style.display = '';
+      sugBox.querySelectorAll('.sug').forEach(b=>{
+        b.onmousedown = (e)=> e.preventDefault();
+        b.onclick = ()=> pick(list[Number(b.getAttribute('data-sug'))]);
+      });
+    }
+    function pick(s){
+      nameInput.value = s.name; nameVal = s.name; sugsHidden = true;
+      if(!existing){
+        if(!amountInput.value.trim() && s.amount) amountInput.value = s.amount;
+        suggestedDays = s.days || null;
+        if(s.days) expiry = addDaysISO(todayISO(), s.days);       // same shelf life as last time
+      }
+      nameInput.blur(); showSuggestions(); refreshExpiry();
+    }
+    nameInput.onfocus = ()=>{ nameFocused = true; sugsHidden = false; sheetEl.classList.add('typing'); showSuggestions(); };
+    nameInput.oninput = ()=>{
+      nameVal = nameInput.value; sugsHidden = false;
+      if(!existing) suggestedDays = suggestShelfLifeDays(nameVal, state.foodItems);
+      showSuggestions(); refreshExpiry();
+    };
+    nameInput.onblur = ()=>{ nameFocused = false; sheetEl.classList.remove('typing'); if(existing) showSuggestions(); };
+    nameInput.onkeydown = (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); nameInput.blur(); } };
+    amountInput.onkeydown = (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); amountInput.blur(); } };
+    showSuggestions();
+
     wrap.querySelector('#foodSave').onclick = ()=>{
-      const name = wrap.querySelector('#foodName').value.trim();
-      const amount = wrap.querySelector('#foodAmount').value.trim();
-      const expiryDate = wrap.querySelector('#foodExpiry').value;
+      const name = nameInput.value.trim();
+      const amount = amountInput.value.trim();
+      const expiryDate = dateInput.value;
       if(!name){ wrap.querySelector('#foodErr').textContent = 'Enter an item name.'; return; }
       if(!expiryDate){ wrap.querySelector('#foodErr').textContent = 'Select an expiry date.'; return; }
       if(existing){
@@ -2904,9 +3118,9 @@ function openFoodFormSheet(existing, prefill){
     };
     if(existing){
       wrap.querySelector('#foodDelete').onclick = ()=>{
-        const idx = state.foodItems.findIndex(f=>f.id===existing.id);
+        const idx = state.foodItems.findIndex(f=>f.id === existing.id);
         const removed = state.foodItems[idx];
-        state.foodItems = state.foodItems.filter(f=>f.id!==existing.id);
+        state.foodItems = state.foodItems.filter(f=>f.id !== existing.id);
         saveState(); render(); closeSheet(wrap);
         showUndoToast('Food item deleted', ()=>{
           state.foodItems.splice(Math.min(idx, state.foodItems.length), 0, removed);
@@ -2914,7 +3128,7 @@ function openFoodFormSheet(existing, prefill){
         });
       };
     }
-  });
+  }, 'sheet-add');
 }
 
 function attachHomeListeners(){
@@ -3426,7 +3640,7 @@ function openTxDetailSheet(txId){
       ${t.note ? `<div style="display:flex; justify-content:space-between; padding:12px 0; font-size:12px;"><span style="color:var(--label-secondary)">${t.type==='expense' ? 'To' : 'From'}</span><span>${esc(t.note)}</span></div>` : ''}
     </div>
     <button class="btn-secondary" id="txEdit">Edit transaction</button>
-    <button class="btn-secondary" id="txRepeat">Repeat this entry…</button>
+    <button class="btn-secondary" id="txRepeat">Make recurring</button>
     <button class="btn-text-danger" id="txDelete">Delete transaction</button>
   `;
   showSheet(html, (wrap)=>{
@@ -3968,19 +4182,32 @@ function skipDue(id){
   });
 }
 
+const F_CLOSE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const F_CHEVRON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
+const F_BIN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>';
+const F_PIN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+const F_CAL = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
+const F_CARD = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>';
+const F_BACKSPACE = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M17 9.5l-5 5M12 9.5l5 5"/></svg>';
+const F_REPEAT = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>';
+const F_BOX = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>';
+
 function openRecurringSheet(){
-  const list = [...(state.recurring || [])].sort((a, b)=> a.nextDue < b.nextDue ? -1 : a.nextDue > b.nextDue ? 1 : 0);
-  const rows = list.map(r=>{
+  const today = todayISO();
+  const sorted = [...(state.recurring || [])].sort((a, b)=> a.nextDue < b.nextDue ? -1 : a.nextDue > b.nextDue ? 1 : 0);
+  const rowHtml = (r)=>{
     const info = catInfo(r.type, r.category);
-    return `<div class="rec-row" data-rec="${r.id}">
-      <span class="rec-icon">${info.icon}</span>
-      <div class="rec-mid"><div class="rec-title">${esc(r.note || info.label)}</div><div class="rec-sub">${esc(describeRepeat(r))} · next ${esc(dateLabel(r.nextDue))}</div></div>
-      <span class="rec-amt ${r.type}">${r.type==='income' ? '+' : '−'}${fmt(r.amount)}</span>
-    </div>`;
-  }).join('');
+    return `<div class="row-wrap" data-rec="${r.id}"><div class="tx-row">
+      ${txIconHtml(r.type, r.category)}
+      <div class="tx-mid"><div class="tx-cat">${esc(r.note || info.label)}</div><div class="tx-sub">${esc(describeRepeat(r))} · next ${esc(/^(Today|Tomorrow|Yesterday)$/.test(dateLabel(r.nextDue)) ? dateLabel(r.nextDue).toLowerCase() : dateLabel(r.nextDue))}</div></div>
+      <div class="tx-amt ${r.type}">${r.type === 'income' ? '+' : '−'}${fmt(r.amount)}</div>
+    </div></div>`;
+  };
+  const section = (label, list)=> list.length ? `<div class="tx-day"><div class="tx-day-head"><span class="d">${label}</span><span class="t">${list.length}</span></div><div class="tx-group">${list.map(rowHtml).join('')}</div></div>` : '';
+  const due = sorted.filter(r=>r.nextDue <= today), later = sorted.filter(r=>r.nextDue > today);
   const html = `
     ${sheetNavHtml('Recurring', true)}
-    ${list.length ? `<div class="cat-manage-list">${rows}</div>` : `<div class="empty-state">No recurring entries yet. Add things that repeat, like utilities, interest, or the water galon.</div>`}
+    ${sorted.length ? `<div class="rec-list">${section('Due now', due)}${section(due.length ? 'Coming up' : 'Scheduled', later)}</div>` : `<div class="empty-state">No recurring entries yet. Add things that repeat, like utilities, interest, or the water galon.</div>`}
     <button class="btn-secondary" id="addRecBtn">+ Add recurring entry</button>
     <div class="hint">When one is due it shows up on the Finance page. Tap it to confirm (or change the amount). Nothing is ever added automatically.</div>
   `;
@@ -3996,6 +4223,38 @@ function openRecurringSheet(){
   });
 }
 
+// "How often?" - a small picker, so the main form stays simple
+function openRepeatPickerSheet(cur, onPick){
+  let repeat = cur.repeat === 'days' ? 'days' : 'monthly', day = String(cur.day || 1), every = String(cur.every || 7);
+  function bodyHtml(){
+    return `
+      <div class="segmented" id="rpSeg" style="margin-top:0">
+        <button type="button" data-val="monthly" class="${repeat === 'monthly' ? 'active' : ''}">Every month</button>
+        <button type="button" data-val="days" class="${repeat === 'days' ? 'active' : ''}">Every few days</button>
+      </div>
+      ${repeat === 'monthly'
+        ? `<label class="field-label">Day of the month</label><input type="number" id="rpDay" min="1" max="31" inputmode="numeric" value="${esc(day)}"><div class="hint">In shorter months it's due on the last day.</div>`
+        : `<label class="field-label">Every how many days?</label><input type="number" id="rpEvery" min="1" max="365" inputmode="numeric" value="${esc(every)}">`}
+      <div class="field-error" id="rpErr"></div>
+      <button class="btn-primary" id="rpDone">Done</button>`;
+  }
+  showSheet(`<div class="sheet-title">Repeats</div><div id="rpBody">${bodyHtml()}</div>`, (w)=>{
+    function capture(){ const d = w.querySelector('#rpDay'), e = w.querySelector('#rpEvery'); if(d) day = d.value; if(e) every = e.value; }
+    function bind(){
+      w.querySelectorAll('#rpSeg button').forEach(b=>{ b.onclick = ()=>{ capture(); repeat = b.getAttribute('data-val'); w.querySelector('#rpBody').innerHTML = bodyHtml(); bind(); }; });
+      w.querySelector('#rpDone').onclick = ()=>{
+        capture();
+        const d = parseInt(day, 10), e = parseInt(every, 10), err = (m)=>{ w.querySelector('#rpErr').textContent = m; };
+        if(repeat === 'monthly' && !(d >= 1 && d <= 31)) return err('Enter a day between 1 and 31.');
+        if(repeat === 'days' && !(e >= 1 && e <= 365)) return err('Enter a number of days between 1 and 365.');
+        onPick({ repeat, day: (d >= 1 && d <= 31) ? d : 1, every: (e >= 1) ? e : 1 });
+        closeSheet(w);
+      };
+    }
+    bind();
+  });
+}
+
 function openRecurringFormSheet(existing, seed, backFn){
   const base = existing || seed || {};
   const hasBase = !!(existing || seed);
@@ -4006,137 +4265,165 @@ function openRecurringFormSheet(existing, seed, backFn){
   let accountId = validAcc(base.accountId) ? base.accountId : (state.accounts.length ? state.accounts[0].id : null);
   let skipAccount = hasBase ? !validAcc(base.accountId) : (type === 'expense' ? true : state.accounts.length === 0);
   let repeat = base.repeat || 'monthly';
-  let amountVal = base.amount != null ? String(base.amount) : '';
+  let day = Number(base.day) || (base.nextDue ? Number(String(base.nextDue).slice(8, 10)) : new Date().getDate());
+  let every = Number(base.every) || 7;
+  const origAmount = (base.amount != null && base.amount !== '') ? Number(base.amount) : null;
+  let digits = (origAmount && origAmount > 0) ? String(Math.round(origAmount)) : '';
+  let touched = false;
   let noteVal = base.note || '';
-  let dayVal = String(base.day || (base.nextDue ? Number(String(base.nextDue).slice(8, 10)) : new Date().getDate()));
-  let everyVal = String(base.every || 7);
   let dueEdited = !!base.nextDue;
-  let dueVal = base.nextDue || firstDueDate(repeat, dayVal, everyVal);
+  let dueVal = base.nextDue || firstDueDate(repeat, day, every);
+  let sugsHidden = false, noteFocused = false;
+  const amountValue = ()=> touched ? Number(digits || 0) : (origAmount != null ? origAmount : Number(digits || 0));
+  const KEYS = ['1','2','3','4','5','6','7','8','9','000','0','back'];
+  const sizeClass = (shown)=> shown.length > 12 ? ' sm' : shown.length > 9 ? ' md' : '';
 
   function bodyHtml(){
-    const cats = allCats(type);
+    const cats = categoriesByUsage(state.transactions, type, allCats(type));
+    const acc = state.accounts.find(a=>a.id === accountId);
+    const accLabel = (skipAccount || !acc) ? 'Account' : acc.name;
+    const shown = formatDigits(digits, CURRENCY_LOCALE);
     return `
-      <label class="field-label" style="margin-top:0">Type</label>
-      <div class="segmented" id="recTypeSeg">
-        <button data-val="expense" class="${type==='expense'?'active':''}">Expense</button>
-        <button data-val="income" class="${type==='income'?'active':''}">Income</button>
+      <div class="sheet-title sr-only">${existing ? 'Edit recurring' : 'New recurring entry'}</div>
+      <div class="add-head">
+        ${backFn ? `<button type="button" class="add-close" id="sheetBackBtn" aria-label="Back">${F_CHEVRON}</button>` : `<button type="button" class="add-close" id="addClose" aria-label="Close">${F_CLOSE}</button>`}
+        <div class="segmented" id="recTypeSeg">
+          <button type="button" data-val="expense" class="${type === 'expense' ? 'active' : ''}">Expense</button>
+          <button type="button" data-val="income" class="${type === 'income' ? 'active' : ''}">Income</button>
+        </div>
+        ${existing ? `<button type="button" class="add-close danger" id="recDelete" aria-label="Delete">${F_BIN}</button>` : '<span class="add-head-spacer"></span>'}
       </div>
-      <label class="field-label">Amount</label>
-      <div class="amount-input-wrap"><span>${state.settings.currency}</span><input type="number" id="recAmount" placeholder="0" inputmode="decimal" value="${esc(amountVal)}"></div>
-      <label class="field-label">Category</label>
-      <div class="cat-grid" id="recCatGrid">
-        ${cats.map(c=>`<div class="cat-chip ${c.id===category?'active':''}" data-cat="${c.id}"><div class="ic">${c.icon}</div><div class="lb">${c.label}</div></div>`).join('')}
+      <div class="add-amount">
+        <div class="add-caption">${existing ? 'Editing recurring entry' : 'New recurring entry'}</div>
+        <div class="amount-line${sizeClass(shown)}" id="amtLine"><span class="cur">${esc(state.settings.currency)}</span><span class="val num ${digits ? '' : 'zero'}" id="amtVal">${shown}</span><span class="caret"></span></div>
       </div>
-      <label class="field-label">Added by</label>
-      <div class="segmented" id="recPersonSeg">
-        <button data-val="p1" class="${person==='p1'?'active':''}">${esc(state.settings.person1)}</button>
-        <button data-val="p2" class="${person==='p2'?'active':''}">${esc(state.settings.person2)}</button>
+      <div class="add-place">${F_PIN}<input type="text" id="recNote" autocomplete="off" enterkeyhint="done" placeholder="${type === 'expense' ? 'Name or place (optional)' : 'From (optional)'}" value="${esc(noteVal)}"></div>
+      <div class="add-sugs" id="noteSuggest" style="display:none;"></div>
+      <div class="add-tiles" id="recCatGrid">
+        ${cats.map(c=>`<button type="button" class="cat-chip ${c.id === category ? 'active' : ''}" data-cat="${esc(c.id)}"><span class="sq" style="--c:${catColor(type, c.id)}">${c.icon}</span><span class="lb">${esc(c.label)}</span></button>`).join('')}
       </div>
-      <label class="field-label">${type==='expense' ? 'From account' : 'To account'}</label>
-      <div class="skip-toggle-row">
-        <span>${type==='expense' ? "Don't deduct from any account" : "Don't add to any account"}</span>
-        <button class="switch ${skipAccount?'on':''}" id="recSkipToggle" role="switch" aria-checked="${skipAccount}"><span class="knob"></span></button>
+      <div class="add-chips wrap">
+        <button type="button" class="achip" id="recPersonChip"><span class="dot ${person}">${esc(personInitial(person))}</span><span id="recPersonText">${esc(person === 'p1' ? state.settings.person1 : state.settings.person2)}</span></button>
+        ${state.accounts.length ? `<button type="button" class="achip ${skipAccount ? 'muted' : ''}" id="recAccChip">${F_CARD}<span id="recAccText">${esc(accLabel)}</span></button>` : ''}
+        <button type="button" class="achip" id="repeatChip">${F_REPEAT}<span id="repeatChipText">${esc(repeatChipText(repeat, day, every))}</span></button>
+        <label class="achip" id="dueChip">${F_CAL}<span id="dueChipText">Next · ${esc(shortDateLabel(dueVal))}</span><input type="date" id="recDue" value="${esc(dueVal)}"></label>
       </div>
-      ${state.accounts.length === 0 ? '' : `
-      <div class="account-pick" id="recAccountPick" style="${skipAccount ? 'display:none;' : ''}">
-        ${state.accounts.map(a=>`<div class="account-pick-item ${a.id===accountId?'active':''}" data-acc="${a.id}"><span class="n">${esc(a.name)}</span><span class="b">${fmt(a.balance)}</span></div>`).join('')}
-      </div>`}
-      <label class="field-label">${type==='expense' ? 'To (optional)' : 'From (optional)'}</label>
-      <input type="text" id="recNote" placeholder="${type==='expense' ? 'e.g. Electricity, Galon' : 'e.g. Interest'}" value="${esc(noteVal)}">
-      <label class="field-label">Repeats</label>
-      <div class="segmented" id="recRepeatSeg">
-        <button data-val="monthly" class="${repeat==='monthly'?'active':''}">Every month</button>
-        <button data-val="days" class="${repeat==='days'?'active':''}">Every few days</button>
-      </div>
-      ${repeat === 'monthly'
-        ? `<label class="field-label">Day of the month</label><input type="number" id="recDay" min="1" max="31" inputmode="numeric" value="${esc(dayVal)}"><div class="hint">In shorter months it's due on the last day.</div>`
-        : `<label class="field-label">Every how many days?</label><input type="number" id="recEvery" min="1" max="365" inputmode="numeric" value="${esc(everyVal)}">`}
-      <label class="field-label">Next due</label>
-      <div class="date-field-wrap"><input type="date" id="recDue" value="${esc(dueVal)}"></div>
       <div class="field-error" id="recErr"></div>
-      <button class="btn-primary" id="recSave">${existing ? 'Save changes' : 'Add recurring entry'}</button>
-      ${existing ? `<button class="btn-text-danger" id="recDelete">Delete recurring entry</button>` : ''}
+      <div class="add-keypad" id="keypad">
+        ${KEYS.map(k=>`<button type="button" class="add-key ${k === '000' ? 'small' : ''}" data-k="${k}" ${k === 'back' ? 'aria-label="Delete"' : ''}>${k === 'back' ? F_BACKSPACE : k}</button>`).join('')}
+      </div>
+      <button type="button" class="add-save" id="recSave" ${amountValue() > 0 ? '' : 'disabled'}>${existing ? 'Save changes' : 'Add recurring entry'}</button>
     `;
   }
 
-  function capture(wrap){
-    const val = (sel)=>{ const el = wrap.querySelector(sel); return el ? el.value : null; };
-    const a = val('#recAmount'); if(a !== null) amountVal = a;
-    const n = val('#recNote'); if(n !== null) noteVal = n;
-    const d = val('#recDay'); if(d !== null) dayVal = d;
-    const e = val('#recEvery'); if(e !== null) everyVal = e;
-    const du = val('#recDue'); if(du !== null) dueVal = du;
-  }
-  function redraw(wrap){ capture(wrap); wrap.querySelector('#recBody').innerHTML = bodyHtml(); bind(wrap); }
-  function recomputeDue(wrap){
-    if(dueEdited) return;
-    dueVal = firstDueDate(repeat, dayVal, everyVal);
-    const el = wrap.querySelector('#recDue'); if(el) el.value = dueVal;
-  }
+  showSheet(`<div id="recBody" class="add-body">${bodyHtml()}</div>`, (wrap)=>{ bind(wrap); }, 'sheet-add');
 
-  const title = existing ? 'Edit recurring' : 'New recurring entry';
-  showSheet(`${sheetNavHtml(title, !!backFn)}<div id="recBody">${bodyHtml()}</div>`, (wrap)=>{
-    if(backFn) wireSheetBack(wrap, backFn);
-    bind(wrap);
-  });
+  function drawAmount(wrap){
+    const shown = formatDigits(digits, CURRENCY_LOCALE);
+    const v = wrap.querySelector('#amtVal');
+    v.textContent = shown; v.classList.toggle('zero', !digits);
+    wrap.querySelector('#amtLine').className = 'amount-line' + sizeClass(shown);
+    wrap.querySelector('#recSave').disabled = !(amountValue() > 0);
+    wrap.querySelector('#recErr').textContent = '';
+  }
+  function press(wrap, k){
+    const next = keypadPress(digits, k, 12);
+    if(next === digits) return;
+    touched = true; digits = next; drawAmount(wrap);
+    try{ if(navigator.vibrate) navigator.vibrate(8); }catch(e){}
+  }
 
   function bind(wrap){
+    const sheetEl = wrap.querySelector('.sheet');
+    const noteInput = wrap.querySelector('#recNote');
+    const sugBox = wrap.querySelector('#noteSuggest');
+    if(backFn) wireSheetBack(wrap, backFn);
+    const closeBtn = wrap.querySelector('#addClose'); if(closeBtn) closeBtn.onclick = ()=> closeSheet(wrap);
+
+    function showSuggestions(){
+      if(sugsHidden || (existing && !noteFocused)){ sugBox.style.display = 'none'; return; }
+      const list = noteSuggestions(state.transactions, type, noteInput.value, allCats(type).map(c=>c.id), 5);
+      if(!list.length){ sugBox.style.display = 'none'; return; }
+      sugBox.innerHTML = list.map((s, i)=>`<button type="button" class="sug" data-sug="${i}">${esc(s.note)}<small>${esc(fmt(s.amount))}</small></button>`).join('');
+      sugBox.style.display = '';
+      sugBox.querySelectorAll('.sug').forEach(b=>{
+        b.onmousedown = (e)=> e.preventDefault();
+        b.onclick = ()=> pick(list[Number(b.getAttribute('data-sug'))]);
+      });
+    }
+    function pick(s){
+      noteInput.value = s.note; noteVal = s.note; sugsHidden = true;
+      if(!existing){
+        if(s.category){ category = s.category; wrap.querySelectorAll('#recCatGrid .cat-chip').forEach(c=>c.classList.toggle('active', c.getAttribute('data-cat') === category)); }
+        if(!(amountValue() > 0)){ digits = String(Math.round(s.amount)); touched = true; drawAmount(wrap); }
+      }
+      noteInput.blur(); showSuggestions();
+    }
+    noteInput.onfocus = ()=>{ noteFocused = true; sugsHidden = false; sheetEl.classList.add('typing'); showSuggestions(); };
+    noteInput.oninput = ()=>{ noteVal = noteInput.value; sugsHidden = false; showSuggestions(); };
+    noteInput.onblur = ()=>{ noteFocused = false; sheetEl.classList.remove('typing'); if(existing) showSuggestions(); };
+    noteInput.onkeydown = (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); noteInput.blur(); } };
+    showSuggestions();
+
     wrap.querySelectorAll('#recTypeSeg button').forEach(b=>{
       b.onclick = ()=>{
-        capture(wrap);
-        type = b.getAttribute('data-val');
+        const next = b.getAttribute('data-val');
+        if(next === type) return;
+        noteVal = noteInput.value; dueVal = wrap.querySelector('#recDue').value || dueVal;
+        type = next;
         category = mostUsedCategory(state.transactions, type, allCats(type)) || allCats(type)[0].id;
         skipAccount = type === 'expense' ? true : state.accounts.length === 0;
-        redraw(wrap);
+        sugsHidden = false;
+        wrap.querySelector('#recBody').innerHTML = bodyHtml();
+        bind(wrap);
       };
     });
     wrap.querySelectorAll('#recCatGrid .cat-chip').forEach(chip=>{
-      chip.onclick = ()=>{ category = chip.getAttribute('data-cat'); wrap.querySelectorAll('#recCatGrid .cat-chip').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); };
+      chip.onclick = ()=>{ category = chip.getAttribute('data-cat'); wrap.querySelectorAll('#recCatGrid .cat-chip').forEach(c=>c.classList.toggle('active', c === chip)); };
     });
-    wrap.querySelectorAll('#recPersonSeg button').forEach(b=>{
-      b.onclick = ()=>{ person = b.getAttribute('data-val'); wrap.querySelectorAll('#recPersonSeg button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); };
-    });
-    const skipBtn = wrap.querySelector('#recSkipToggle');
-    if(skipBtn){
-      skipBtn.onclick = ()=>{
-        skipAccount = !skipAccount;
-        skipBtn.classList.toggle('on', skipAccount);
-        skipBtn.setAttribute('aria-checked', skipAccount);
-        const pick = wrap.querySelector('#recAccountPick');
-        if(pick) pick.style.display = skipAccount ? 'none' : '';
-      };
+    const strip = wrap.querySelector('#recCatGrid'), on = wrap.querySelector('#recCatGrid .cat-chip.active');
+    if(strip && on) strip.scrollLeft = Math.max(0, on.offsetLeft - strip.clientWidth / 2 + on.offsetWidth / 2);
+
+    wrap.querySelector('#recPersonChip').onclick = ()=>{
+      person = person === 'p1' ? 'p2' : 'p1';
+      const dot = wrap.querySelector('#recPersonChip .dot');
+      dot.className = 'dot ' + person; dot.textContent = personInitial(person);
+      wrap.querySelector('#recPersonText').textContent = person === 'p1' ? state.settings.person1 : state.settings.person2;
+    };
+    const accChip = wrap.querySelector('#recAccChip');
+    if(accChip){
+      accChip.onclick = ()=> openAccountPickerSheet(accountId, skipAccount, type, (id)=>{
+        if(id === '__none__'){ skipAccount = true; } else { skipAccount = false; accountId = id; }
+        const acc = state.accounts.find(a=>a.id === accountId);
+        wrap.querySelector('#recAccText').textContent = (skipAccount || !acc) ? 'Account' : acc.name;
+        accChip.classList.toggle('muted', skipAccount);
+      });
     }
-    wrap.querySelectorAll('#recAccountPick .account-pick-item').forEach(item=>{
-      item.onclick = ()=>{ accountId = item.getAttribute('data-acc'); wrap.querySelectorAll('#recAccountPick .account-pick-item').forEach(x=>x.classList.remove('active')); item.classList.add('active'); };
+    const dueInput = wrap.querySelector('#recDue');
+    dueInput.onchange = ()=>{ dueVal = dueInput.value || dueVal; dueEdited = true; wrap.querySelector('#dueChipText').textContent = 'Next · ' + shortDateLabel(dueVal); };
+    wrap.querySelector('#repeatChip').onclick = ()=> openRepeatPickerSheet({ repeat, day, every }, (v)=>{
+      repeat = v.repeat; day = v.day; every = v.every;
+      wrap.querySelector('#repeatChipText').textContent = repeatChipText(repeat, day, every);
+      if(!dueEdited){            // "Next" follows the schedule until you choose a date yourself
+        dueVal = firstDueDate(repeat, day, every);
+        dueInput.value = dueVal; wrap.querySelector('#dueChipText').textContent = 'Next · ' + shortDateLabel(dueVal);
+      }
     });
-    wrap.querySelectorAll('#recRepeatSeg button').forEach(b=>{
-      b.onclick = ()=>{ capture(wrap); repeat = b.getAttribute('data-val'); recomputeDue(wrap); redraw(wrap); };
-    });
-    const dayEl = wrap.querySelector('#recDay');
-    if(dayEl) dayEl.oninput = ()=>{ dayVal = dayEl.value; recomputeDue(wrap); };
-    const everyEl = wrap.querySelector('#recEvery');
-    if(everyEl) everyEl.oninput = ()=>{ everyVal = everyEl.value; recomputeDue(wrap); };
-    const dueEl = wrap.querySelector('#recDue');
-    if(dueEl) dueEl.onchange = ()=>{ dueVal = dueEl.value; dueEdited = true; };
+
+    wrap.querySelectorAll('#keypad .add-key').forEach(b=>{ b.onclick = ()=> press(wrap, b.getAttribute('data-k')); });
 
     wrap.querySelector('#recSave').onclick = ()=>{
-      capture(wrap);
       const err = (m)=>{ wrap.querySelector('#recErr').textContent = m; };
-      const amount = parseFloat(amountVal || '0');
-      const day = parseInt(dayVal, 10), every = parseInt(everyVal, 10);
-      if(!amount || amount <= 0) return err('Enter an amount greater than 0.');
-      if(repeat === 'monthly' && !(day >= 1 && day <= 31)) return err('Enter a day between 1 and 31.');
-      if(repeat === 'days' && !(every >= 1 && every <= 365)) return err('Enter a number of days between 1 and 365.');
-      if(!dueVal || !/^\d{4}-\d{2}-\d{2}$/.test(dueVal)) return err('Select the next due date.');
+      const amount = amountValue();
+      if(!(amount > 0)) return err('Enter an amount greater than 0.');
+      const due = dueInput.value || dueVal;
+      if(!due || !/^\d{4}-\d{2}-\d{2}$/.test(due)) return err('Select the next due date.');
       let acc = null;
       if(!skipAccount && state.accounts.length){
         acc = state.accounts.find(a=>a.id === accountId);
         if(!acc) return err('Select an account.');
       }
-      const item = {
-        type, amount, category, person, accountId: acc ? acc.id : null, note: noteVal.trim(),
-        repeat, day: (day >= 1 && day <= 31) ? day : 1, every: (every >= 1) ? every : 1, nextDue: dueVal
-      };
+      const item = { type, amount, category, person, accountId: acc ? acc.id : null, note: noteInput.value.trim(), repeat, day: (day >= 1 && day <= 31) ? day : 1, every: (every >= 1) ? every : 1, nextDue: due };
       if(existing){ Object.assign(existing, item); }
       else { state.recurring = state.recurring || []; state.recurring.push(Object.assign({ id: uid(), createdAt: Date.now() }, item)); }
       saveState(); render(); closeSheet(wrap);
