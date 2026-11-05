@@ -946,6 +946,25 @@
   .bc-pagetabs + .bc-card{ margin-top:0; }
   .bc-card > .bc-stat:first-child, .bc-card > .bc-hero:first-child{ margin-top:0; }
   .amount-line .val.zero{ color:rgba(0,0,0,0.42); opacity:1; }
+
+  /* ---- entry form: a slimmer top, and the keypad takes all the spare room ---- */
+  .add-amount{ min-height:112px; padding:12px 20px 14px; }
+  .add-place{ margin-top:8px; height:48px; }
+  .add-sugs{ margin-top:6px; } .add-tiles{ padding:8px 0 0; } .add-chips{ padding:8px 0 0; }
+  .add-keypad{ flex:1 1 auto; min-height:200px; grid-template-rows:repeat(4, minmax(46px, 1fr)); padding-top:14px; }
+  .add-key{ height:auto; min-height:46px; font-size:30px; }
+  .add-save{ margin-top:10px; flex-shrink:0; }
+  @media (max-height: 720px){ .add-amount{ min-height:96px; } .add-keypad{ min-height:184px; } }
+
+  /* ---- Monthly recap tucks under the Expenses card ---- */
+  .bc-card.c-yellow{ z-index:2; }
+  #openRecapBtn{ margin-top:-32px; padding:50px 20px 16px; z-index:1; }
+
+  /* ---- All activity: smaller day totals, like on Home ---- */
+  #historyListWrap .tx-day-head .t{ font-size:13px; opacity:0.85; }
+  .add-keypad{ max-height:280px; margin-top:auto; }
+  @media (max-height: 780px){ .add-amount{ min-height:96px; } .add-keypad{ min-height:184px; margin-top:10px; } }
+  #openRecapBtn{ border-radius:0 0 30px 30px; }
 </style>
 </head>
 <body>
@@ -1485,7 +1504,7 @@ async function restoreFromBackup(data){
 // ===== SYNC CORE END =====
 
 // ===== BACKUP CORE START =====
-const APP_VERSION = '28';
+const APP_VERSION = '30';
 const BACKUP_APP_ID = '1705-finance';
 const LAST_BACKUP_KEY = 'last-backup-at';
 const BACKUP_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -3086,7 +3105,7 @@ function renderFoodView(){
   const group = (color, label, list)=> list.length ? `<div class="bc-card ${color}"><div class="bc-head"><span class="bc-pill static">${label}</span><span class="bc-ttl" style="font-size:15px">${list.length}</span></div><div style="margin-top:6px">${list.map(frow).join('')}</div></div>` : '';
   let stat;
   if(filter === 'used'){
-    stat = `<div class="bc-stat"><div class="bc-hero" style="font-size:96px">${used.length}</div><div class="bc-ttl">items<br>used</div></div><div class="bc-sub" style="margin-top:12px; font-size:14px">${used.length ? 'Tap Buy again to restock' : 'Nothing marked as used yet.'}</div>`;
+    stat = `<div class="bc-stat"><div class="bc-hero" style="font-size:96px">${used.length}</div><div class="bc-ttl">items<br>used</div></div>${used.length ? '' : '<div class="bc-sub" style="margin-top:12px; font-size:14px">Nothing marked as used yet.</div>'}`;
   } else if(attention.length > 0){
     const soon = attention.length - expiredN;
     stat = `<div class="bc-stat"><div class="bc-hero" style="font-size:96px">${attention.length}</div><div class="bc-ttl">item${attention.length === 1 ? '' : 's'} need${attention.length === 1 ? 's' : ''}<br>attention</div></div><div class="bc-sub" style="margin-top:12px; font-size:14px">${[expiredN ? expiredN + ' expired' : '', soon ? soon + ' expire within 3 days' : ''].filter(Boolean).join(', ')}</div>`;
